@@ -1,0 +1,15 @@
+User-agent: *
+Disallow: /admin/
+Disallow: /login/
+Disallow: /register/
+Disallow: /checkout/
+Disallow: /cart/
+Disallow: /scripts/
+Disallow: /cgi-bin/
+Disallow: /tmp/
+
+# Allow everything else
+Allow: /
+
+# Sitemap location
+Sitemap: https://www.houzzhunt.com/sitemap.xml

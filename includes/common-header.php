@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+
+
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>
+        <?php echo isset($title) ? htmlspecialchars($title) : 'houzzhunt | Buy, Sell & Invest in Dubai Real Estate'; ?>
+    </title>
+    <?php echo $meta_tags; ?>
+    <?php $current_url = "https://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+    $canonical_url = str_replace("https://houzzhunt.com", "https://www.houzzhunt.com", $current_url); ?>
+
+    <!-- Canonical Tag -->
+    <link rel="canonical" href="<?php echo $canonical_url; ?>">
+
+
+    <link rel="shortcut icon" href="assets/images/logo/HH-logo.png" type="image/x-icon">
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/country-select-js@2.0.1/build/css/countrySelect.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+
+    <link rel="stylesheet" href="assets/vendors/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="assets/vendors/slick/slick.css">
+    <link rel="stylesheet" href="assets/vendors/animation/animate.min.css">
+    <link rel="stylesheet" href="assets/vendors/font-awesome/css/all.min.css">
+    <link rel="stylesheet" href="assets/vendors/youtube-popup/youtube-popup.css">
+
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <link rel="stylesheet" href="assets/css/custom.css">
+
+    <!-- Slick Carousel CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick-theme.css" />
+
+    <!-- Google Tag Manager -->
+    <script>
+        (function(w, d, s, l, i) {
+            w[l] = w[l] || [];
+            w[l].push({
+                'gtm.start': new Date().getTime(),
+                event: 'gtm.js'
+            });
+            var f = d.getElementsByTagName(s)[0],
+                j = d.createElement(s),
+                dl = l != 'dataLayer' ? '&l=' + l : '';
+            j.async = true;
+            j.src =
+                'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
+            f.parentNode.insertBefore(j, f);
+        })(window, document, 'script', 'dataLayer', 'GTM-5J236XFD');
+    </script>
+    <!-- End Google Tag Manager -->
+</head>
+
+
+<body class="custom-cursor">
+
+    <!-- Preloader Start -->
+    <div id="preloader">
+        <img src="assets/images/logo/preloader.gif" alt="houzzhunt loader">
+    </div> 
+    <!-- Preloader End -->
+
+    <!-- <elevenlabs-convai agent-id="agent_3301k15cbk5jfxsr5dp18e65e5kd"></elevenlabs-convai>
+    <script src="https://unpkg.com/@elevenlabs/convai-widget-embed" async type="text/javascript"></script> -->
+
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5J236XFD" height="0" width="0"
+            style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+
+    <!-- Popup Top Bar -->
+    <!-- <div id="popupBarWrapper">
+        <div class="top-bar">
+            The Allsopp & Allsopp Dubai Property Q@ 2025 Market Snapshot is now available ·
+            <a href="https://www.reliantsurveyors.com/q2-residential-report" target="_blank">Read the report ↗</a>
+        </div>
+    </div>
+    <script>
+        window.addEventListener('load', function () {
+            const popupBar = document.getElementById('popupBarWrapper');
+            const navbar = document.querySelector('nav.navbar.navbar-expand-lg.navbar-custom');
+
+            // ⏳ Wait 3 seconds before showing popup
+            setTimeout(() => {
+                popupBar.classList.add('active');
+                navbar.style.top = '35px';
+
+                // ⏱ After 10 more seconds, hide popup
+                setTimeout(() => {
+                    popupBar.classList.remove('active');
+                    popupBar.classList.add('hide');
+                    navbar.style.top = '0';
+                }, 10000); // 10 sec after popup show
+            }, 3000); // 3 sec after page load
+        });
+    </script> -->
+
+
+
+
+    <!-- Popup Overlay -->
+    <div class="popup-overlay" id="popupForm">
+        <div class="popup-content">
+            <div class="popup-image"></div>
+            <div class="popup-form">
+                <div class="popup-close" onclick="closePopup()">X</div>
+                <h4 class="heading-title"><span>Register Your Interest</span></h4>
+                <p style="font-size: 15px !important; margin-bottom: 10px;">
+                    Unlock expert advice, exclusive listings & investment insights.
+                </p>
+
+                <form method="POST" class="appointment-form">
+                    <div class="form-group">
+                        <label for="name">Enter Name</label>
+                        <input type="text" name="name" id="name" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Enter Email</label>
+                        <input type="email" name="email" id="email" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="country">Select Country</label>
+                        <input type="text" name="country" id="country" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" name="phone" id="phone" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="gradient-btn btn-green-glossy w-100 mt-3 text-center">
+                            Submit Enquiry
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+
+
+    <!-- Career Form -->
+    <div class="popup-overlay" id="popupFormCareer">
+        <div class="popup-content">
+            <div class="popup-image popup-image1"></div>
+            <div class="popup-form">
+                <div class="popup-close" onclick="closePopup1()">×</div>
+                <h4 class="heading-title"><span>Submit your CV</span></h4>
+
+                <form method="POST" id="leadFormone" enctype="multipart/form-data">
+                    <div class="form-group">
+                        <label>Enter Name</label>
+                        <input type="text" name="name" id="nameone" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" name="phone" id="mobile" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Enter Email</label>
+                        <input type="email" name="email" id="emailone" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>City</label>
+                        <input type="text" name="city" id="city" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Attach CV</label>
+                        <input type="file" name="cv" id="cv" class="form-control" accept=".pdf,.doc,.docx" required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="gradient-btn btn-green-glossy w-100 mt-3 text-center">
+                            Submit Enquiry
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>

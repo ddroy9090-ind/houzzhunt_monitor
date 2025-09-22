@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Houzzhunt Maps</title>
+  <link rel="shortcut icon" href="assets/images/logo/favicon.png" type="image/x-icon">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Hind+Madurai:wght@300;400;500;600;700&family=Lora:ital,wght@0,400..700;1,400..700&family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+    body {
+      margin: 0;
+      font-size: 16px !important;
+      font-family: "Hind Madurai", sans-serif !important;
+      line-height: 1.4 !important;
+    }
+
+    .heading-title>span {
+      color: var(--uniqo-primary);
+      font-family: "Lora", serif !important;
+      font-style: italic;
+      background: linear-gradient(97.08deg, #004a44 0%, #edbb68 55.06%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-fill-color: transparent;
+      font-weight: 300;
+    }
+
+    #map {
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      width: 100%;
+    }
+
+    .sidebar {
+      position: absolute;
+      z-index: 1;
+      width: 360px;
+      height: 100%;
+      overflow-y: auto;
+      background: #ffffff;
+      color: white;
+      padding: 20px;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+      padding-bottom: 0;
+    }
+
+    .area-card {
+      background: #ffff;
+      margin: 10px 0;
+      border-radius: 10px;
+      padding: 15px;
+      transition: background 0.3s;
+      cursor: pointer;
+      color: #555252;
+      border: 1px #d8d8d8 solid;
+      font-weight: 400;
+      font-family: "Hind Madurai", sans-serif !important;
+      font-size: 16px;
+    }
+
+    .area-card strong {
+      font-weight: 500;
+      color: #111;
+    }
+
+    .area-card small {
+      font-size: 16px !important;
+      display: inline-block;
+      margin: 2px 0;
+    }
+
+    /* .area-card:hover {
+      background: #077b71;
+    } */
+
+    .tag {
+      background: #004a44;
+      color: white;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      margin-left: 10px;
+      float: right;
+    }
+
+    input#searchInput {
+      width: 92%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+
+    input#searchInput:focus {
+      outline: none;
+      border: 1px solid #ccc;
+    }
+
+    .filters {
+      margin: 10px 0;
+    }
+
+    .filter-btn {
+      background: #004a44;
+      color: white;
+      border: none;
+      padding: 6px 16px;
+      margin-right: 5px;
+      margin-bottom: 5px;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .filter-btn.active {
+      background: #edbb68;
+    }
+
+
+    /* ---Newly Css Added------- */
+    .logo-center {
+      display: flex;
+      width: 100%;
+      align-items: baseline;
+      gap: 30px;
+    }
+
+    .logo-center .home {
+      width: 30px;
+    }
+
+    img.logo {
+      width: 210px;
+      margin-bottom: 15px;
+      position: relative;
+      top: 15px;
+    }
+
+    /* Thin Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+      /* For horizontal scrollbar */
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #f1f1f1;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background-color: #edbb68;
+      border-radius: 10px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #edbb68;
+    }
+
+    @media(max-width: 768px) {
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+      }
+
+      #map {
+        height: 60vh;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sidebar">
+    <div class="logo-center">
+      <a href="index.php">
+        <img src="assets/home.png" alt="" class="home">
+      </a>
+      <img src="assets/images/logo/green-logo.svg" alt="HouzzHunt Logo" class="logo" />
+    </div>
+    <h2 class="heading-title"><span class="whiteYellow">Explore Dubai with HouzzHunt</span></h2>
+    <p style="color: #0f635c;">Discover handpicked neighborhoods curated for refined lifestyles from waterfront marvels
+      to skyline icons</p>
+    <input type="text" id="searchInput" placeholder="Search areas..." oninput="searchAreas(this.value)">
+    <div class="filters">
+      <button class="filter-btn active" onclick="filterBy('All', this)">All</button>
+      <button class="filter-btn" onclick="filterBy('Luxury', this)">Luxury</button>
+      <button class="filter-btn" onclick="filterBy('Waterfront', this)">Waterfront</button>
+      <button class="filter-btn" onclick="filterBy('Business', this)">Business</button>
+    </div>
+    <div id="areaList"></div>
+  </div>
+  <div id="map"></div>
+  <script>
+    mapboxgl.accessToken = 'pk.eyJ1Ijoicm95Ym95MTIiLCJhIjoiY21kZmxkanB1MGU3OTJsc2tkM2M5YTVpOCJ9.NJjmLcJNy41-TrEPumhX_g';
+    const map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/satellite-streets-v12',
+      center: [55.27, 25.20],
+      zoom: 10,
+      pitch: 60,
+      bearing: -20,
+      antialias: true
+    });
+
+    const areas = [
+      { name: "Downtown Dubai", tag: "Premium", coords: [55.276, 25.197], price: "2.5M AED", growth: "+12%", props: 450 },
+      { name: "Dubai Marina", tag: "Waterfront", coords: [55.138, 25.080], price: "1.8M AED", growth: "+8%", props: 320 },
+      { name: "Palm Jumeirah", tag: "Luxury", coords: [55.15, 25.11], price: "4.2M AED", growth: "+15%", props: 180 },
+      { name: "Business Bay", tag: "Business", coords: [55.2744, 25.1851], price: "1.2M AED", growth: "+10%", props: 380 },
+      { name: "JBR", tag: "Waterfront", coords: [55.1322, 25.0781], price: "2.1M AED", growth: "+11%", props: 260 },
+      { name: "JVC", tag: "Affordable", coords: [55.2116, 25.0611], price: "950K AED", growth: "+9%", props: 520 },
+      { name: "Meydan", tag: "Luxury", coords: [55.305, 25.185], price: "3.1M AED", growth: "+6%", props: 150 },
+      { name: "Dubai Creek", tag: "Waterfront", coords: [55.3415, 25.2343], price: "2.2M AED", growth: "+10%", props: 210 },
+      { name: "Dubai Area 1", tag: "Waterfront", coords: [55.2176, 25.0332], price: "4.2M AED", growth: "+6%", props: 324 },
+      { name: "Dubai Area 2", tag: "Business", coords: [55.1445, 25.2215], price: "2.1M AED", growth: "+8%", props: 343 },
+      { name: "Dubai Area 3", tag: "Premium", coords: [55.0161, 25.1071], price: "2.5M AED", growth: "+15%", props: 585 },
+      { name: "Dubai Area 4", tag: "Premium", coords: [55.2458, 25.1377], price: "1.8M AED", growth: "+6%", props: 452 },
+      { name: "Dubai Area 5", tag: "Premium", coords: [55.2001, 25.1116], price: "950K AED", growth: "+12%", props: 203 },
+      // ... 20 more areas similarly structured (omitted for brevity)
+    ];
+
+    function renderSidebar(list) {
+      const areaList = document.getElementById("areaList");
+      areaList.innerHTML = "";
+      list.forEach(a => {
+        const div = document.createElement("div");
+        div.className = "area-card";
+        div.innerHTML = `<strong>${a.name}</strong> <span class="tag">${a.tag}</span><br/>
+      <small>Avg Price: ${a.price}</small><br/>
+      <small>Growth: ${a.growth}</small><br/>
+      <small>Properties: ${a.props}</small>`;
+        div.onclick = () => map.flyTo({ center: a.coords, zoom: 14 });
+        areaList.appendChild(div);
+      });
+    }
+
+    function filterBy(tag, element) {
+      document.querySelectorAll(".filter-btn").forEach(btn => btn.classList.remove("active"));
+      element.classList.add("active");
+      if (tag === "All") renderSidebar(areas);
+      else renderSidebar(areas.filter(a => a.tag === tag));
+    }
+
+    function searchAreas(keyword) {
+      const results = areas.filter(a => a.name.toLowerCase().includes(keyword.toLowerCase()));
+      renderSidebar(results);
+    }
+
+    renderSidebar(areas);
+    areas.forEach(a => {
+      const marker = new mapboxgl.Marker({ color: "#edbb68" })
+        .setLngLat(a.coords)
+        .setPopup(new mapboxgl.Popup().setHTML(`<strong>${a.name}</strong><br/>Avg Price: ${a.price}<br/>Growth: ${a.growth}<br/>Properties: ${a.props}`))
+        .addTo(map);
+
+      marker.getElement().addEventListener('mouseenter', () => marker.togglePopup());
+      marker.getElement().addEventListener('mouseleave', () => marker.togglePopup());
+    });
+  </script>
+</body>
+
+</html>
