@@ -48,7 +48,7 @@ function render_sidebar(string $active): void
 
   echo '<aside class="col-12 col-md-3 col-lg-2 sidebar p-3">';
   echo '<div class="mb-2 pb-2">';
-  echo '<img src="assets/images/logo.webp" alt="" class="logo">';
+  echo '<img src="assets/images/logo.svg" alt="" class="logo">';
   echo '<form method="post" class="mb-0 logoutform">';
   echo '<input type="hidden" name="csrf" value="' . $csrf . '">';
   echo '<button class="btn btn-outline-light btn-sm" name="logout" title="Logout">';
