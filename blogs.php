@@ -26,6 +26,89 @@ $meta_tags = '
     <!-- Optional -->
 ';
 
+function connect_blog_pdo(): ?PDO
+{
+    static $pdo = null;
+
+    if ($pdo instanceof PDO) {
+        return $pdo;
+    }
+
+    try {
+        $dsn = 'mysql:host=localhost;port=3306;dbname=hmonitor_portal;charset=utf8mb4';
+        $pdo = new PDO($dsn, 'root', '', [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+        ]);
+    } catch (Throwable $exception) {
+        error_log('Failed to connect to the blogs database: ' . $exception->getMessage());
+        $pdo = null;
+    }
+
+    return $pdo;
+}
+
+function fetch_all_blogs(): array
+{
+    $pdo = connect_blog_pdo();
+    if (!$pdo) {
+        return [];
+    }
+
+    try {
+        $statement = $pdo->query(
+            'SELECT id, image_path, heading, short_description, author_name, category, created_at '
+            . 'FROM blogs ORDER BY created_at DESC'
+        );
+
+        $blogs = $statement->fetchAll();
+
+        return is_array($blogs) ? $blogs : [];
+    } catch (Throwable $exception) {
+        error_log('Failed to fetch blogs: ' . $exception->getMessage());
+    }
+
+    return [];
+}
+
+function format_blog_date_parts(?string $date): array
+{
+    if (!$date) {
+        return ['', ''];
+    }
+
+    try {
+        $dateTime = new DateTimeImmutable($date);
+    } catch (Throwable $exception) {
+        error_log('Failed to parse blog date: ' . $exception->getMessage());
+
+        return ['', ''];
+    }
+
+    return [$dateTime->format('d'), $dateTime->format('F')];
+}
+
+function format_recent_blog_date(?string $date): string
+{
+    if (!$date) {
+        return '';
+    }
+
+    try {
+        $dateTime = new DateTimeImmutable($date);
+    } catch (Throwable $exception) {
+        error_log('Failed to parse recent blog date: ' . $exception->getMessage());
+
+        return '';
+    }
+
+    return $dateTime->format('d F Y');
+}
+
+$blogs = fetch_all_blogs();
+$recentBlogs = array_slice($blogs, 0, 3);
+
 // Include header and navbar
 include 'includes/common-header.php';
 include 'includes/navbar.php';
@@ -64,77 +147,58 @@ include 'includes/navbar.php';
         <div class="row gutter-y-40">
 
             <div class="col-lg-8">
-                <div class="blog-list-box animate fadeInLeft wow" data-wow-duration="1500ms" data-wow-delay="200ms">
-                    <div class="blog-single-image">
-                        <a href="top-roi-areas-in-dubai.php"><img src="assets/images/blog/roi.webp" alt="blog-image"></a>
-                        <a href="top-roi-areas-in-dubai.php" class="d-none">
-                            <p>18</p><span>November</span>
-                        </a>
+                <?php if (!$blogs): ?>
+                    <div class="blog-list-box animate fadeInLeft wow" data-wow-duration="1500ms" data-wow-delay="200ms">
+                        <div class="blog-single-details">
+                            <h4>Stay tuned!</h4>
+                            <p>Our insights team is preparing new stories. Please check back soon for the latest updates.</p>
+                        </div>
                     </div>
-                    <div class="blog-single-meta">
-                        <ul>
-                            <li><span>by </span><a href="top-roi-areas-in-dubai.php">houzzhunt</a></li>
-                            |
-                            <li><a href="top-roi-areas-in-dubai.php">Real Estate</a></li>
-                        </ul>
-                    </div>
-                    <div class="blog-single-details">
-                        <h4><a href="top-roi-areas-in-dubai.php">Maximizing ROI: Top Areas to Invest In Dubai</a></h4>
-                        <p>Everyone knows Palm Jumeirah—but smart investors are turning to overlooked communities that
-                            quietly deliver double-digit returns. Discover the emerging areas in Dubai offering high
-                            ROI, rising demand, and solid long-term upside for premium real estate buyers.
-                        </p>
-                       
-                        <a href="top-roi-areas-in-dubai.php" class="gradient-btn btn-green-glossy">Read More</a>
-                    </div>
-                </div>
+                <?php else: ?>
+                    <?php foreach ($blogs as $index => $blog): ?>
+                        <?php
+                        $blogId = (int)($blog['id'] ?? 0);
+                        $imagePath = (string)($blog['image_path'] ?? '');
+                        $heading = (string)($blog['heading'] ?? '');
+                        $shortDescription = (string)($blog['short_description'] ?? '');
+                        $authorName = (string)($blog['author_name'] ?? 'houzzhunt');
+                        $category = trim((string)($blog['category'] ?? ''));
+                        $createdAt = $blog['created_at'] ?? null;
 
-                <div class="blog-list-box animate fadeInLeft wow" data-wow-duration="1500ms" data-wow-delay="400ms">
-                    <div class="blog-single-image">
-                        <a href="your-guide-to-buying-luxury-property-in-the-uae.php"><img src="assets/images/blog/your-guide.webp" alt="blog-image"></a>
-                        <a href="your-guide-to-buying-luxury-property-in-the-uae.php" class="d-none">
-                            <p>18</p><span>November</span>
-                        </a>
-                    </div>
-                    <div class="blog-single-meta">
-                        <ul>
-                            <li><span>by </span><a href="your-guide-to-buying-luxury-property-in-the-uae.php">houzzhunt</a></li>
-                            |
-                            <li><a href="your-guide-to-buying-luxury-property-in-the-uae.php">Innovation</a></li>
-                        </ul>
-                    </div>
-                    <div class="blog-single-details">
-                        <h4><a href="your-guide-to-buying-luxury-property-in-the-uae.php">Your Guide to Buying Luxury Property in the UAE</a></h4>
-                        <p>From beachfront villas to sky-high penthouses, owning property in the UAE is about more than
-                            luxury; it's about lifestyle, location, and long-term value. This guide walks you through
-                            everything a high-net-worth buyer needs to know before making a move in this dynamic market.
-                        </p>
-                         <a href="your-guide-to-buying-luxury-property-in-the-uae.php" class="gradient-btn btn-green-glossy">Read More</a>
-                    </div>
-                </div>
+                        if ($imagePath === '') {
+                            $imagePath = 'assets/images/blog/Blog-bg.jpg';
+                        }
 
-                <div class="blog-list-box animate fadeInLeft wow" data-wow-duration="1500ms" data-wow-delay="600ms">
-                    <div class="blog-single-image">
-                        <a href="the-rise-of-tech-driven-real-estate-in-the-middle-east.php"><img src="assets/images/blog/tech-driven.webp" alt="blog-image"></a>
-                        <a href="the-rise-of-tech-driven-real-estate-in-the-middle-east.php" class="d-none">
-                            <p>18</p><span>November</span>
-                        </a>
-                    </div>
-                    <div class="blog-single-meta">
-                        <ul>
-                            <li><span>by </span><a href="the-rise-of-tech-driven-real-estate-in-the-middle-east.php">houzzhunt</a></li>
-                            |
-                            <li><a href="the-rise-of-tech-driven-real-estate-in-the-middle-east.php">Investment</a></li>
-                        </ul>
-                    </div>
-                    <div class="blog-single-details">
-                        <h4>The Rise of Tech-Driven Real Estate in the Middle East</h4>
-                        <p>Tech is reshaping real estate across the Middle East from AI-powered homes to blockchain
-                            transactions. In this piece, we explore how innovation is driving the next wave of luxury
-                            and what it means for discerning investors and future-forward homeowners.</p>
-                         <a href="the-rise-of-tech-driven-real-estate-in-the-middle-east.php" class="gradient-btn btn-green-glossy">Read More</a>
-                    </div>
-                </div>
+                        [$day, $month] = format_blog_date_parts($createdAt);
+
+                        $blogLink = $blogId > 0 ? 'blog-details.php?id=' . rawurlencode((string)$blogId) : 'javascript:void(0)';
+                        $delay = 200 + ($index * 200);
+                        ?>
+                        <div class="blog-list-box animate fadeInLeft wow" data-wow-duration="1500ms" data-wow-delay="<?= htmlspecialchars((string)$delay, ENT_QUOTES, 'UTF-8') ?>ms">
+                            <div class="blog-single-image">
+                                <a href="<?= htmlspecialchars($blogLink, ENT_QUOTES, 'UTF-8') ?>"><img src="<?= htmlspecialchars($imagePath, ENT_QUOTES, 'UTF-8') ?>" alt="blog-image"></a>
+                                <a href="<?= htmlspecialchars($blogLink, ENT_QUOTES, 'UTF-8') ?>" class="d-none">
+                                    <p><?= htmlspecialchars($day, ENT_QUOTES, 'UTF-8') ?></p><span><?= htmlspecialchars($month, ENT_QUOTES, 'UTF-8') ?></span>
+                                </a>
+                            </div>
+                            <div class="blog-single-meta">
+                                <ul>
+                                    <li><span>by </span><a href="<?= htmlspecialchars($blogLink, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($authorName, ENT_QUOTES, 'UTF-8') ?></a></li>
+                                    <?php if ($category !== ''): ?>
+                                        <li>|</li>
+                                        <li><a href="<?= htmlspecialchars($blogLink, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($category, ENT_QUOTES, 'UTF-8') ?></a></li>
+                                    <?php endif; ?>
+                                </ul>
+                            </div>
+                            <div class="blog-single-details">
+                                <h4><a href="<?= htmlspecialchars($blogLink, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($heading, ENT_QUOTES, 'UTF-8') ?></a></h4>
+                                <p><?= nl2br(htmlspecialchars($shortDescription, ENT_QUOTES, 'UTF-8')) ?></p>
+
+                                <a href="<?= htmlspecialchars($blogLink, ENT_QUOTES, 'UTF-8') ?>" class="gradient-btn btn-green-glossy">Read More</a>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
 
             <div class="col-lg-4">
@@ -164,27 +228,34 @@ include 'includes/navbar.php';
                     <div class="blog-block animate fadeInRight wow" data-wow-duration="1500ms" data-wow-delay="600ms">
                         <div class="recent-blog-widget">
                             <h4>Recent Post</h4>
-                            <div class="recent-blog-widget-item">
-                                <img src="assets/images/blog/roi.webp" alt="blog-image">
-                                <div class="recent-blog-widget-item-title">
-                                    <span>18 November 2024 </span>
-                                    <a href="javascript:void(0)">Maximizing ROI: Top Areas to Invest In Dubai </a>
+                            <?php if (!$recentBlogs): ?>
+                                <div class="recent-blog-widget-item">
+                                    <div class="recent-blog-widget-item-title">
+                                        <span></span>
+                                        <a href="javascript:void(0)">No recent posts available.</a>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="recent-blog-widget-item">
-                                <img src="assets/images/blog/your-guide.webp" alt="blog-image">
-                                <div class="recent-blog-widget-item-title">
-                                    <span>September 20, 2023</span>
-                                    <a href="javascript:void(0)">Your Guide to Buying Luxury Property in the UAE</a>
-                                </div>
-                            </div>
-                            <div class="recent-blog-widget-item">
-                                <img src="assets/images/blog/tech-driven.webp" alt="blog-image">
-                                <div class="recent-blog-widget-item-title">
-                                    <span>September 20, 2023</span>
-                                    <a href="javascript:void(0)">The Rise of Tech-Driven Real Estate in the Middle East</a>
-                                </div>
-                            </div>
+                            <?php else: ?>
+                                <?php foreach ($recentBlogs as $recent): ?>
+                                    <?php
+                                    $recentId = (int)($recent['id'] ?? 0);
+                                    $recentLink = $recentId > 0 ? 'blog-details.php?id=' . rawurlencode((string)$recentId) : 'javascript:void(0)';
+                                    $recentImage = (string)($recent['image_path'] ?? '');
+                                    if ($recentImage === '') {
+                                        $recentImage = 'assets/images/blog/Blog-bg.jpg';
+                                    }
+                                    $recentHeading = (string)($recent['heading'] ?? '');
+                                    $recentDate = format_recent_blog_date($recent['created_at'] ?? null);
+                                    ?>
+                                    <div class="recent-blog-widget-item">
+                                        <img src="<?= htmlspecialchars($recentImage, ENT_QUOTES, 'UTF-8') ?>" alt="blog-image">
+                                        <div class="recent-blog-widget-item-title">
+                                            <span><?= htmlspecialchars($recentDate, ENT_QUOTES, 'UTF-8') ?></span>
+                                            <a href="<?= htmlspecialchars($recentLink, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($recentHeading, ENT_QUOTES, 'UTF-8') ?></a>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </div>
                     </div>
                     <div class="blog-block animate fadeInRight wow" data-wow-duration="1500ms" data-wow-delay="800ms">

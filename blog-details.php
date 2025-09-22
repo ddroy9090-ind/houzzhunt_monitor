@@ -1,32 +1,231 @@
 <?php
 
-$title = 'Top ROI Areas to Invest in Dubai (2025 Update)';
+$blogId = (int)($_GET['id'] ?? 0);
 
-$meta_tags = '
-    <!-- Basic Meta -->
-    <meta name="description" content="Discover Dubai top high-ROI communities for property investment—smart picks beyond the usual luxury spots.">
-    <meta name="keywords" content="Dubai real estate, ROI Dubai property, Dubai property investment, Best places to invest Dubai, Property ROI Dubai, High ROI areas in Dubai 2025, Top communities for property investment in Dubai, Where to invest in Dubai real estate, Affordable Dubai suburbs with high returns, Best residential areas in Dubai for investors, Best ROI areas to buy property in Dubai, Where to invest in Dubai real estate 2025, High return real estate investments in Dubai, Top performing property areas in Dubai, Smart property investment locations Dubai, Family-friendly investment communities in Dubai, Dubai apartment communities with high rental ROI, Most profitable property locations in Dubai, ROI Dubai real estate, Buy property in Dubai, Investment areas Dubai, Dubai real estate ROI, Affordable Dubai properties, houzzhunt, houzzhunt real estate, houzzhunt dubai">
+function connect_blog_pdo(): ?PDO
+{
+    static $pdo = null;
 
-';
+    if ($pdo instanceof PDO) {
+        return $pdo;
+    }
+
+    try {
+        $dsn = 'mysql:host=localhost;port=3306;dbname=hmonitor_portal;charset=utf8mb4';
+        $pdo = new PDO($dsn, 'root', '', [
+            PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            PDO::ATTR_EMULATE_PREPARES   => false,
+        ]);
+    } catch (Throwable $exception) {
+        error_log('Failed to connect to the blogs database: ' . $exception->getMessage());
+        $pdo = null;
+    }
+
+    return $pdo;
+}
+
+function fetch_blog_by_id(PDO $pdo, int $blogId): ?array
+{
+    $statement = $pdo->prepare('SELECT * FROM blogs WHERE id = :id');
+    $statement->execute([':id' => $blogId]);
+    $blog = $statement->fetch();
+
+    return $blog ?: null;
+}
+
+function fetch_recent_blogs(PDO $pdo, int $excludeId, int $limit = 3): array
+{
+    $sql = 'SELECT id, image_path, heading, created_at FROM blogs';
+    $params = [];
+
+    if ($excludeId > 0) {
+        $sql .= ' WHERE id != :excludeId';
+        $params[':excludeId'] = $excludeId;
+    }
+
+    $sql .= ' ORDER BY created_at DESC LIMIT ' . max(1, (int)$limit);
+
+    try {
+        $statement = $pdo->prepare($sql);
+        $statement->execute($params);
+        $blogs = $statement->fetchAll();
+
+        return is_array($blogs) ? $blogs : [];
+    } catch (Throwable $exception) {
+        error_log('Failed to fetch recent blogs: ' . $exception->getMessage());
+    }
+
+    return [];
+}
+
+function format_recent_blog_date(?string $date): string
+{
+    if (!$date) {
+        return '';
+    }
+
+    try {
+        $dateTime = new DateTimeImmutable($date);
+    } catch (Throwable $exception) {
+        error_log('Failed to parse blog date: ' . $exception->getMessage());
+
+        return '';
+    }
+
+    return $dateTime->format('d F Y');
+}
+
+function format_heading_with_span(string $heading): string
+{
+    $heading = trim($heading);
+    if ($heading === '') {
+        return '';
+    }
+
+    $words = preg_split('/\s+/', $heading, -1, PREG_SPLIT_NO_EMPTY);
+    if (!$words) {
+        return htmlspecialchars($heading, ENT_QUOTES, 'UTF-8');
+    }
+
+    if (count($words) === 1) {
+        return '<span>' . htmlspecialchars($words[0], ENT_QUOTES, 'UTF-8') . '</span>';
+    }
+
+    $first  = array_shift($words);
+    $last   = array_pop($words);
+    $middle = implode(' ', $words);
+
+    if ($middle === '') {
+        return htmlspecialchars($first, ENT_QUOTES, 'UTF-8') . ' <span>' . htmlspecialchars($last, ENT_QUOTES, 'UTF-8') . '</span>';
+    }
+
+    return htmlspecialchars($first, ENT_QUOTES, 'UTF-8') . ' <span>' . htmlspecialchars($middle, ENT_QUOTES, 'UTF-8') . '</span> ' . htmlspecialchars($last, ENT_QUOTES, 'UTF-8');
+}
+
+$blog = null;
+$recentBlogs = [];
+$blogError = null;
+
+$pdo = connect_blog_pdo();
+if ($pdo) {
+    if ($blogId > 0) {
+        try {
+            $blog = fetch_blog_by_id($pdo, $blogId);
+        } catch (Throwable $exception) {
+            error_log('Failed to load blog details: ' . $exception->getMessage());
+            $blog = null;
+        }
+    } else {
+        $blogError = 'Invalid blog request.';
+    }
+
+    try {
+        $recentBlogs = fetch_recent_blogs($pdo, $blogId);
+    } catch (Throwable $exception) {
+        error_log('Failed to load recent blogs for sidebar: ' . $exception->getMessage());
+        $recentBlogs = [];
+    }
+} else {
+    $blogError = 'We are unable to connect to the blog database at this time.';
+}
+
+if (!$blog) {
+    if (!$blogError) {
+        $blogError = 'The requested blog could not be found.';
+    }
+    http_response_code(404);
+}
+
+$defaultBannerDescription = 'Uncover high-yield luxury investments in Dubai’s most exclusive and under-the-radar locations.';
+$defaultHeading          = 'Dubai Luxury Secrets';
+$defaultImage            = 'assets/images/blog/top-roi-areas-in-dubai-banner.webp';
+
+$heading           = (string)($blog['heading'] ?? $defaultHeading);
+$bannerDescription = (string)($blog['banner_description'] ?? $defaultBannerDescription);
+$imagePath         = (string)($blog['image_path'] ?? $defaultImage);
+$shortDescription  = (string)($blog['short_description'] ?? '');
+$authorName        = (string)($blog['author_name'] ?? 'houzzhunt');
+$category          = trim((string)($blog['category'] ?? ''));
+$createdAt         = $blog['created_at'] ?? null;
+$blogContent       = $blog ? (string)($blog['content'] ?? '') : '';
+
+$metaTitle = $blog ? (string)($blog['meta_title'] ?? $heading) : 'Blog Details';
+$metaDescription = $blog
+    ? ((string)($blog['meta_description'] ?? ($shortDescription !== '' ? $shortDescription : $bannerDescription)))
+    : 'Discover the latest real estate insights from houzzhunt.';
+$metaKeywords = $blog ? trim((string)($blog['meta_keywords'] ?? '')) : 'houzzhunt, real estate insights, dubai real estate';
+$metaImage    = $imagePath !== '' ? $imagePath : $defaultImage;
+$metaUrl      = 'https://www.houzzhunt.com/blog-details.php' . ($blogId > 0 ? '?id=' . $blogId : '');
+
+$title = $metaTitle;
+
+$escapedDescription = htmlspecialchars($metaDescription, ENT_QUOTES, 'UTF-8');
+$escapedMetaTitle   = htmlspecialchars($metaTitle, ENT_QUOTES, 'UTF-8');
+$escapedMetaUrl     = htmlspecialchars($metaUrl, ENT_QUOTES, 'UTF-8');
+$escapedMetaImage   = htmlspecialchars((strpos($metaImage, 'http') === 0 ? $metaImage : 'https://www.houzzhunt.com/' . ltrim($metaImage, '/')), ENT_QUOTES, 'UTF-8');
+$escapedKeywords    = htmlspecialchars($metaKeywords, ENT_QUOTES, 'UTF-8');
+
+$metaTags = [
+    '<!-- Basic Meta -->',
+    '<meta name="description" content="' . $escapedDescription . '">',
+];
+
+if ($metaKeywords !== '') {
+    $metaTags[] = '<meta name="keywords" content="' . $escapedKeywords . '">';
+}
+
+$metaTags = array_merge($metaTags, [
+    '<!-- Open Graph / Facebook -->',
+    '<meta property="og:type" content="article">',
+    '<meta property="og:title" content="' . $escapedMetaTitle . '">',
+    '<meta property="og:description" content="' . $escapedDescription . '">',
+    '<meta property="og:url" content="' . $escapedMetaUrl . '">',
+    '<meta property="og:image" content="' . $escapedMetaImage . '">',
+    '',
+    '<!-- Twitter -->',
+    '<meta name="twitter:card" content="summary_large_image">',
+    '<meta name="twitter:title" content="' . $escapedMetaTitle . '">',
+    '<meta name="twitter:description" content="' . $escapedDescription . '">',
+    '<meta name="twitter:image" content="' . $escapedMetaImage . '">',
+]);
+
+$meta_tags = "\n    " . implode("\n    ", $metaTags) . "\n";
+
+$currentBlogLink    = $blog ? 'blog-details.php?id=' . rawurlencode((string)$blogId) : 'blogs.php';
+$publishedDate      = format_recent_blog_date($createdAt);
+$metaItems = [];
+
+if ($blog) {
+    $metaItems[] = '<li><span>by </span><a href="' . htmlspecialchars($currentBlogLink, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($authorName, ENT_QUOTES, 'UTF-8') . '</a></li>';
+    if ($category !== '') {
+        $metaItems[] = '<li>|</li>';
+        $metaItems[] = '<li><a href="' . htmlspecialchars($currentBlogLink, ENT_QUOTES, 'UTF-8') . '">' . htmlspecialchars($category, ENT_QUOTES, 'UTF-8') . '</a></li>';
+    }
+    if ($publishedDate !== '') {
+        $metaItems[] = '<li>|</li>';
+        $metaItems[] = '<li>' . htmlspecialchars($publishedDate, ENT_QUOTES, 'UTF-8') . '</li>';
+    }
+}
 
 include 'includes/common-header.php';
 include 'includes/navbar.php';
 ?>
 
 <!-- page header start -->
-<div class="page-header-section" style="background-image: url(assets/images/blog/top-roi-areas-in-dubai-banner.webp);">
+<div class="page-header-section" style="background-image: url(<?= htmlspecialchars($imagePath, ENT_QUOTES, 'UTF-8') ?>);">
     <div class="container">
         <div class="row">
             <div class="col-xl-8 col-lg-12">
                 <div class="page-header-heading animate fadeInLeft wow" data-wow-duration="2000ms">
-                    <h2>Dubai Luxury Secrets</h2>
-                    <p class="lead">Uncover high-yield luxury investments in Dubai’s most exclusive and under-the-radar locations.</p>
+                    <h2><?= htmlspecialchars($heading, ENT_QUOTES, 'UTF-8') ?></h2>
+                    <p class="lead"><?= nl2br(htmlspecialchars($bannerDescription, ENT_QUOTES, 'UTF-8')) ?></p>
                 </div>
             </div>
         </div>
         <ul class="breadcrumb">
             <li>
-                <a href="index.html">Home</a>
+                <a href="index.php">Home</a>
             </li>
             <li>
                 <img src="assets/images/about/arrow-brudcrumb.svg" alt="icon">
@@ -45,92 +244,36 @@ include 'includes/navbar.php';
     <div class="container">
         <div class="row">
             <div class="col-lg-8">
-                <div class="blog-list-box animate fadeInLeft wow" data-wow-duration="1500ms" data-wow-delay="200ms">
-                    <h2 class="heading-title">Top <span>ROI Areas</span> in Dubai</h2>
-                    <p>Dubai isn’t just about skyscrapers and sea views—some of its strongest investments come from
-                        quieter communities where demand is rising fast and returns are outperforming luxury zones.
-                        Here’s where savvy investors are placing their bets.</p>
-                </div>
-                <div class="blog-list-box animate fadeInLeft wow" data-wow-duration="1500ms" data-wow-delay="300ms">
-                    <h4>Dubai Investment Park (DIP)</h4>
-                    <p>ROI: 10.50%<br>Suburban charm meets investment potential. DIP offers spacious homes, plenty of
-                        green cover, and quick access to key business zones like JAFZA and Expo City. It’s rapidly
-                        gaining investor traction without the premium pricing.</p>
-                    <div class="blog-detail-image">
-                        <div class="image">
-                            <img src="assets/images/blog/one.webp" alt="blog-image">
-                        </div>
-                        <div class="image">
-                            <img src="assets/images/blog/two.webp" alt="blog-image">
+                <?php if ($blog): ?>
+                    <div class="blog-list-box animate fadeInLeft wow" data-wow-duration="1500ms" data-wow-delay="200ms">
+                        <h2 class="heading-title"><?= format_heading_with_span($heading) ?></h2>
+                        <?php if ($bannerDescription !== ''): ?>
+                            <p><?= nl2br(htmlspecialchars($bannerDescription, ENT_QUOTES, 'UTF-8')) ?></p>
+                        <?php endif; ?>
+                        <?php if ($metaItems): ?>
+                            <div class="blog-single-meta">
+                                <ul>
+                                    <?php foreach ($metaItems as $item): ?>
+                                        <?= $item ?>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+                    <div class="blog-list-box animate fadeInLeft wow" data-wow-duration="1500ms" data-wow-delay="300ms">
+                        <div class="blog-content">
+                            <?= $blogContent ?>
                         </div>
                     </div>
-                    <p>Low-density communities like these have seen reduced vacancy times and steady appreciation,
-                        especially as more Dubai residents shift toward greener, suburban living.</p>
-                </div>
-                <div class="blog-list-box animate fadeInLeft wow" data-wow-duration="1500ms" data-wow-delay="500ms">
-                    <h4>Remraam</h4>
-                    <p>ROI: 8.87%<br>Low-rise living with rising returns. Remraam is one of the most underrated
-                        apartment communities, with strong connectivity via Emirates Road and rising rental demand among
-                        working professionals.</p>
-                    <h4>If you are making mistakes</h4>
-                    <p>Investors often chase flashy neighborhoods and ignore the fundamentals. These ROI-friendly
-                        communities might not have Burj views, but they offer what matters: tenant demand,
-                        affordability, and growth potential.</p>
-                    <p class="cta-blog-details">
-                        “Luxury living doesn’t always mean high price tags—sometimes it means consistent ROI, short
-                        vacancy cycles, and long-term stability.”
-                    </p>
-                </div>
-                <div class="blog-list-box animate fadeInLeft wow" data-wow-duration="1500ms" data-wow-delay="600ms">
-                    <h4>Al Sufouh</h4>
-                    <p>ROI: 8.70%<br>Coastal prestige with ROI power. With proximity to Dubai Internet City and the
-                        Palm, Al Sufouh blends sea-view living with tech-driven tenant demand. A niche investment area
-                        with standout value.</p>
-                    <h4>Al Furjan</h4>
-                    <p>ROI: 8.02%<br>Quiet, connected, and fast-moving. With direct metro access and a strong pipeline
-                        of modern villas and mid-rise buildings, Al Furjan is a hotspot for both renters and buyers who
-                        want value close to the city.</p>
-                    <h4>Town Square</h4>
-                    <p>ROI: 7.94%<br>Vibrant layouts. Family parks. Cafes. Town Square is built for modern lifestyle
-                        seekers—and its mid-range pricing paired with high tenant interest makes it a magnet for rental
-                        ROI.</p>
-                    <h4>Business Growth</h4>
-                    <p>Dubai’s outer communities are no longer secondary—they’re strategic. As the city expands,
-                        ROI-focused areas are pulling in both families and young professionals.</p>
-                    <ul class="blog-details-list">
-                        <li><span>+</span> Affordable entry price</li>
-                        <li><span>+</span> Tenant-ready layouts</li>
-                        <li><span>+</span> Metro or highway access</li>
-                        <li><span>+</span> Balanced community lifestyle</li>
-                    </ul>
-                    <p>Why Smart Investors Choose houzzhunt<br>At houzzhunt, we don’t just sell property—we guide smart
-                        investment. Our expert advisors cut through the clutter, offering data-backed insights, early
-                        access to high-yield projects, and neighborhood strategies built for ROI. Whether you're new to
-                        Dubai or scaling your portfolio, we help you invest with clarity and confidence.<br>Luxury
-                        living. Smarter returns. Only with houzzhunt.</p>
-                </div>
-                <!-- <div class="blog-list-box animate fadeInLeft wow" data-wow-duration="1500ms" data-wow-delay="600ms">
-                    <div class="blog-details-share">
-                        <div class="blog-tag">
-                            <ul>
-                                <li><a href="#">Marketing</a></li>
-                                <li><a href="#">Business</a></li>
-                            </ul>
-                        </div>
-                        <div class="blog-share">
-                            <ul class="share-social-media">
-                                <li><a href="https://www.facebook.com/"><i class="fa-brands fa-facebook-f"></i></a>
-                                </li>
-                                <li><a href="https://x.com/"><i class="fa-brands fa-twitter"></i></a></li>
-                                <li><a href="https://www.instagram.com/"><i class="fa-brands fa-instagram"></i></a>
-                                </li>
-                                <li><a href="https://in.linkedin.com/"><i class="fa-brands fa-linkedin-in"></i></a>
-                                </li>
-                            </ul>
-                            <a href="#"><i class="fa-solid fa-share-nodes"></i></a>
+                <?php else: ?>
+                    <div class="blog-list-box animate fadeInLeft wow" data-wow-duration="1500ms" data-wow-delay="200ms">
+                        <div class="blog-single-details">
+                            <h4>Blog unavailable</h4>
+                            <p><?= htmlspecialchars($blogError, ENT_QUOTES, 'UTF-8') ?></p>
+                            <a href="blogs.php" class="gradient-btn btn-green-glossy">Back to Blogs</a>
                         </div>
                     </div>
-                </div> -->
+                <?php endif; ?>
             </div>
             <div class="col-lg-4">
                 <div class="blog-sidebar">
@@ -159,27 +302,34 @@ include 'includes/navbar.php';
                     <div class="blog-block animate fadeInRight wow" data-wow-duration="1500ms" data-wow-delay="600ms">
                         <div class="recent-blog-widget">
                             <h4>Recent Post</h4>
-                            <div class="recent-blog-widget-item">
-                                <img src="assets/images/blog/roi.webp" alt="blog-image">
-                                <div class="recent-blog-widget-item-title">
-                                    <span>18 November 2024 </span>
-                                    <a href="javascript:void(0)">Maximizing ROI: Top Areas to Invest In Dubai </a>
+                            <?php if (!$recentBlogs): ?>
+                                <div class="recent-blog-widget-item">
+                                    <div class="recent-blog-widget-item-title">
+                                        <span></span>
+                                        <a href="javascript:void(0)">No recent posts available.</a>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="recent-blog-widget-item">
-                                <img src="assets/images/blog/your-guide.webp" alt="blog-image">
-                                <div class="recent-blog-widget-item-title">
-                                    <span>September 20, 2023</span>
-                                    <a href="javascript:void(0)">Your Guide to Buying Luxury Property in the UAE</a>
-                                </div>
-                            </div>
-                            <div class="recent-blog-widget-item">
-                                <img src="assets/images/blog/tech-driven.webp" alt="blog-image">
-                                <div class="recent-blog-widget-item-title">
-                                    <span>September 20, 2023</span>
-                                    <a href="javascript:void(0)">The Rise of Tech-Driven Real Estate in the Middle East</a>
-                                </div>
-                            </div>
+                            <?php else: ?>
+                                <?php foreach ($recentBlogs as $recent): ?>
+                                    <?php
+                                    $recentId = (int)($recent['id'] ?? 0);
+                                    $recentLink = $recentId > 0 ? 'blog-details.php?id=' . rawurlencode((string)$recentId) : 'javascript:void(0)';
+                                    $recentImage = (string)($recent['image_path'] ?? '');
+                                    if ($recentImage === '') {
+                                        $recentImage = 'assets/images/blog/Blog-bg.jpg';
+                                    }
+                                    $recentHeading = (string)($recent['heading'] ?? '');
+                                    $recentDate = format_recent_blog_date($recent['created_at'] ?? null);
+                                    ?>
+                                    <div class="recent-blog-widget-item">
+                                        <img src="<?= htmlspecialchars($recentImage, ENT_QUOTES, 'UTF-8') ?>" alt="blog-image">
+                                        <div class="recent-blog-widget-item-title">
+                                            <span><?= htmlspecialchars($recentDate, ENT_QUOTES, 'UTF-8') ?></span>
+                                            <a href="<?= htmlspecialchars($recentLink, ENT_QUOTES, 'UTF-8') ?>"><?= htmlspecialchars($recentHeading, ENT_QUOTES, 'UTF-8') ?></a>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            <?php endif; ?>
                         </div>
                     </div>
                     <div class="blog-block animate fadeInRight wow" data-wow-duration="1500ms" data-wow-delay="800ms">
@@ -211,7 +361,7 @@ include 'includes/navbar.php';
                                 <a href="#" class="insta-image">
                                     <img src="assets/images/blog/tech-driven.webp" alt="insta-image">
                                 </a>
-                                
+
                             </div>
                         </div>
                     </div>
