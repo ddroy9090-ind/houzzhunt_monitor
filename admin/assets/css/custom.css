@@ -7,7 +7,7 @@
     font-weight: 600;
     line-height: 1.3;
     margin-bottom: 2px;
-    color: #d01f28;
+    color: #004a44;
 }
 
 .content .para {
@@ -63,7 +63,7 @@
     padding: 20px 22px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
     border: 1px solid #eee;
-    border-top: 4px solid #d01f28;
+    border-top: 4px solid #004a44;
     display: flex;
     flex-direction: column;
     gap: 16px;
@@ -93,7 +93,7 @@
 
 .form-control:focus {
     box-shadow: none !important;
-    border-color: #d01f28 !important;
+    border-color: #004a44 !important;
 }
 
 table {
@@ -140,8 +140,8 @@ table td {
 
 .active>.page-link,
 .page-link.active {
-    background-color: #d01f28;
-    border-color: #d01f28;
+    background-color: #004a44;
+    border-color: #004a44;
     color: #fff;
 }
 
@@ -154,12 +154,12 @@ table td {
 }
 
 .page-link:hover {
-    color: #d01f28;
+    color: #004a44;
 }
 
 .page-link:focus {
     box-shadow: none;
-    border-color: #d01f28;
+    border-color: #004a44;
 }
 
 .logoutform {
@@ -187,7 +187,7 @@ table td {
 
     color: #fff;
     overflow: hidden;
-    background-color: #d01f28;
+    background-color: #004a44;
     background-image: url("../BG.png");
     background-repeat: repeat;
     background-size: cover;
@@ -199,7 +199,7 @@ table td {
 }
 
 .login-logo img {
-    width: 150px;
+    width: 200px;
     margin-bottom: 10px;
 }
 
@@ -218,13 +218,13 @@ table td {
 }
 
 .card-header.bg-primary.text-white {
-    background-color: #d01f28 !important;
-    border-bottom: 1px #d01f28 solid;
+    background-color: #004a44 !important;
+    border-bottom: 1px #004a44 solid;
 }
 
 .upload-box {
   position: relative;
-  border: 2px dashed #d01f28;
+  border: 2px dashed #004a44;
   border-radius: 8px;
   padding: 40px 20px;
   text-align: center;
@@ -250,7 +250,7 @@ table td {
 
 .upload-icon {
   font-size: 40px;
-  color: #d01f28;
+  color: #004a44;
   display: block;
   margin-bottom: 10px;
 }

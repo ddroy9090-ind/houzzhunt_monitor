@@ -16,7 +16,7 @@ function render_head(string $title, string $bodyClass = ''): void
   <title>{$title}</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="csrf-token" content="{$csrf}">
-  <link rel="shortcut icon" href="assets/images/favicon.png" type="image/x-icon">
+  <link rel="shortcut icon" href="assets/images/HH-logo.png" type="image/x-icon">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/style.css">
@@ -34,16 +34,16 @@ function render_sidebar(string $active): void
   $csrf = htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8');
   $items = [
     'home'      => ['href' => 'index.php', 'icon' => 'bi-house',     'label' => 'Dashboard'],
-    'logs'      => ['href' => 'page_access_logs.php', 'icon' => 'bi-universal-access-circle',       'label' => 'Page Access Logs'],
-    'analytics' => ['href' => 'analytics_dashboard.php', 'icon' => 'bi-graph-up-arrow', 'label' => 'Analytics Dashboard'],
+    // 'logs'      => ['href' => 'page_access_logs.php', 'icon' => 'bi-universal-access-circle',       'label' => 'Page Access Logs'],
+    // 'analytics' => ['href' => 'analytics_dashboard.php', 'icon' => 'bi-graph-up-arrow', 'label' => 'Analytics Dashboard'],
     'contact-form' => ['href' => 'contact_form_submissions.php', 'icon' => 'bi-person-rolodex', 'label' => 'Contact Submissions'],
     'popup-form' => ['href' => 'popup_form_submissions.php', 'icon' => 'bi-database', 'label' => 'Popup Submissions'],
     'add-blogs' => ['href' => 'add_blogs.php', 'icon' => 'bi-journal-plus', 'label' => 'Add Blogs'],
-    'add-job-vacancy' => ['href' => 'add_job_vacancy.php', 'icon' => 'bi-briefcase', 'label' => 'Add Job Vacancy'],
+    // 'add-job-vacancy' => ['href' => 'add_job_vacancy.php', 'icon' => 'bi-briefcase', 'label' => 'Add Job Vacancy'],
     'all-blogs' => ['href' => 'all_blogs.php', 'icon' => 'bi-journal-text', 'label' => 'All Blogs'],
-    'market-reports' => ['href' => 'market_reports.php', 'icon' => 'bi-bar-chart', 'label' => 'Market Reports'],
-    'market-report-leads' => ['href' => 'market_reports_leads.php', 'icon' => 'bi-people', 'label' => 'Market Reports Leads'],
-    'job-leads' => ['href' => 'job_leads.php', 'icon' => 'bi-person-badge', 'label' => 'Job Leads'],
+    // 'market-reports' => ['href' => 'market_reports.php', 'icon' => 'bi-bar-chart', 'label' => 'Market Reports'],
+    // 'market-report-leads' => ['href' => 'market_reports_leads.php', 'icon' => 'bi-people', 'label' => 'Market Reports Leads'],
+    // 'job-leads' => ['href' => 'job_leads.php', 'icon' => 'bi-person-badge', 'label' => 'Job Leads'],
   ];
 
   echo '<aside class="col-12 col-md-3 col-lg-2 sidebar p-3">';
@@ -98,7 +98,7 @@ function render_footer(bool $includeECharts = false, bool $includeChartJs = fals
 
 function render_login_page(?string $error): void
 {
-  render_head('Reliant Monitor Portal', 'login-body');
+  render_head('HouzzHunt Monitor Portal', 'login-body');
   $errorHtml = '';
   if ($error) {
     $escaped = htmlspecialchars($error, ENT_QUOTES, 'UTF-8');
@@ -109,9 +109,9 @@ function render_login_page(?string $error): void
 <div class="login-wrapper d-flex align-items-center justify-content-center">
   <div class="login-card box text-light">
     <div class="login-logo">
-        <img src="assets/images/logo.png" alt="">
+        <img src="assets/images/green-logo.svg" alt="">
     </div>
-    <h3 class="text-center mb-4">Reliant Monitor Portal</h3>
+    <h3 class="text-center mb-4">HouzzHunt Monitor Portal</h3>
     {$errorHtml}
     <form method="post" autocomplete="off">
       <input type="hidden" name="csrf" value="{$csrf}">

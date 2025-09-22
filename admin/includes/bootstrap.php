@@ -62,7 +62,7 @@ function rl_hit(string $bucket, int $limitPerMinute): void
 function db(): PDO
 {
   $host = 'localhost'; // instead of localhost
-  $db   = 'certificate';
+  $db   = 'hmonitor_portal';
   $user = 'root';
   $pass = ''; // change if you set a password
   $dsn  = "mysql:host=$host;port=3306;dbname=$db;charset=utf8mb4";

@@ -13,7 +13,7 @@ body {
 
 .sidebar {
   min-height: 100vh;
-  background: #d01f28;
+  background: #004a44;
   color: #cbd5e1;
   position: relative;
 }
@@ -34,7 +34,7 @@ body {
 .sidebar .nav-link.active,
 .sidebar .nav-link:hover {
   background: #fff;
-  color: #d01f28;
+  color: #004a44;
   font-size: inherit;
 }
 
@@ -148,7 +148,7 @@ body {
 }
 
 .login-body {
-  background: #d01f28;
+  background: #004a44;
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -183,7 +183,7 @@ body {
 
 .login-card form input:focus {
   box-shadow: none;
-  border-color: #d01f28;
+  border-color: #004a44;
 }
 
 .log-type-toggle .btn {
@@ -192,8 +192,8 @@ body {
 }
 
 .btn-primary:hover {
-  background-color: #d01f28;
-  border-color: #d01f28;
+  background-color: #004a44;
+  border-color: #004a44;
 }
 
 .btn-group,
@@ -205,8 +205,8 @@ body {
 }
 
 .btn-primary {
-  background: #d01f28;
-  border-color: #d01f28;
+  background: #004a44;
+  border-color: #004a44;
   color: #fff;
 }
 
