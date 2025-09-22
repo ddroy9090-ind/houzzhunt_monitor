@@ -88,17 +88,29 @@ function resolve_blog_image_path(?string $path, string $default): string
         return $path;
     }
 
-    $normalized = ltrim($path, '/');
-    if (strpos($normalized, './') === 0) {
-        $normalized = substr($normalized, 2);
+    $normalized = str_replace('\\', '/', $path);
+    $normalized = preg_replace('#^(?:\./)+#', '', $normalized);
+    $normalized = ltrim((string)$normalized, '/');
+
+    if ($normalized === '') {
+        return $default;
     }
 
     $uploadBase = 'admin/assets/uploads/';
-    if (strpos($normalized, $uploadBase) !== 0) {
-        $normalized = $uploadBase . $normalized;
+
+    if (strpos($normalized, $uploadBase) === 0) {
+        return $normalized;
     }
 
-    return $normalized;
+    if (strpos($normalized, 'assets/uploads/') === 0) {
+        return 'admin/' . $normalized;
+    }
+
+    if (strpos($normalized, 'uploads/') === 0) {
+        return 'admin/assets/' . $normalized;
+    }
+
+    return $uploadBase . $normalized;
 }
 
 function format_heading_with_span(string $heading): string
