@@ -24,6 +24,8 @@ function add_blogs_ensure_table(PDO $pdo): void
       image_path VARCHAR(255) NOT NULL,
       heading VARCHAR(255) NOT NULL,
       banner_description TEXT NOT NULL,
+      category VARCHAR(255) DEFAULT NULL,
+      short_description TEXT DEFAULT NULL,
       author_name VARCHAR(255) NOT NULL,
       content LONGTEXT NOT NULL,
       meta_title VARCHAR(255) DEFAULT NULL,
@@ -34,9 +36,11 @@ function add_blogs_ensure_table(PDO $pdo): void
   );
 
   $columnsToEnsure = [
-    'meta_title'       => 'ALTER TABLE blogs ADD COLUMN meta_title VARCHAR(255) DEFAULT NULL',
-    'meta_keywords'    => 'ALTER TABLE blogs ADD COLUMN meta_keywords TEXT DEFAULT NULL',
-    'meta_description' => 'ALTER TABLE blogs ADD COLUMN meta_description TEXT DEFAULT NULL',
+    'category'          => 'ALTER TABLE blogs ADD COLUMN category VARCHAR(255) DEFAULT NULL AFTER banner_description',
+    'short_description' => 'ALTER TABLE blogs ADD COLUMN short_description TEXT DEFAULT NULL AFTER category',
+    'meta_title'        => 'ALTER TABLE blogs ADD COLUMN meta_title VARCHAR(255) DEFAULT NULL',
+    'meta_keywords'     => 'ALTER TABLE blogs ADD COLUMN meta_keywords TEXT DEFAULT NULL',
+    'meta_description'  => 'ALTER TABLE blogs ADD COLUMN meta_description TEXT DEFAULT NULL',
   ];
 
   foreach ($columnsToEnsure as $column => $alterSql) {
@@ -77,6 +81,8 @@ $success = null;
 
 $heading = '';
 $bannerDescription = '';
+$category = '';
+$shortDescription = '';
 $authorName = '';
 $content = '';
 $metaTitle = '';
@@ -116,6 +122,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $heading = trim((string)($_POST['heading'] ?? ''));
     $bannerDescription = trim((string)($_POST['banner_description'] ?? ''));
+    $category = trim((string)($_POST['category'] ?? ''));
+    $shortDescription = trim((string)($_POST['short_description'] ?? ''));
     $authorName = trim((string)($_POST['author_name'] ?? ''));
     $content = trim((string)($_POST['content'] ?? ''));
     $metaTitle = trim((string)($_POST['meta_title'] ?? ''));
@@ -145,6 +153,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($bannerDescription === '') {
       $errors[] = 'Blog Banner Description is required.';
+    }
+
+    if ($category === '') {
+      $errors[] = 'Blog Category is required.';
+    }
+
+    if ($shortDescription === '') {
+      $errors[] = 'Blog Short Description is required.';
     }
 
     if ($authorName === '') {
@@ -221,6 +237,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               SET image_path = :image_path,
                   heading = :heading,
                   banner_description = :banner_description,
+                  category = :category,
+                  short_description = :short_description,
                   author_name = :author_name,
                   content = :content,
                   meta_title = :meta_title,
@@ -232,6 +250,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           ':image_path'         => $imagePath,
           ':heading'            => $heading,
           ':banner_description' => $bannerDescription,
+          ':category'           => $category !== '' ? $category : null,
+          ':short_description'  => $shortDescription !== '' ? $shortDescription : null,
           ':author_name'        => $authorName,
           ':content'            => $content,
           ':meta_title'         => $metaTitle !== '' ? $metaTitle : null,
@@ -255,25 +275,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
       } else {
         $stmt = $pdo->prepare(
-          'INSERT INTO blogs (
-              image_path,
-              heading,
-              banner_description,
-              author_name,
-              content,
-              meta_title,
-              meta_keywords,
-              meta_description,
-              created_at
-            ) VALUES (
-              :image_path,
-              :heading,
-              :banner_description,
-              :author_name,
-              :content,
-              :meta_title,
-              :meta_keywords,
-              :meta_description,
+            'INSERT INTO blogs (
+                image_path,
+                heading,
+                banner_description,
+                category,
+                short_description,
+                author_name,
+                content,
+                meta_title,
+                meta_keywords,
+                meta_description,
+                created_at
+              ) VALUES (
+                :image_path,
+                :heading,
+                :banner_description,
+                :category,
+                :short_description,
+                :author_name,
+                :content,
+                :meta_title,
+                :meta_keywords,
+                :meta_description,
               NOW()
             )'
         );
@@ -281,6 +305,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           ':image_path'          => $imagePath,
           ':heading'             => $heading,
           ':banner_description'  => $bannerDescription,
+          ':category'            => $category !== '' ? $category : null,
+          ':short_description'   => $shortDescription !== '' ? $shortDescription : null,
           ':author_name'         => $authorName,
           ':content'             => $content,
           ':meta_title'          => $metaTitle !== '' ? $metaTitle : null,
@@ -289,7 +315,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
 
         $success = 'Your Blog has been added successfully.';
-        $heading = $bannerDescription = $authorName = $content = '';
+        $heading = $bannerDescription = $category = $shortDescription = $authorName = $content = '';
         $metaTitle = $metaKeywords = $metaDescription = '';
         $currentImagePath = '';
         $editingId = 0;
@@ -320,6 +346,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $isEditing = true;
       $heading = (string)($existingBlog['heading'] ?? '');
       $bannerDescription = (string)($existingBlog['banner_description'] ?? '');
+      $category = (string)($existingBlog['category'] ?? '');
+      $shortDescription = (string)($existingBlog['short_description'] ?? '');
       $authorName = (string)($existingBlog['author_name'] ?? '');
       $content = (string)($existingBlog['content'] ?? '');
       $metaTitle = (string)($existingBlog['meta_title'] ?? '');
@@ -411,6 +439,15 @@ render_sidebar('add-blogs');
       <div class="col-12">
         <label for="banner_description" class="form-label">Blog Banner Description</label>
         <textarea class="form-control" id="banner_description" name="banner_description" rows="3" required><?= htmlspecialchars($bannerDescription, ENT_QUOTES, 'UTF-8') ?></textarea>
+      </div>
+      <div class="col-12 col-md-6">
+        <label for="category" class="form-label">Blog Category</label>
+        <input type="text" class="form-control" id="category" name="category" value="<?= htmlspecialchars($category, ENT_QUOTES, 'UTF-8') ?>" required>
+      </div>
+      <div class="col-12 col-md-6">
+        <label for="short_description" class="form-label">Blog Short Description</label>
+        <textarea class="form-control" id="short_description" name="short_description" rows="3" required><?= htmlspecialchars($shortDescription, ENT_QUOTES, 'UTF-8') ?></textarea>
+        <div class="form-text">Provide a concise summary that appears on listing pages.</div>
       </div>
       <div class="col-12 col-md-6">
         <label for="meta_title" class="form-label">Meta Title</label>
