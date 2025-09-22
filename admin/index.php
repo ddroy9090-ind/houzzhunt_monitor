@@ -107,7 +107,7 @@ try {
   $error = 'Unable to fetch summary data at this time.';
 }
 
-render_head('Reliant Monitor Portal');
+render_head('HouzzHunt Monitor Portal');
 echo '<div class="container-fluid layout">';
 echo '<div class="row g-0">';
 render_sidebar('home');
