@@ -49,27 +49,106 @@ function connect_blog_pdo(): ?PDO
     return $pdo;
 }
 
-function fetch_all_blogs(): array
+function fetch_blog_count(PDO $pdo): int
 {
-    $pdo = connect_blog_pdo();
-    if (!$pdo) {
-        return [];
+    try {
+        $statement = $pdo->query('SELECT COUNT(*) FROM blogs');
+        $count     = $statement !== false ? (int)$statement->fetchColumn() : 0;
+
+        return max(0, $count);
+    } catch (Throwable $exception) {
+        error_log('Failed to count blogs: ' . $exception->getMessage());
     }
 
+    return 0;
+}
+
+function fetch_blogs_page(PDO $pdo, int $page, int $perPage): array
+{
+    $page    = max(1, $page);
+    $perPage = max(1, $perPage);
+    $offset  = ($page - 1) * $perPage;
+
     try {
-        $statement = $pdo->query(
+        $statement = $pdo->prepare(
             'SELECT id, image_path, heading, short_description, author_name, category, created_at '
-            . 'FROM blogs ORDER BY created_at DESC'
+            . 'FROM blogs ORDER BY created_at DESC LIMIT :limit OFFSET :offset'
         );
+        $statement->bindValue(':limit', $perPage, PDO::PARAM_INT);
+        $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $statement->execute();
 
         $blogs = $statement->fetchAll();
 
         return is_array($blogs) ? $blogs : [];
     } catch (Throwable $exception) {
-        error_log('Failed to fetch blogs: ' . $exception->getMessage());
+        error_log('Failed to fetch paginated blogs: ' . $exception->getMessage());
     }
 
     return [];
+}
+
+function fetch_recent_blogs(PDO $pdo, int $limit = 3): array
+{
+    $limit = max(1, $limit);
+
+    try {
+        $statement = $pdo->prepare(
+            'SELECT id, image_path, heading, created_at FROM blogs ORDER BY created_at DESC LIMIT :limit'
+        );
+        $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $statement->execute();
+
+        $blogs = $statement->fetchAll();
+
+        return is_array($blogs) ? $blogs : [];
+    } catch (Throwable $exception) {
+        error_log('Failed to fetch recent blogs: ' . $exception->getMessage());
+    }
+
+    return [];
+}
+
+function resolve_blog_image_path(?string $path, string $default): string
+{
+    $path = trim((string)$path);
+
+    if ($path === '') {
+        return $default;
+    }
+
+    if (preg_match('#^(?:https?:)?//#i', $path)) {
+        return $path;
+    }
+
+    $normalized = ltrim($path, '/');
+    if (strpos($normalized, './') === 0) {
+        $normalized = substr($normalized, 2);
+    }
+
+    $uploadBase = 'admin/assets/uploads/';
+    if (strpos($normalized, $uploadBase) !== 0) {
+        $normalized = $uploadBase . $normalized;
+    }
+
+    return $normalized;
+}
+
+function build_blog_page_url(int $page): string
+{
+    $page = max(1, $page);
+    $params = $_GET;
+
+    if (!is_array($params)) {
+        $params = [];
+    }
+
+    unset($params['page']);
+    $params['page'] = $page;
+
+    $queryString = http_build_query($params);
+
+    return 'blogs.php' . ($queryString !== '' ? '?' . $queryString : '');
 }
 
 function format_blog_date_parts(?string $date): array
@@ -106,8 +185,28 @@ function format_recent_blog_date(?string $date): string
     return $dateTime->format('d F Y');
 }
 
-$blogs = fetch_all_blogs();
-$recentBlogs = array_slice($blogs, 0, 3);
+$blogsPerPage = 3;
+$currentPage  = max(1, (int)($_GET['page'] ?? 1));
+$blogs        = [];
+$recentBlogs  = [];
+$totalBlogs   = 0;
+$totalPages   = 0;
+
+$pdo = connect_blog_pdo();
+if ($pdo) {
+    $totalBlogs = fetch_blog_count($pdo);
+    $totalPages = $totalBlogs > 0 ? (int)ceil($totalBlogs / $blogsPerPage) : 0;
+
+    if ($totalPages > 0 && $currentPage > $totalPages) {
+        $currentPage = $totalPages;
+    }
+
+    if ($totalBlogs > 0) {
+        $blogs = fetch_blogs_page($pdo, $currentPage, $blogsPerPage);
+    }
+
+    $recentBlogs = fetch_recent_blogs($pdo, 3);
+}
 
 // Include header and navbar
 include 'includes/common-header.php';
@@ -157,22 +256,18 @@ include 'includes/navbar.php';
                 <?php else: ?>
                     <?php foreach ($blogs as $index => $blog): ?>
                         <?php
-                        $blogId = (int)($blog['id'] ?? 0);
-                        $imagePath = (string)($blog['image_path'] ?? '');
-                        $heading = (string)($blog['heading'] ?? '');
+                        $blogId           = (int)($blog['id'] ?? 0);
+                        $imagePath        = resolve_blog_image_path($blog['image_path'] ?? '', 'assets/images/blog/Blog-bg.jpg');
+                        $heading          = (string)($blog['heading'] ?? '');
                         $shortDescription = (string)($blog['short_description'] ?? '');
-                        $authorName = (string)($blog['author_name'] ?? 'houzzhunt');
-                        $category = trim((string)($blog['category'] ?? ''));
-                        $createdAt = $blog['created_at'] ?? null;
-
-                        if ($imagePath === '') {
-                            $imagePath = 'assets/images/blog/Blog-bg.jpg';
-                        }
+                        $authorName       = (string)($blog['author_name'] ?? 'houzzhunt');
+                        $category         = trim((string)($blog['category'] ?? ''));
+                        $createdAt        = $blog['created_at'] ?? null;
 
                         [$day, $month] = format_blog_date_parts($createdAt);
 
                         $blogLink = $blogId > 0 ? 'blog-details.php?id=' . rawurlencode((string)$blogId) : 'javascript:void(0)';
-                        $delay = 200 + ($index * 200);
+                        $delay    = 200 + ($index * 200);
                         ?>
                         <div class="blog-list-box animate fadeInLeft wow" data-wow-duration="1500ms" data-wow-delay="<?= htmlspecialchars((string)$delay, ENT_QUOTES, 'UTF-8') ?>ms">
                             <div class="blog-single-image">
@@ -198,6 +293,44 @@ include 'includes/navbar.php';
                             </div>
                         </div>
                     <?php endforeach; ?>
+
+                    <?php if ($totalPages > 1): ?>
+                        <nav class="blog-pagination animate fadeInLeft wow" data-wow-duration="1500ms"
+                            data-wow-delay="<?= htmlspecialchars((string)(200 + (count($blogs) * 200)), ENT_QUOTES, 'UTF-8') ?>ms"
+                            aria-label="Blog navigation">
+                            <ul class="pagination">
+                                <?php if ($currentPage > 1): ?>
+                                    <li class="page-item prev">
+                                        <a class="page-link" href="<?= htmlspecialchars(build_blog_page_url($currentPage - 1), ENT_QUOTES, 'UTF-8') ?>"
+                                            aria-label="Previous page">
+                                            &laquo; Previous
+                                        </a>
+                                    </li>
+                                <?php endif; ?>
+
+                                <?php for ($page = 1; $page <= $totalPages; $page++): ?>
+                                    <li class="page-item<?= $page === $currentPage ? ' active' : '' ?>">
+                                        <?php if ($page === $currentPage): ?>
+                                            <span class="page-link" aria-current="page"><?= htmlspecialchars((string)$page, ENT_QUOTES, 'UTF-8') ?></span>
+                                        <?php else: ?>
+                                            <a class="page-link" href="<?= htmlspecialchars(build_blog_page_url($page), ENT_QUOTES, 'UTF-8') ?>">
+                                                <?= htmlspecialchars((string)$page, ENT_QUOTES, 'UTF-8') ?>
+                                            </a>
+                                        <?php endif; ?>
+                                    </li>
+                                <?php endfor; ?>
+
+                                <?php if ($currentPage < $totalPages): ?>
+                                    <li class="page-item next">
+                                        <a class="page-link" href="<?= htmlspecialchars(build_blog_page_url($currentPage + 1), ENT_QUOTES, 'UTF-8') ?>"
+                                            aria-label="Next page">
+                                            Next &raquo;
+                                        </a>
+                                    </li>
+                                <?php endif; ?>
+                            </ul>
+                        </nav>
+                    <?php endif; ?>
                 <?php endif; ?>
             </div>
 
@@ -240,10 +373,7 @@ include 'includes/navbar.php';
                                     <?php
                                     $recentId = (int)($recent['id'] ?? 0);
                                     $recentLink = $recentId > 0 ? 'blog-details.php?id=' . rawurlencode((string)$recentId) : 'javascript:void(0)';
-                                    $recentImage = (string)($recent['image_path'] ?? '');
-                                    if ($recentImage === '') {
-                                        $recentImage = 'assets/images/blog/Blog-bg.jpg';
-                                    }
+                                    $recentImage = resolve_blog_image_path($recent['image_path'] ?? '', 'assets/images/blog/Blog-bg.jpg');
                                     $recentHeading = (string)($recent['heading'] ?? '');
                                     $recentDate = format_recent_blog_date($recent['created_at'] ?? null);
                                     ?>

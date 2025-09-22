@@ -76,6 +76,31 @@ function format_recent_blog_date(?string $date): string
     return $dateTime->format('d F Y');
 }
 
+function resolve_blog_image_path(?string $path, string $default): string
+{
+    $path = trim((string)$path);
+
+    if ($path === '') {
+        return $default;
+    }
+
+    if (preg_match('#^(?:https?:)?//#i', $path)) {
+        return $path;
+    }
+
+    $normalized = ltrim($path, '/');
+    if (strpos($normalized, './') === 0) {
+        $normalized = substr($normalized, 2);
+    }
+
+    $uploadBase = 'admin/assets/uploads/';
+    if (strpos($normalized, $uploadBase) !== 0) {
+        $normalized = $uploadBase . $normalized;
+    }
+
+    return $normalized;
+}
+
 function format_heading_with_span(string $heading): string
 {
     $heading = trim($heading);
@@ -143,7 +168,7 @@ $defaultImage            = 'assets/images/blog/top-roi-areas-in-dubai-banner.web
 
 $heading           = (string)($blog['heading'] ?? $defaultHeading);
 $bannerDescription = (string)($blog['banner_description'] ?? $defaultBannerDescription);
-$imagePath         = (string)($blog['image_path'] ?? $defaultImage);
+$imagePath         = resolve_blog_image_path($blog['image_path'] ?? '', $defaultImage);
 $shortDescription  = (string)($blog['short_description'] ?? '');
 $authorName        = (string)($blog['author_name'] ?? 'houzzhunt');
 $category          = trim((string)($blog['category'] ?? ''));
@@ -314,10 +339,7 @@ include 'includes/navbar.php';
                                     <?php
                                     $recentId = (int)($recent['id'] ?? 0);
                                     $recentLink = $recentId > 0 ? 'blog-details.php?id=' . rawurlencode((string)$recentId) : 'javascript:void(0)';
-                                    $recentImage = (string)($recent['image_path'] ?? '');
-                                    if ($recentImage === '') {
-                                        $recentImage = 'assets/images/blog/Blog-bg.jpg';
-                                    }
+                                    $recentImage = resolve_blog_image_path($recent['image_path'] ?? '', 'assets/images/blog/Blog-bg.jpg');
                                     $recentHeading = (string)($recent['heading'] ?? '');
                                     $recentDate = format_recent_blog_date($recent['created_at'] ?? null);
                                     ?>
