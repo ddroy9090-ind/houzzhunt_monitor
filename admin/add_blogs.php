@@ -407,7 +407,7 @@ render_sidebar('add-blogs');
     <form method="post" enctype="multipart/form-data" class="row g-3" id="add-blog-form">
       <input type="hidden" name="csrf" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
       <input type="hidden" name="blog_id" value="<?= htmlspecialchars($isEditing ? (string)$editingId : '', ENT_QUOTES, 'UTF-8') ?>">
-      <div class="col-12">
+      <div class="col-lg-6">
         <label for="image" class="form-label">Blog Image</label>
         <input type="file" class="form-control" id="image" name="image" accept="image/*"<?php if (!$isEditing): ?> required<?php endif; ?>>
         <div class="form-text">
@@ -428,38 +428,38 @@ render_sidebar('add-blogs');
           </div>
         <?php endif; ?>
       </div>
-      <div class="col-12 col-md-6">
+      <div class="col-lg-6">
         <label for="heading" class="form-label">Blog Heading</label>
         <input type="text" class="form-control" id="heading" name="heading" value="<?= htmlspecialchars($heading, ENT_QUOTES, 'UTF-8') ?>" required>
       </div>
-      <div class="col-12 col-md-6">
+      <div class="col-lg-6">
         <label for="author_name" class="form-label">Author Name</label>
         <input type="text" class="form-control" id="author_name" name="author_name" value="<?= htmlspecialchars($authorName, ENT_QUOTES, 'UTF-8') ?>" required>
       </div>
-      <div class="col-12">
-        <label for="banner_description" class="form-label">Blog Banner Description</label>
-        <textarea class="form-control" id="banner_description" name="banner_description" rows="3" required><?= htmlspecialchars($bannerDescription, ENT_QUOTES, 'UTF-8') ?></textarea>
-      </div>
-      <div class="col-12 col-md-6">
+      <div class="col-lg-6">
         <label for="category" class="form-label">Blog Category</label>
         <input type="text" class="form-control" id="category" name="category" value="<?= htmlspecialchars($category, ENT_QUOTES, 'UTF-8') ?>" required>
       </div>
-      <div class="col-12 col-md-6">
+      <div class="col-lg-6">
+        <label for="banner_description" class="form-label">Blog Banner Description</label>
+        <textarea class="form-control" id="banner_description" name="banner_description" rows="3" required><?= htmlspecialchars($bannerDescription, ENT_QUOTES, 'UTF-8') ?></textarea>
+      </div>
+      <div class="col-lg-6">
         <label for="short_description" class="form-label">Blog Short Description</label>
         <textarea class="form-control" id="short_description" name="short_description" rows="3" required><?= htmlspecialchars($shortDescription, ENT_QUOTES, 'UTF-8') ?></textarea>
         <div class="form-text">Provide a concise summary that appears on listing pages.</div>
       </div>
-      <div class="col-12 col-md-6">
+      <div class="col-12">
         <label for="meta_title" class="form-label">Meta Title</label>
         <input type="text" class="form-control" id="meta_title" name="meta_title" value="<?= htmlspecialchars($metaTitle, ENT_QUOTES, 'UTF-8') ?>" maxlength="255">
         <div class="form-text">Optional title used for SEO metadata.</div>
       </div>
-      <div class="col-12 col-md-6">
+      <div class="col-lg-6">
         <label for="meta_keywords" class="form-label">Meta Keywords</label>
-        <textarea class="form-control" id="meta_keywords" name="meta_keywords" rows="1"><?= htmlspecialchars($metaKeywords, ENT_QUOTES, 'UTF-8') ?></textarea>
+        <textarea class="form-control" id="meta_keywords" name="meta_keywords" rows="3"><?= htmlspecialchars($metaKeywords, ENT_QUOTES, 'UTF-8') ?></textarea>
         <div class="form-text">Optional comma-separated keywords for search engines.</div>
       </div>
-      <div class="col-12">
+      <div class="col-lg-6">
         <label for="meta_description" class="form-label">Meta Description</label>
         <textarea class="form-control" id="meta_description" name="meta_description" rows="3"><?= htmlspecialchars($metaDescription, ENT_QUOTES, 'UTF-8') ?></textarea>
         <div class="form-text">Optional description that appears in search results.</div>
