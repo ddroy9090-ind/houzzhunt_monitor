@@ -28,7 +28,7 @@ $totalSubmissions = 0;
 $totalPages = 0;
 
 try {
-  $countStmt = $pdo->query('SELECT COUNT(*) FROM popup_enquiry');
+  $countStmt = $pdo->query('SELECT COUNT(*) FROM popup_form');
   $totalSubmissions = (int)$countStmt->fetchColumn();
 
   if ($totalSubmissions > 0) {
@@ -39,7 +39,7 @@ try {
     }
 
     $query = sprintf(
-      'SELECT id, full_name, email, phone, company, ip_address, user_agent, created_at FROM popup_enquiry ORDER BY created_at DESC LIMIT %d OFFSET %d',
+      'SELECT id, name, email, phone, country, ip_address, user_agent, created_at FROM popup_form ORDER BY created_at DESC LIMIT %d OFFSET %d',
       $perPage,
       $offset
     );
@@ -98,7 +98,7 @@ render_sidebar('popup-form');
               <th scope="col">Name</th>
               <th scope="col">Email</th>
               <th scope="col">Phone</th>
-              <th scope="col">Company</th>
+              <th scope="col">Country</th>
               <th scope="col">IP Address</th>
               <th scope="col">User Agent</th>
               <th scope="col">Submitted At</th>
@@ -119,7 +119,7 @@ render_sidebar('popup-form');
               ?>
               <tr>
                 <td><?= (int)$submission['id'] ?></td>
-                <td><?= htmlspecialchars((string)($submission['full_name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
+                <td><?= htmlspecialchars((string)($submission['name'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
                 <td>
                   <?php if (!empty($submission['email'])): ?>
                     <a href="mailto:<?= htmlspecialchars($submission['email'], ENT_QUOTES, 'UTF-8') ?>">
@@ -130,7 +130,7 @@ render_sidebar('popup-form');
                   <?php endif; ?>
                 </td>
                 <td><?= htmlspecialchars((string)($submission['phone'] ?? '—'), ENT_QUOTES, 'UTF-8') ?></td>
-                <td><?= htmlspecialchars((string)($submission['company'] ?? '—'), ENT_QUOTES, 'UTF-8') ?></td>
+                <td><?= htmlspecialchars((string)($submission['country'] ?? '—'), ENT_QUOTES, 'UTF-8') ?></td>
                 <td><?= htmlspecialchars((string)($submission['ip_address'] ?? '—'), ENT_QUOTES, 'UTF-8') ?></td>
                 <td class="text-break">
                   <?php if (!empty($submission['user_agent'])): ?>
