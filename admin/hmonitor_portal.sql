@@ -41,6 +41,23 @@ CREATE TABLE `contact_form` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `popup_form`
+--
+
+CREATE TABLE `popup_form` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `phone` varchar(50) NOT NULL,
+  `country` varchar(255) DEFAULT NULL,
+  `ip_address` varchar(45) DEFAULT NULL,
+  `user_agent` text DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `blogs`
 --
 
@@ -75,6 +92,12 @@ ALTER TABLE `contact_form`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `popup_form`
+--
+ALTER TABLE `popup_form`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- Indexes for table `blogs`
 --
 ALTER TABLE `blogs`
@@ -88,6 +111,12 @@ ALTER TABLE `blogs`
 -- AUTO_INCREMENT for table `contact_form`
 --
 ALTER TABLE `contact_form`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `popup_form`
+--
+ALTER TABLE `popup_form`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 
 --
