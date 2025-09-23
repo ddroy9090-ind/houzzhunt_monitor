@@ -301,7 +301,7 @@
 
 <script>
     $(document).ready(function() {
-        $("#country").countrySelect({
+        $("#popup_country").countrySelect({
             defaultCountry: "ae"
         });
     });
