@@ -1,3 +1,19 @@
+<?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/config.php';
+
+if (session_status() !== PHP_SESSION_ACTIVE) {
+    session_start();
+}
+
+$subscribeFormError = $_SESSION['subscribe_form_error'] ?? null;
+$subscribeFormOld   = $_SESSION['subscribe_form_old'] ?? [];
+
+unset($_SESSION['subscribe_form_error'], $_SESSION['subscribe_form_old']);
+
+$recaptchaSiteKey = hh_recaptcha_site_key();
+?>
 <div class="contact-section">
     <div class="container">
         <div class="row align-items-center gy-4">
@@ -37,16 +53,25 @@
 
                     <h4 class="mb-4">Get in Touch with us!</h4>
 
-                    <form id="leadForm" method="post">
+                    <?php if ($subscribeFormError): ?>
+                        <div class="alert alert-danger" role="alert">
+                            <?php echo htmlspecialchars($subscribeFormError, ENT_QUOTES, 'UTF-8'); ?>
+                        </div>
+                    <?php endif; ?>
+                    <form id="leadForm" method="post" action="subscribe-handler.php">
+                        <input type="hidden" name="redirect"
+                            value="<?php echo htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/', ENT_QUOTES, 'UTF-8'); ?>">
                         <div class="row mb-3">
                             <div class="col">
                                 <label class="form-label">Your Name</label>
                                 <input type="text" name="name" required
+                                    value="<?php echo htmlspecialchars($subscribeFormOld['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                     class="form-control border-0 border-bottom rounded-0 shadow-none">
                             </div>
                             <div class="col">
                                 <label class="form-label">Email Address</label>
                                 <input type="email" name="email" required
+                                    value="<?php echo htmlspecialchars($subscribeFormOld['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                     class="form-control border-0 border-bottom rounded-0 shadow-none">
                             </div>
                         </div>
@@ -54,19 +79,30 @@
                             <div class="col">
                                 <label class="form-label">Phone Number</label>
                                 <input type="text" name="phone" required
+                                    value="<?php echo htmlspecialchars($subscribeFormOld['phone'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                     class="form-control border-0 border-bottom rounded-0 shadow-none">
                             </div>
                             <div class="col">
                                 <label class="form-label">Select Country</label>
                                 <input type="text" name="country1" required id="country1"
+                                    value="<?php echo htmlspecialchars($subscribeFormOld['country1'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
                                     class="form-control border-0 border-bottom rounded-0 shadow-none">
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="g-recaptcha"
+                                data-sitekey="<?php echo htmlspecialchars($recaptchaSiteKey, ENT_QUOTES, 'UTF-8'); ?>">
                             </div>
                         </div>
                         <button type="submit" class="gradient-btn btn-green-glossy">Connect Now</button>
                     </form>
-                    
+
                 </div>
             </div>
         </div>
     </div>
 </div>
+<?php if (!defined('HH_RECAPTCHA_SCRIPT_LOADED')): ?>
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <?php define('HH_RECAPTCHA_SCRIPT_LOADED', true); ?>
+<?php endif; ?>
