@@ -64,6 +64,7 @@
                         </div>
                         <button type="submit" class="gradient-btn btn-green-glossy">Connect Now</button>
                     </form>
+                    
                 </div>
             </div>
         </div>

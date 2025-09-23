@@ -78,36 +78,6 @@
             style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
 
-    <!-- Popup Top Bar -->
-    <!-- <div id="popupBarWrapper">
-        <div class="top-bar">
-            The Allsopp & Allsopp Dubai Property Q@ 2025 Market Snapshot is now available ·
-            <a href="https://www.reliantsurveyors.com/q2-residential-report" target="_blank">Read the report ↗</a>
-        </div>
-    </div>
-    <script>
-        window.addEventListener('load', function () {
-            const popupBar = document.getElementById('popupBarWrapper');
-            const navbar = document.querySelector('nav.navbar.navbar-expand-lg.navbar-custom');
-
-            // ⏳ Wait 3 seconds before showing popup
-            setTimeout(() => {
-                popupBar.classList.add('active');
-                navbar.style.top = '35px';
-
-                // ⏱ After 10 more seconds, hide popup
-                setTimeout(() => {
-                    popupBar.classList.remove('active');
-                    popupBar.classList.add('hide');
-                    navbar.style.top = '0';
-                }, 10000); // 10 sec after popup show
-            }, 3000); // 3 sec after page load
-        });
-    </script> -->
-
-
-
-
     <!-- Popup Overlay -->
     <div class="popup-overlay" id="popupForm">
         <div class="popup-content">
@@ -146,6 +116,7 @@
                         </button>
                     </div>
                 </form>
+                
             </div>
         </div>
     </div>

@@ -61,11 +61,14 @@ include 'includes/navbar.php';
 </div>
 <!-- page header start -->
 
+
+<?php include 'includes/subscribe-form.php'?>
+
 <!-- contact  start -->
 <div class="contact-section">
     <div class="container">
         <div class="row flex-d">
-            <div class="col-lg-6">
+            <div class="col-lg-12">
                 <div class="contact-info animate fadeInLeft wow" data-wow-duration="1500ms" data-wow-delay="200ms">
                     <div class="heading-box">
                         <span class="sub-title animate fadeInUp wow" data-wow-duration="1500ms">Contact</span>
@@ -77,7 +80,6 @@ include 'includes/navbar.php';
                             <img src="assets/images/svg/addres-icon-2.svg" alt="icon">
                             <div class="contact-title">
                                 <h6>Office Address</h6>
-                                <!-- <p>806, Capital Golden Tower <br> Business Bay, Dubai, U.A.E</p> -->
                                 <p>Level 8, Capital Golden Tower - Al Asayel St - Business Bay - Dubai - United Arab Emirates</p>
                             </div>
                         </li>
@@ -98,67 +100,14 @@ include 'includes/navbar.php';
                     </ul>
                 </div>
             </div>
-            <div class="col-lg-6">
-                <div class="contact-form animate fadeInRight wow" data-wow-duration="1500ms" data-wow-delay="200ms">
-                    <form action="#">
-                        <div class="form-group">
-                            <input type="text" name="name" class="form-control" placeholder="Name">
-                            <input type="email" name="email" class="form-control" placeholder="Email">
-                        </div>
-                        <div class="form-group">
-                            <input type="number" name="number" class="form-control" placeholder="Phone number">
-                            <input type="text" name="need" class="form-control" placeholder="what are you needs">
-                        </div>
-                        <div class="form-group">
-                            <textarea name="message" class="form-control" placeholder="Message" rows="4"></textarea>
-                        </div>
-                        <!-- <button type="submit" class="btn btn-secondary btn-theme">Submit Your Enquiry</button> -->
-                         <a href="javascript:void(0)" class="gradient-btn btn-green-glossy">Submit Your Enquiry</a>
-                    </form>
-                </div>
-            </div>
         </div>
     </div>
 </div>
 <!-- service  end -->
 
-<!-- location  start -->
-<!-- <div class="location-section mb-5">
-    <div class="container">
-        <div class="row gutter-y-30">
-            <div class="col-lg-4 col-md-6 animate fadeInRight wow" data-wow-duration="1500ms" data-wow-delay="200ms">
-                <div class="contact-box" style="background-image: url(assets/images/background/location-1.jpg);">
-                    <div class="contact-details">
-                        <h4>Washington, D.C.</h4>
-                        <p>2220 Plymouth Rd #302 Hopkins, Minnesota(MN), 55305</p>
-                        <a href="telto:+ 123 4567 89 000">+ 123 4567 89 000</a>
-                        <a href="mailto:contact@houzzhunt.com">contact@houzzhunt.com</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6  animate fadeInRight wow" data-wow-duration="1500ms" data-wow-delay="400ms">
-                <div class="contact-box" style="background-image: url(assets/images/background/location-2.jpg);">
-                    <div class="contact-details">
-                        <h4>Los Angeles City</h4>
-                        <p>2220 Plymouth Rd #302 Hopkins, Minnesota(MN), 55305</p>
-                        <a href="telto:+ 123 4567 89 000">+ 123 4567 89 000</a>
-                        <a href="mailto:contact@houzzhunt.com">contact@houzzhunt.com</a>
-                    </div>
-                </div>
-            </div>
-            <div class="col-lg-4 col-md-6  animate fadeInRight wow" data-wow-duration="1500ms" data-wow-delay="600ms">
-                <div class="contact-box" style="background-image: url(assets/images/background/location-3.jpg);">
-                    <div class="contact-details">
-                        <h4>New York City</h4>
-                        <p>2220 Plymouth Rd #302 Hopkins, Minnesota(MN), 55305</p>
-                        <a href="telto:+ 123 4567 89 000">+ 123 4567 89 000</a>
-                        <a href="mailto:contact@houzzhunt.com">contact@houzzhunt.com</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div> -->
+
+
+
 
 <div class="map">
     <iframe
