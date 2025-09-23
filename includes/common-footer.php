@@ -476,11 +476,9 @@
     });
 </script>
 
-</script>
 
 
 <!-- -----Career Form------ -->
-
 
 <script>
     $(document).ready(function() {
@@ -508,11 +506,6 @@
         });
     });
 </script>
-
-
-<!-- --- contact form--- -->
-
-
 
 </body>
 
