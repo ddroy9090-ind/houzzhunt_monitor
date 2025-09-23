@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/includes/config.php';
+
 $blogId = (int)($_GET['id'] ?? 0);
 
 function connect_blog_pdo(): ?PDO
@@ -11,8 +13,13 @@ function connect_blog_pdo(): ?PDO
     }
 
     try {
-        $dsn = 'mysql:host=localhost;port=3306;dbname=hmonitor_portal;charset=utf8mb4';
-        $pdo = new PDO($dsn, 'root', '', [
+        $dsn = sprintf(
+            'mysql:host=%s;port=%s;dbname=%s;charset=utf8mb4',
+            HH_DB_HOST,
+            HH_DB_PORT,
+            HH_DB_NAME
+        );
+        $pdo = new PDO($dsn, HH_DB_USER, HH_DB_PASS, [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES   => false,

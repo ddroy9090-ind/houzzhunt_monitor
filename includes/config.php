@@ -6,9 +6,9 @@ if (!defined('HH_CONFIG_INITIALIZED')) {
 
     define('HH_DB_HOST', getenv('DB_HOST') ?: 'localhost');
     define('HH_DB_PORT', getenv('DB_PORT') ?: '3306');
-    define('HH_DB_NAME', getenv('DB_NAME') ?: 'hmonitor_portal');
-    define('HH_DB_USER', getenv('DB_USER') ?: 'root');
-    define('HH_DB_PASS', getenv('DB_PASS') ?: '');
+    define('HH_DB_NAME', getenv('DB_NAME') ?: 'u431421769_monitor_hunt');
+    define('HH_DB_USER', getenv('DB_USER') ?: 'u431421769_hh_monitor');
+    define('HH_DB_PASS', getenv('DB_PASS') ?: 'Admin@hunt123');
 
     define('HH_RECAPTCHA_SITE_KEY', getenv('RECAPTCHA_SITE_KEY') ?: '6Lerl80rAAAAAJBNH6-EKog7afnQ-xMbXmByr-X9');
     define('HH_RECAPTCHA_SECRET_KEY', getenv('RECAPTCHA_SECRET_KEY') ?: '6Lerl80rAAAAAKtfsJsnElOx2KydWRzrqf2Y3u76');
