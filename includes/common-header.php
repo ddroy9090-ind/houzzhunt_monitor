@@ -85,7 +85,7 @@ hh_session_start();
             style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
 
-    <!-- Popup Overlay -->
+    <!-- Popup Form -->
     <div class="popup-overlay" id="popupForm">
         <div class="popup-content">
             <div class="popup-image"></div>
@@ -123,7 +123,7 @@ hh_session_start();
                         </button>
                     </div>
                 </form>
-                
+
             </div>
         </div>
     </div>
