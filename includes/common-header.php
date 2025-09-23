@@ -1,3 +1,10 @@
+<?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/config.php';
+
+hh_session_start();
+?>
 <!DOCTYPE html>
 <html lang="en">
 

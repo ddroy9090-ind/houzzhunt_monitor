@@ -10,8 +10,8 @@ if (!defined('HH_CONFIG_INITIALIZED')) {
     define('HH_DB_USER', getenv('DB_USER') ?: 'root');
     define('HH_DB_PASS', getenv('DB_PASS') ?: '');
 
-    define('HH_RECAPTCHA_SITE_KEY', getenv('RECAPTCHA_SITE_KEY') ?: 'your-site-key-here');
-    define('HH_RECAPTCHA_SECRET_KEY', getenv('RECAPTCHA_SECRET_KEY') ?: 'your-secret-key-here');
+    define('HH_RECAPTCHA_SITE_KEY', getenv('RECAPTCHA_SITE_KEY') ?: '6Lerl80rAAAAAJBNH6-EKog7afnQ-xMbXmByr-X9');
+    define('HH_RECAPTCHA_SECRET_KEY', getenv('RECAPTCHA_SECRET_KEY') ?: '6Lerl80rAAAAAKtfsJsnElOx2KydWRzrqf2Y3u76');
 }
 
 if (!function_exists('hh_db')) {
@@ -51,5 +51,14 @@ if (!function_exists('hh_recaptcha_secret_key')) {
     function hh_recaptcha_secret_key(): string
     {
         return HH_RECAPTCHA_SECRET_KEY;
+    }
+}
+
+if (!function_exists('hh_session_start')) {
+    function hh_session_start(): void
+    {
+        if (session_status() === PHP_SESSION_NONE && !headers_sent()) {
+            session_start();
+        }
     }
 }

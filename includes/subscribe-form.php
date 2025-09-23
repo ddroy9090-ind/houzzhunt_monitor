@@ -3,9 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/config.php';
 
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
+hh_session_start();
 
 $subscribeFormError = $_SESSION['subscribe_form_error'] ?? null;
 $subscribeFormOld   = $_SESSION['subscribe_form_old'] ?? [];
