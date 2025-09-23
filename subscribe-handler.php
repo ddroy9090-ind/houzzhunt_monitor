@@ -3,9 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/includes/config.php';
 
-if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_start();
-}
+hh_session_start();
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'POST') {
     header('Location: ' . ($_SERVER['HTTP_REFERER'] ?? '/'));
