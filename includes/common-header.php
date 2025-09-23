@@ -4,6 +4,13 @@ declare(strict_types=1);
 require_once __DIR__ . '/config.php';
 
 hh_session_start();
+
+$popupFormError = $_SESSION['popup_form_error'] ?? null;
+$popupFormOld   = $_SESSION['popup_form_old'] ?? [];
+
+unset($_SESSION['popup_form_error'], $_SESSION['popup_form_old']);
+
+$recaptchaSiteKey = hh_recaptcha_site_key();
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -96,25 +103,48 @@ hh_session_start();
                     Unlock expert advice, exclusive listings & investment insights.
                 </p>
 
-                <form method="POST" class="appointment-form">
+                <form method="POST" class="appointment-form" action="popup-handler.php">
+                    <input type="hidden" name="redirect"
+                        value="<?php echo htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/', ENT_QUOTES, 'UTF-8'); ?>">
+
+                    <?php if ($popupFormError): ?>
+                        <div class="alert alert-danger" role="alert">
+                            <?php echo htmlspecialchars($popupFormError, ENT_QUOTES, 'UTF-8'); ?>
+                        </div>
+                    <?php endif; ?>
+
                     <div class="form-group">
-                        <label for="name">Enter Name</label>
-                        <input type="text" name="name" id="name" class="form-control" required>
+                        <label for="popup_name">Enter Name</label>
+                        <input type="text" name="name" id="popup_name"
+                            value="<?php echo htmlspecialchars($popupFormOld['name'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                            class="form-control" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="email">Enter Email</label>
-                        <input type="email" name="email" id="email" class="form-control" required>
+                        <label for="popup_email">Enter Email</label>
+                        <input type="email" name="email" id="popup_email"
+                            value="<?php echo htmlspecialchars($popupFormOld['email'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                            class="form-control" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="country">Select Country</label>
-                        <input type="text" name="country" id="country" class="form-control" required>
+                        <label for="popup_country">Select Country</label>
+                        <input type="text" name="country" id="popup_country"
+                            value="<?php echo htmlspecialchars($popupFormOld['country'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                            class="form-control" required>
                     </div>
 
                     <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" name="phone" id="phone" class="form-control" required>
+                        <label for="popup_phone">Phone Number</label>
+                        <input type="tel" name="phone" id="popup_phone"
+                            value="<?php echo htmlspecialchars($popupFormOld['phone'] ?? '', ENT_QUOTES, 'UTF-8'); ?>"
+                            class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="g-recaptcha"
+                            data-sitekey="<?php echo htmlspecialchars($recaptchaSiteKey, ENT_QUOTES, 'UTF-8'); ?>">
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -127,6 +157,11 @@ hh_session_start();
             </div>
         </div>
     </div>
+
+    <?php if (!defined('HH_RECAPTCHA_SCRIPT_LOADED')): ?>
+        <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+        <?php define('HH_RECAPTCHA_SCRIPT_LOADED', true); ?>
+    <?php endif; ?>
     
 
 
