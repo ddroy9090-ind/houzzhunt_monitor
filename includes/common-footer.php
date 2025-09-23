@@ -419,65 +419,6 @@
     });
 </script>
 
-<!-- ----------AJAX FORM CRM DATA------- -->
-
-<script>
-    $(document).ready(function() {
-        $(".appointment-form").on("submit", function(e) {
-            e.preventDefault();
-
-            // Form data collect
-            const name = $('#name').val().trim();
-            const phone = $('#phone').val().trim();
-            const email = $('#email').val().trim();
-            const country = $('#country').val().trim();
-
-            // TeleCRM API payload
-            const data = {
-                fields: {
-                    name: name,
-                    phone: phone,
-                    email: email,
-                    country: country
-                },
-                actions: [{
-                    type: "SYSTEM_NOTE",
-                    text: "Lead Source: Popup Form"
-                }]
-            };
-
-            $.ajax({
-                url: "https://api.telecrm.in/enterprise/685c0a8b9846bf4716e3dc4f/autoupdatelead", // <-- yahan tumhari API endpoint hogi
-                type: "POST",
-                headers: {
-                    "Authorization": "Bearer 6fd6c60c-fb6b-44e1-9159-c4e5537eafb91752571733690:3f3226a7-0e87-4f93-a196-c92450fd3436", // <-- apna API key yahan dalna
-                    "Content-Type": "application/json"
-                },
-                data: JSON.stringify(data),
-                success: function(response) {
-                    console.log("TeleCRM Response:", response);
-                    
-                    // Show success alert first
-                    alert("Your data has been submitted successfully!");
-
-                    // Form reset
-                    $(".appointment-form")[0].reset();
-
-                    // Redirect to thankyou.php
-                    window.location.href = "thankyou.php";
-                },
-                error: function(xhr, status, error) {
-                    console.error("AJAX Error:", status, error);
-                    console.error("Raw Response:", xhr.responseText);
-                    alert("Something went wrong while submitting the form. Please try again.");
-                }
-            });
-        });
-    });
-</script>
-
-
-
 <!-- -----Career Form------ -->
 
 <script>
