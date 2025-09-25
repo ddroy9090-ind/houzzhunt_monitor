@@ -3,8 +3,6 @@ require_once __DIR__ . '/includes/config.php';
 
 $title = 'houzzhunt | Real Estate Insights & Trends';
 $meta_tags = '
-    
-
     <!-- Basic Meta -->
     <meta name="title" content="houzzhunt | Real Estate Insights & Trends ">
     <meta name="description" content="Stay informed with expert insights from houzzhunt. Explore real estate trends, market updates, and investment tips across UAE and global property markets.">
@@ -15,19 +13,17 @@ $meta_tags = '
     <meta property="og:title" content="houzzhunt | Explore Properties, Real Estate Listings & Investment Opportunities">
     <meta property="og:description" content="Discover top residential and commercial properties, rent or buy your next dream home, and explore investment opportunities with houzzhunt – your reliable real estate portal.">
     <meta property="og:url" content="https://www.houzzhunt.com">
-    
-    
-    <!-- Optional: replace with your actual image -->
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="houzzhunt | Explore Properties, Real Estate Listings & Investment Opportunities">
     <meta name="twitter:description" content="Discover top residential and commercial properties, rent or buy your next dream home, and explore investment opportunities with houzzhunt – your reliable real estate portal.">
-    <meta name="twitter:image" content="https://www.houzzhunt.com/assets/images/meta-banner.jpg"> 
-
-    <!-- Optional -->
+    <meta name="twitter:image" content="https://www.houzzhunt.com/assets/images/meta-banner.jpg">
 ';
 
+/**
+ * DB connection for blogs
+ */
 function connect_blog_pdo(): ?PDO
 {
     static $pdo = null;
@@ -46,7 +42,7 @@ function connect_blog_pdo(): ?PDO
         $pdo = new PDO($dsn, HH_DB_USER, HH_DB_PASS, [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES   => false,
+            PDO::ATTR_EMULATE_PREPARES   => false, // keep strict; we’ll inline LIMIT/OFFSET ints
         ]);
     } catch (Throwable $exception) {
         error_log('Failed to connect to the blogs database: ' . $exception->getMessage());
@@ -61,68 +57,65 @@ function fetch_blog_count(PDO $pdo): int
     try {
         $statement = $pdo->query('SELECT COUNT(*) FROM blogs');
         $count     = $statement !== false ? (int)$statement->fetchColumn() : 0;
-
         return max(0, $count);
     } catch (Throwable $exception) {
         error_log('Failed to count blogs: ' . $exception->getMessage());
     }
-
     return 0;
 }
 
+/**
+ * IMPORTANT FIX:
+ * Don’t bind LIMIT/OFFSET when ATTR_EMULATE_PREPARES = false.
+ * Safely inline validated integers instead.
+ */
 function fetch_blogs_page(PDO $pdo, int $page, int $perPage): array
 {
     $page    = max(1, $page);
     $perPage = max(1, $perPage);
     $offset  = ($page - 1) * $perPage;
 
+    // hard-cast to int and inline
+    $perPageSql = (int)$perPage;
+    $offsetSql  = (int)$offset;
+
     try {
-        $statement = $pdo->prepare(
-            'SELECT id, image_path, heading, short_description, author_name, category, created_at '
-            . 'FROM blogs ORDER BY created_at DESC LIMIT :limit OFFSET :offset'
-        );
-        $statement->bindValue(':limit', $perPage, PDO::PARAM_INT);
-        $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
-        $statement->execute();
-
-        $blogs = $statement->fetchAll();
-
+        $sql = "SELECT id, image_path, heading, short_description, author_name, category, created_at
+                FROM blogs
+                ORDER BY created_at DESC
+                LIMIT {$perPageSql} OFFSET {$offsetSql}";
+        $statement = $pdo->query($sql);
+        $blogs = $statement ? $statement->fetchAll() : [];
         return is_array($blogs) ? $blogs : [];
     } catch (Throwable $exception) {
         error_log('Failed to fetch paginated blogs: ' . $exception->getMessage());
     }
-
     return [];
 }
 
 function fetch_recent_blogs(PDO $pdo, int $limit = 3): array
 {
-    $limit = max(1, $limit);
+    $limit = max(1, (int)$limit);
+    $limitSql = (int)$limit;
 
     try {
-        $statement = $pdo->prepare(
-            'SELECT id, image_path, heading, created_at FROM blogs ORDER BY created_at DESC LIMIT :limit'
-        );
-        $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
-        $statement->execute();
-
-        $blogs = $statement->fetchAll();
-
+        $sql = "SELECT id, image_path, heading, created_at
+                FROM blogs
+                ORDER BY created_at DESC
+                LIMIT {$limitSql}";
+        $statement = $pdo->query($sql);
+        $blogs = $statement ? $statement->fetchAll() : [];
         return is_array($blogs) ? $blogs : [];
     } catch (Throwable $exception) {
         error_log('Failed to fetch recent blogs: ' . $exception->getMessage());
     }
-
     return [];
 }
 
 function resolve_blog_image_path(?string $path, string $default): string
 {
     $path = trim((string)$path);
-
-    if ($path === '') {
-        return $default;
-    }
+    if ($path === '') return $default;
 
     if (preg_match('#^(?:https?:)?//#i', $path)) {
         return $path;
@@ -131,24 +124,13 @@ function resolve_blog_image_path(?string $path, string $default): string
     $normalized = str_replace('\\', '/', $path);
     $normalized = preg_replace('#^(?:\./)+#', '', $normalized);
     $normalized = ltrim((string)$normalized, '/');
-
-    if ($normalized === '') {
-        return $default;
-    }
+    if ($normalized === '') return $default;
 
     $uploadBase = 'admin/assets/uploads/';
 
-    if (strpos($normalized, $uploadBase) === 0) {
-        return $normalized;
-    }
-
-    if (strpos($normalized, 'assets/uploads/') === 0) {
-        return 'admin/' . $normalized;
-    }
-
-    if (strpos($normalized, 'uploads/') === 0) {
-        return 'admin/assets/' . $normalized;
-    }
+    if (strpos($normalized, $uploadBase) === 0) return $normalized;
+    if (strpos($normalized, 'assets/uploads/') === 0) return 'admin/' . $normalized;
+    if (strpos($normalized, 'uploads/') === 0) return 'admin/assets/' . $normalized;
 
     return $uploadBase . $normalized;
 }
@@ -157,50 +139,34 @@ function build_blog_page_url(int $page): string
 {
     $page = max(1, $page);
     $params = $_GET;
-
-    if (!is_array($params)) {
-        $params = [];
-    }
-
+    if (!is_array($params)) $params = [];
     unset($params['page']);
     $params['page'] = $page;
-
     $queryString = http_build_query($params);
-
     return 'blogs.php' . ($queryString !== '' ? '?' . $queryString : '');
 }
 
 function format_blog_date_parts(?string $date): array
 {
-    if (!$date) {
-        return ['', ''];
-    }
-
+    if (!$date) return ['', ''];
     try {
         $dateTime = new DateTimeImmutable($date);
     } catch (Throwable $exception) {
         error_log('Failed to parse blog date: ' . $exception->getMessage());
-
         return ['', ''];
     }
-
     return [$dateTime->format('d'), $dateTime->format('F')];
 }
 
 function format_recent_blog_date(?string $date): string
 {
-    if (!$date) {
-        return '';
-    }
-
+    if (!$date) return '';
     try {
         $dateTime = new DateTimeImmutable($date);
     } catch (Throwable $exception) {
         error_log('Failed to parse recent blog date: ' . $exception->getMessage());
-
         return '';
     }
-
     return $dateTime->format('d F Y');
 }
 
@@ -244,20 +210,13 @@ include 'includes/navbar.php';
             </div>
         </div>
         <ul class="breadcrumb">
-            <li>
-                <a href="index.php">Home</a>
-            </li>
-            <li>
-                <img src="assets/images/about/arrow-brudcrumb.svg" alt="icon">
-            </li>
-            <li>
-                <span>Blog</span>
-            </li>
+            <li><a href="index.php">Home</a></li>
+            <li><img src="assets/images/about/arrow-brudcrumb.svg" alt="icon"></li>
+            <li><span>Blog</span></li>
         </ul>
     </div>
 </div>
 <!-- page header end -->
-
 
 <!-- blog start -->
 <div class="blog-single-section">
@@ -320,8 +279,7 @@ include 'includes/navbar.php';
                             <ul class="pagination">
                                 <?php if ($currentPage > 1): ?>
                                     <li class="page-item prev">
-                                        <a class="page-link" href="<?= htmlspecialchars(build_blog_page_url($currentPage - 1), ENT_QUOTES, 'UTF-8') ?>"
-                                            aria-label="Previous page">
+                                        <a class="page-link" href="<?= htmlspecialchars(build_blog_page_url($currentPage - 1), ENT_QUOTES, 'UTF-8') ?>" aria-label="Previous page">
                                             &laquo; Previous
                                         </a>
                                     </li>
@@ -341,8 +299,7 @@ include 'includes/navbar.php';
 
                                 <?php if ($currentPage < $totalPages): ?>
                                     <li class="page-item next">
-                                        <a class="page-link" href="<?= htmlspecialchars(build_blog_page_url($currentPage + 1), ENT_QUOTES, 'UTF-8') ?>"
-                                            aria-label="Next page">
+                                        <a class="page-link" href="<?= htmlspecialchars(build_blog_page_url($currentPage + 1), ENT_QUOTES, 'UTF-8') ?>" aria-label="Next page">
                                             Next &raquo;
                                         </a>
                                     </li>
@@ -359,8 +316,7 @@ include 'includes/navbar.php';
                         <div class="blog-serch-widget">
                             <form action="#">
                                 <input type="search" placeholder="Search Here ... ">
-                                <button type="submit"><img src="assets/images/svg/header/Search.svg"
-                                        alt="icon"></button>
+                                <button type="submit"><img src="assets/images/svg/header/Search.svg" alt="icon"></button>
                             </form>
                         </div>
                     </div>
@@ -419,8 +375,7 @@ include 'includes/navbar.php';
                             </ul>
                         </div>
                     </div>
-                    <div class="blog-block cta-widget animate fadeInRight wow" data-wow-duration="1500ms"
-                        data-wow-delay="1000ms">
+                    <div class="blog-block cta-widget animate fadeInRight wow" data-wow-duration="1500ms" data-wow-delay="1000ms">
                         <div class="bolg-cta-widget">
                             <h4>Request a Call Back</h4>
                             <p>Unlock exclusive opportunities in Dubai’s most coveted addresses. From curated listings to personalized advisory, we make your property journey seamless, secure, and rewarding.</p>
@@ -428,21 +383,19 @@ include 'includes/navbar.php';
                             <a href="contact.php" class="gradient-btn btn-green-glossy">Contact Us</a>
                         </div>
                     </div>
-                    <div class="blog-block mb-0 animate fadeInRight wow" data-wow-duration="1500ms"
-                        data-wow-delay="1200ms">
+                    <div class="blog-block mb-0 animate fadeInRight wow" data-wow-duration="1500ms" data-wow-delay="1200ms">
                         <div class="insta-post-widget">
                             <h4>Instagram Post</h4>
                             <div class="insta-post">
                                 <a href="#" class="insta-image">
                                     <img src="assets/images/blog/tech-driven.webp" alt="insta-image">
                                 </a>
-                                
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            
+
         </div>
     </div>
 </div>

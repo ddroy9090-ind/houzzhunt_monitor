@@ -32,7 +32,7 @@ $recaptchaSiteKey = hh_recaptcha_site_key();
     <link rel="canonical" href="<?php echo $canonical_url; ?>">
 
 
-    <link rel="shortcut icon" href="assets/images/logo/HH-logo.png" type="image/x-icon">
+    <link rel="shortcut icon" href="assets/images/logo/favicon.svg" type="image/x-icon">
     <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/country-select-js@2.0.1/build/css/countrySelect.min.css">
@@ -103,7 +103,7 @@ $recaptchaSiteKey = hh_recaptcha_site_key();
                     Unlock expert advice, exclusive listings & investment insights.
                 </p>
 
-                <form method="POST" class="appointment-form" action="popup-handler.php">
+                <form method="POST" class="appointment-form" action="popup-handler">
                     <input type="hidden" name="redirect"
                         value="<?php echo htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/', ENT_QUOTES, 'UTF-8'); ?>">
 

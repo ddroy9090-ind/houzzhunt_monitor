@@ -725,7 +725,6 @@
             }
         }
     </style>
-    
 </head>
 
 <body>

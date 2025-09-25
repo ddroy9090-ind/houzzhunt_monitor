@@ -257,7 +257,7 @@ include 'includes/navbar.php';
 ?>
 
 <!-- page header start -->
-<div class="page-header-section" style="background-image: url(<?= htmlspecialchars($imagePath, ENT_QUOTES, 'UTF-8') ?>);">
+<div class="page-header-section" style="background-image: url('assets/images/banner/blog-details.webp');">
     <div class="container">
         <div class="row">
             <div class="col-xl-8 col-lg-12">
@@ -289,7 +289,7 @@ include 'includes/navbar.php';
         <div class="row">
             <div class="col-lg-8">
                 <?php if ($blog): ?>
-                    <div class="blog-list-box animate fadeInLeft wow" data-wow-duration="1500ms" data-wow-delay="200ms">
+                    <div class="blog-list-box animate fadeInLeft wow" data-wow-duration="1500ms" data-wow-delay="200ms" style="margin-bottom:15px;">
                         <h2 class="heading-title"><?= format_heading_with_span($heading) ?></h2>
                         <?php if ($bannerDescription !== ''): ?>
                             <p><?= nl2br(htmlspecialchars($bannerDescription, ENT_QUOTES, 'UTF-8')) ?></p>
@@ -305,6 +305,7 @@ include 'includes/navbar.php';
                         <?php endif; ?>
                     </div>
                     <div class="blog-list-box animate fadeInLeft wow" data-wow-duration="1500ms" data-wow-delay="300ms">
+                        <img src="<?= htmlspecialchars($imagePath, ENT_QUOTES, 'UTF-8') ?>" class="mb-3">
                         <div class="blog-content">
                             <?= $blogContent ?>
                         </div>

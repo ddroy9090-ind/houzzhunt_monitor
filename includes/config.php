@@ -4,14 +4,16 @@ declare(strict_types=1);
 if (!defined('HH_CONFIG_INITIALIZED')) {
     define('HH_CONFIG_INITIALIZED', true);
 
+    // ---- DB (live defaults; env vars still supported) ----
     define('HH_DB_HOST', getenv('DB_HOST') ?: 'localhost');
     define('HH_DB_PORT', getenv('DB_PORT') ?: '3306');
-    define('HH_DB_NAME', getenv('DB_NAME') ?: 'hmonitor_portal');
+    define('HH_DB_NAME', getenv('DB_NAME') ?: 'u431421769_monitor_hunt');
     define('HH_DB_USER', getenv('DB_USER') ?: 'root');
     define('HH_DB_PASS', getenv('DB_PASS') ?: '');
 
-    define('HH_RECAPTCHA_SITE_KEY', getenv('RECAPTCHA_SITE_KEY') ?: '6Lerl80rAAAAAJBNH6-EKog7afnQ-xMbXmByr-X9');
-    define('HH_RECAPTCHA_SECRET_KEY', getenv('RECAPTCHA_SECRET_KEY') ?: '6Lerl80rAAAAAKtfsJsnElOx2KydWRzrqf2Y3u76');
+    // ---- reCAPTCHA (unchanged) ----
+    define('HH_RECAPTCHA_SITE_KEY', getenv('RECAPTCHA_SITE_KEY') ?: '6LfsT9IrAAAAALx6HawW63nF2e1c9nLRJwXNDxTM');
+    define('HH_RECAPTCHA_SECRET_KEY', getenv('RECAPTCHA_SECRET_KEY') ?: '6LfsT9IrAAAAAHdqpDxlj9-1rnq-p1e3vIE3Cohn');
 }
 
 if (!function_exists('hh_db')) {
@@ -33,6 +35,7 @@ if (!function_exists('hh_db')) {
         $pdo = new PDO($dsn, HH_DB_USER, HH_DB_PASS, [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+            // Keep native prepares OFF for LIMIT/OFFSET binding issues:
             PDO::ATTR_EMULATE_PREPARES   => false,
         ]);
 

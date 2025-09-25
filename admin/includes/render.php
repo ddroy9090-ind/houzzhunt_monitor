@@ -34,8 +34,8 @@ function render_sidebar(string $active): void
   $csrf = htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8');
   $items = [
     'home'      => ['href' => 'index.php', 'icon' => 'bi-house',     'label' => 'Dashboard'],
-    // 'logs'      => ['href' => 'page_access_logs.php', 'icon' => 'bi-universal-access-circle',       'label' => 'Page Access Logs'],
-    // 'analytics' => ['href' => 'analytics_dashboard.php', 'icon' => 'bi-graph-up-arrow', 'label' => 'Analytics Dashboard'],
+    'logs'      => ['href' => 'page_access_logs.php', 'icon' => 'bi-universal-access-circle',       'label' => 'Page Access Logs'],
+    'analytics' => ['href' => 'analytics_dashboard.php', 'icon' => 'bi-graph-up-arrow', 'label' => 'Analytics Dashboard'],
     'contact-form' => ['href' => 'contact_form_submissions.php', 'icon' => 'bi-person-rolodex', 'label' => 'Contact Submissions'],
     'popup-form' => ['href' => 'popup_form_submissions.php', 'icon' => 'bi-database', 'label' => 'Popup Submissions'],
     'add-blogs' => ['href' => 'add_blogs.php', 'icon' => 'bi-journal-plus', 'label' => 'Add Blogs'],

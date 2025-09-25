@@ -191,7 +191,7 @@ table td {
     background-image: url("../BG.png");
     background-repeat: repeat;
     background-size: cover;
-    /* background-blend-mode: multiply; */
+    /*background-blend-mode: multiply;*/
 }
 
 .login-logo{

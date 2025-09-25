@@ -56,7 +56,7 @@ $recaptchaSiteKey = hh_recaptcha_site_key();
                             <?php echo htmlspecialchars($subscribeFormError, ENT_QUOTES, 'UTF-8'); ?>
                         </div>
                     <?php endif; ?>
-                    <form id="leadForm" method="post" action="subscribe-handler.php">
+                    <form id="leadForm" method="post" action="subscribe-handler">
                         <input type="hidden" name="redirect"
                             value="<?php echo htmlspecialchars($_SERVER['REQUEST_URI'] ?? '/', ENT_QUOTES, 'UTF-8'); ?>">
                         <div class="row mb-3">

@@ -1,7 +1,7 @@
 <!-- Navbar HTML -->
 <nav class="navbar navbar-expand-lg navbar-custom">
     <div class="container-fluid">
-        <a class="navbar-brand" href="index.php">
+        <a class="navbar-brand" href="/">
             <img src="assets/images/logo/logo.svg" alt="">
         </a>
         <button class="navbar-toggler text-white" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">

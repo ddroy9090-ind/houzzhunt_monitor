@@ -4460,14 +4460,7 @@ nav.navbar-custom {
     transition: top 0.5s ease;
 }
 
-button#callBtn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 50px !important;
-    height: 50px;
-    z-index: 1;
-}
+
 
 #leadFormone .form-group {
     display: block;
@@ -4503,6 +4496,16 @@ button#callBtn {
     .hh-reviews .hh-card p {
         font-size: 14px;
     }
+}
+
+
+button#callBtn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 50px !important;
+    height: 50px;
+    z-index: 1;
 }
 
 
@@ -4726,7 +4729,7 @@ button#callBtn {
 
     button#callBtn {
         top: 14px;
-        right: 48px;
+        right: 48px !important;
         width: 25px !important;
         height: 25px;
         z-index: 99998;

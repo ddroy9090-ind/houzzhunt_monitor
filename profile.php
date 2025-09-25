@@ -282,9 +282,8 @@
                 "URL" => "www.houzzhunt.com"
             ]
         ],
-
-
-        "kapilarora" => [
+        
+         "kapilarora" => [
             "name" => "Kapil Arora",
             "title" => "Property Consultant | Social Media Manager",
             "phone" => "+971 501888765",
@@ -303,7 +302,8 @@
                 "URL" => "www.houzzhunt.com"
             ]
         ],
-
+        
+        
         "kapilpuniani" => [
         "name" => "Kapil Puniani",
         "title" => "Director - Investment and Advisory",
@@ -471,14 +471,10 @@
 
 
             <ul class="social-links">
-                <li><a href="https://www.instagram.com/houzzhunt/?hl=en"> <img src="assets/flaticons/instagram.png"
-                            alt="Instagram"></a></li>
-                <li><a href="https://www.linkedin.com/company/houzz-hunt/"> <img src="assets/flaticons/linkedin.png"
-                            alt="LinkedIn"></a></li>
-                <li><a href="https://www.facebook.com/people/Houzz-Hunt/61574436629351/"> <img
-                            src="assets/flaticons/facebook.png" alt="Facebook"></a></li>
-                <li><a href="https://www.youtube.com/@HouzzHunt"> <img src="assets/flaticons/youtube.png"
-                            alt="YouTube"></a></li>
+                <li><a href="https://www.instagram.com/houzzhunt/?hl=en"> <img src="assets/flaticons/instagram.png" alt="Instagram"></a></li>
+                <li><a href="https://www.linkedin.com/company/houzz-hunt/"> <img src="assets/flaticons/linkedin.png" alt="LinkedIn"></a></li>
+                <li><a href="https://www.facebook.com/people/Houzz-Hunt/61574436629351/"> <img src="assets/flaticons/facebook.png" alt="Facebook"></a></li>
+                <li><a href="https://www.youtube.com/@HouzzHunt"> <img src="assets/flaticons/youtube.png" alt="YouTube"></a></li>
                 <li><a href="https://x.com/HouzzHunt"> <img src="assets/flaticons/twitter.png" alt="Twitter"></a></li>
             </ul>
 
