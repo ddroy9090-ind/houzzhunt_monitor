@@ -275,7 +275,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
       } else {
         $stmt = $pdo->prepare(
-            'INSERT INTO blogs (
+          'INSERT INTO blogs (
                 image_path,
                 heading,
                 banner_description,
@@ -388,7 +388,7 @@ render_sidebar('add-blogs');
   <?php endif; ?>
 
   <?php if ($success): ?>
-    <div class="alert alert-success fade show" role="alert" id="blog-success-alert"<?php if ($resetFormOnSuccess): ?> data-reset-form="1"<?php endif; ?>>
+    <div class="alert alert-success fade show" role="alert" id="blog-success-alert" <?php if ($resetFormOnSuccess): ?> data-reset-form="1" <?php endif; ?>>
       <?= htmlspecialchars($success, ENT_QUOTES, 'UTF-8') ?>
     </div>
   <?php endif; ?>
@@ -407,16 +407,31 @@ render_sidebar('add-blogs');
     <form method="post" enctype="multipart/form-data" class="row g-3" id="add-blog-form">
       <input type="hidden" name="csrf" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
       <input type="hidden" name="blog_id" value="<?= htmlspecialchars($isEditing ? (string)$editingId : '', ENT_QUOTES, 'UTF-8') ?>">
-      <div class="col-lg-6">
+
+      <div class="col-lg-12">
         <label for="image" class="form-label">Blog Image</label>
-        <input type="file" class="form-control" id="image" name="image" accept="image/*"<?php if (!$isEditing): ?> required<?php endif; ?>>
-        <div class="form-text">
+        <div class="upload-box">
+          <input
+            type="file"
+            class="form-control file-input"
+            id="image"
+            name="image"
+            accept="image/*"
+            <?php if (!$isEditing): ?> required<?php endif; ?>>
+          <div class="upload-content">
+            <img src="assets/images/file.png" alt="Upload Icon" width="30px">
+            <p>Drop files here or click to upload</p>
+          </div>
+        </div>
+
+        <div class="form-text mt-2">
           <?php if ($isEditing): ?>
             Upload a new image to replace the existing one. Leave this field empty to keep the current image.
           <?php else: ?>
             Upload a featured image for the blog post.
           <?php endif; ?>
         </div>
+
         <?php if ($isEditing): ?>
           <div class="small text-muted mt-1">
             <?php if ($currentImagePath !== ''): ?>
@@ -428,15 +443,16 @@ render_sidebar('add-blogs');
           </div>
         <?php endif; ?>
       </div>
+
       <div class="col-lg-6">
         <label for="heading" class="form-label">Blog Heading</label>
         <input type="text" class="form-control" id="heading" name="heading" value="<?= htmlspecialchars($heading, ENT_QUOTES, 'UTF-8') ?>" required>
       </div>
-      <div class="col-lg-6">
+      <div class="col-lg-3">
         <label for="author_name" class="form-label">Author Name</label>
         <input type="text" class="form-control" id="author_name" name="author_name" value="<?= htmlspecialchars($authorName, ENT_QUOTES, 'UTF-8') ?>" required>
       </div>
-      <div class="col-lg-6">
+      <div class="col-lg-3">
         <label for="category" class="form-label">Blog Category</label>
         <input type="text" class="form-control" id="category" name="category" value="<?= htmlspecialchars($category, ENT_QUOTES, 'UTF-8') ?>" required>
       </div>

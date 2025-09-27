@@ -234,7 +234,7 @@ table td {
 }
 
 .upload-box:hover {
-  background-color: #fff5f6;
+  background-color: #eaf7f5;
 }
 
 .file-input {
@@ -247,6 +247,11 @@ table td {
 .upload-content {
   pointer-events: none;
 }
+
+.upload-content img {
+  filter: brightness(0) saturate(100%) invert(21%) sepia(66%) saturate(661%) hue-rotate(133deg) brightness(95%) contrast(97%);
+}
+
 
 .upload-icon {
   font-size: 40px;
@@ -265,6 +270,34 @@ table td {
     margin-bottom: .5rem;
     font-size: 14px;
     color: #000;
+}
+
+.upload-box {
+  position: relative;
+  border: 2px dashed #004a44;
+  border-radius: 8px;
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.3s;
+  background-color: #fff;
+}
+
+.form-control.file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.upload-content {
+  pointer-events: none;
+}
+
+.upload-box p {
+  margin: 0;
+  font-size: 14px;
+  color: #333;
 }
 
 
