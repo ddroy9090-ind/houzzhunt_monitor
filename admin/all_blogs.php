@@ -16,6 +16,10 @@ if (!is_authenticated()) {
 $pdo = db();
 $error = null;
 $blogs = [];
+$totalBlogs = 0;
+$totalPages = 1;
+$perPage = 10;
+$currentPage = 1;
 
 $successMessage = $_SESSION['blog_success'] ?? null;
 unset($_SESSION['blog_success']);
@@ -110,7 +114,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $error === null) {
       }
     }
 
-    header('Location: all_blogs.php');
+    $redirectPage = (int)($_POST['page'] ?? 1);
+    if ($redirectPage < 1) {
+      $redirectPage = 1;
+    }
+    $redirectUrl = 'all_blogs.php';
+    if ($redirectPage > 1) {
+      $redirectUrl .= '?page=' . urlencode((string)$redirectPage);
+    }
+
+    header('Location: ' . $redirectUrl);
     exit;
   } else {
     $_SESSION['blog_error'] = 'Unsupported action requested.';
@@ -121,11 +134,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $error === null) {
 
 if ($error === null) {
   try {
-    $stmt = $pdo->query(
+    $currentPage = (int)($_GET['page'] ?? 1);
+    if ($currentPage < 1) {
+      $currentPage = 1;
+    }
+
+    $countStmt = $pdo->query('SELECT COUNT(*) AS total FROM blogs');
+    $countResult = $countStmt->fetch(PDO::FETCH_ASSOC);
+    $totalBlogs = (int)($countResult['total'] ?? 0);
+
+    $totalPages = max(1, (int)ceil($totalBlogs / $perPage));
+    if ($currentPage > $totalPages) {
+      $currentPage = $totalPages;
+    }
+
+    $offset = ($currentPage - 1) * $perPage;
+
+    $stmt = $pdo->prepare(
       'SELECT id, image_path, heading, banner_description, author_name, content, meta_title, meta_keywords, meta_description, created_at
          FROM blogs
-        ORDER BY created_at DESC, id DESC'
+        ORDER BY created_at DESC, id DESC
+        LIMIT :limit OFFSET :offset'
     );
+    $stmt->bindValue(':limit', $perPage, PDO::PARAM_INT);
+    $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $stmt->execute();
     $blogs = $stmt->fetchAll();
   } catch (Throwable $e) {
     error_log('Failed to fetch blogs: ' . $e->getMessage());
@@ -294,11 +327,45 @@ render_sidebar('all-blogs');
       </table>
     </div>
   </div>
+  <?php if ($totalPages > 1): ?>
+    <nav aria-label="Blogs pagination" class="mt-3">
+      <ul class="pagination">
+        <?php
+        $prevPage = max(1, $currentPage - 1);
+        $nextPage = min($totalPages, $currentPage + 1);
+        ?>
+        <li class="page-item <?= $currentPage === 1 ? 'disabled' : '' ?>">
+          <?php if ($currentPage === 1): ?>
+            <span class="page-link">Previous</span>
+          <?php else: ?>
+            <a class="page-link" href="<?= 'all_blogs.php?page=' . $prevPage ?>">Previous</a>
+          <?php endif; ?>
+        </li>
+        <?php for ($page = 1; $page <= $totalPages; $page++): ?>
+          <li class="page-item <?= $page === $currentPage ? 'active' : '' ?>">
+            <?php if ($page === $currentPage): ?>
+              <span class="page-link"><?= $page ?> <span class="visually-hidden">(current)</span></span>
+            <?php else: ?>
+              <a class="page-link" href="<?= 'all_blogs.php?page=' . $page ?>"><?= $page ?></a>
+            <?php endif; ?>
+          </li>
+        <?php endfor; ?>
+        <li class="page-item <?= $currentPage === $totalPages ? 'disabled' : '' ?>">
+          <?php if ($currentPage === $totalPages): ?>
+            <span class="page-link">Next</span>
+          <?php else: ?>
+            <a class="page-link" href="<?= 'all_blogs.php?page=' . $nextPage ?>">Next</a>
+          <?php endif; ?>
+        </li>
+      </ul>
+    </nav>
+  <?php endif; ?>
 </main>
 <form method="post" class="d-none" id="delete-blog-form">
   <input type="hidden" name="csrf" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
   <input type="hidden" name="action" value="delete">
   <input type="hidden" name="blog_id" id="delete-blog-id" value="">
+  <input type="hidden" name="page" value="<?= htmlspecialchars((string)$currentPage, ENT_QUOTES, 'UTF-8') ?>">
 </form>
 <?php
 $blogsJson = json_encode($blogsForJson, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
