@@ -1,858 +1,1537 @@
-<?php
+<!DOCTYPE html>
+<html lang="en">
 
-$title = 'The Weave JVC - Dubai Off-Plan Properties | Al Ghurair Development';
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="assets/images/logo/favicon.svg" type="image/x-icon">
+    <title>Breez by Danube</title>
+    <link rel="stylesheet" href="assets/vendors/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/country-select-js@2.0.1/build/css/countrySelect.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/css/intlTelInput.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+    <link rel="stylesheet" href="assets/css/properties.css">
+</head>
 
-// Enhanced meta tags with proper SEO
-$meta_tags = '
-    <!-- Basic Meta -->
-    <meta name="description" content="Discover The Weave by Al Ghurair in Jumeirah Village Circle, Dubai. Premium 1, 2 & 3.5 bedroom apartments with rooftop amenities, flexible payment plans, and prime location access.">
-    <meta name="keywords" content="The Weave Dubai, Al Ghurair JVC, Jumeirah Village Circle apartments, Dubai off-plan properties, Dubai real estate investment, luxury apartments Dubai">
-    <meta name="robots" content="index, follow">
-    <link rel="canonical" href="https://yoursite.com/property-details.php">
-    
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="The Weave JVC - Premium Dubai Apartments | Al Ghurair">
-    <meta property="og:description" content="Luxury 1-3.5 bedroom apartments in Jumeirah Village Circle with rooftop club, pool, and premium amenities. Flexible payment plans available.">
-    <meta property="og:image" content="https://houzzhunt.com/assets/images/banner/offplan-banner.webp">
-    <meta property="og:url" content="https://yoursite.com/property-details.php">
-    <meta property="og:type" content="website">
-    
-    <!-- Twitter Card Meta Tags -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="The Weave JVC - Premium Dubai Apartments">
-    <meta name="twitter:description" content="Luxury apartments in JVC with flexible payment plans and premium amenities.">
-    <meta name="twitter:image" content="https://houzzhunt.com/assets/images/banner/offplan-banner.webp">
-    
-    <!-- Structured Data for Real Estate -->
-    <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "RealEstateListing",
-        "name": "The Weave - Jumeirah Village Circle",
-        "description": "Premium residential apartments by Al Ghurair in Dubai\'s vibrant JVC community",
-        "url": "https://yoursite.com/property-details.php",
-        "image": "https://houzzhunt.com/assets/images/banner/offplan-banner.webp",
-        "offers": {
-            "@type": "Offer",
-            "priceCurrency": "USD",
-            "price": "136128505",
-            "availability": "https://schema.org/InStock"
-        },
-        "address": {
-            "@type": "PostalAddress",
-            "addressLocality": "Dubai",
-            "addressRegion": "Jumeirah Village Circle",
-            "addressCountry": "UAE"
-        },
-        "floorSize": {
-            "@type": "QuantitativeValue",
-            "value": "43.828-153.224",
-            "unitText": "square meters"
-        }
-    }
+<body>
+
+
+    <!-- parent: .hh-property-hero -->
+    <div class="hh-property-hero">
+        <!-- Top bar fixed at top of hero -->
+        <div class="hh-property-hero-top">
+            <a href="offplan-properties.php" class="hh-property-hero-back">← Back to Listings</a>
+            <div class="hh-property-hero-top-actions">
+                <!-- <button type="button" aria-label="Save" class="hh-iconbtn">♡</button>
+                <button type="button" aria-label="Share" class="hh-iconbtn">⇪</button> -->
+                <button type="button" class="hh-primarypill" onclick="openPopup()">☎ Contact Agent</button>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <!-- Info block -->
+                    <div class="hh-property-hero-info">
+                        <div class="hh-property-hero-tags">
+                            <span class="green">New Launch</span>
+                            <span>Apartment</span>
+                        </div>
+                        <h1>Unparalleled Seafront Luxury Living in Dubai Maritime City</h1>
+                        <div class="hh-property-hero-loc"><img src="assets/icons/location.png" alt="" width="16">Dubai
+                            Maritime City, UAE</div>
+                        <div class="hh-property-hero-price"><span class="AED">AED</span> 1.3M <span>Starting from</span>
+                        </div>
+                        <ul class="hh-property-hero-specs">
+                            <li><img src="assets/icons/bed.png" alt="" width="16"> 5 Bedrooms</li>
+                            <li><img src="assets/icons/bathroom.png" alt="" width="16"> 4 Bathrooms</li>
+                            <li><img src="assets/icons/parking.png" alt="" width="16"> 2 Parking</li>
+                            <li><img src="assets/icons/area.png" alt="" width="16"> 2,100 sq ft</li>
+                            <li><img src="assets/icons/calendar.png" alt="" width="16"> Q1 2029 Completion</li>
+                        </ul>
+                    </div>
+
+                    <!-- Bottom CTA buttons -->
+                    <div class="hh-property-hero-ctas">
+                        <button type="button" class="cta-solid" onclick="openPopup()">Enquire Now</button>
+                        <button type="button" class="cta-outline" onclick="Brochurepopup()">Download Brochure</button>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- parent: .hh-gallery-01 -->
+    <div class="hh-gallery-01">
+        <div class="container">
+
+            <!-- Header -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="hh-gallery-01-head">
+                        <h3>Property Gallery</h3>
+                        <div class="hh-gallery-01-head-actions">
+                            <button type="button" class="ghost" data-action="view-all">
+                                <svg width="18" height="18" viewBox="0 0 24 24">
+                                    <path d="M4 5h7v6H4zM13 5h7v6h-7zM4 13h7v6H4zM13 13h7v6h-7z" fill="currentColor" />
+                                </svg>
+                                View All (5)
+                            </button>
+                            <button type="button" class="solid" data-action="video">
+                                <svg width="18" height="18" viewBox="0 0 24 24">
+                                    <path d="M4 5h11a2 2 0 0 1 2 2v1.5l3-2v11l-3-2V17a2 2 0 0 1-2 2H4z"
+                                        fill="currentColor" />
+                                </svg>
+                                Video Tour
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gallery + Agent -->
+            <div class="row">
+                <!-- Left: Gallery -->
+                <div class="col-12 col-lg-8">
+                    <div class="hh-gallery-01-wrap">
+
+                        <!-- Main swiper -->
+                        <div class="swiper hh-gallery-01-main">
+                            <div class="swiper-wrapper">
+                                <!-- slides -->
+                                <div class="swiper-slide">
+                                    <img src="assets/images/offplan/breez-by-danube.webp" alt="Image 1">
+                                </div>
+                                <div class="swiper-slide">
+                                    <img src="assets/images/offplan/1.webp" alt="Image 2">
+                                </div>
+                                <div class="swiper-slide">
+                                    <img src="assets/images/offplan/2.webp" alt="Image 3">
+                                </div>
+                                <div class="swiper-slide">
+                                    <img src="assets/images/offplan/3.webp" alt="Image 4">
+                                </div>
+                                <div class="swiper-slide">
+                                    <img src="assets/images/offplan/4.webp" alt="Image 5">
+                                </div>
+                            </div>
+
+                            <!-- overlay controls -->
+                            <button type="button" class="nav prev" aria-label="Previous"></button>
+                            <button type="button" class="nav next" aria-label="Next"></button>
+                            <button type="button" class="fullscreen" aria-label="Full screen">
+                                <svg width="18" height="18" viewBox="0 0 24 24">
+                                    <path
+                                        d="M9 5H5v4H3V3h6v2zm6-2h6v6h-2V5h-4V3zM5 15H3v6h6v-2H5v-4zm16 0v6h-6v-2h4v-4h2z"
+                                        fill="currentColor" />
+                                </svg>
+                            </button>
+                            <div class="fraction"><span>1</span> of <span>5</span></div>
+                            <div class="progress"><i style="width:20%"></i></div>
+                        </div>
+
+                        <!-- Thumbs swiper -->
+                        <div class="swiper hh-gallery-01-thumbs">
+                            <div class="swiper-wrapper">
+                                <div class="swiper-slide"><img src="assets/images/offplan/breez-by-danube.webp" alt="">
+                                </div>
+                                <div class="swiper-slide"><img src="assets/images/offplan/1.webp" alt=""></div>
+                                <div class="swiper-slide"><img src="assets/images/offplan/2.webp" alt=""></div>
+                                <div class="swiper-slide"><img src="assets/images/offplan/3.webp" alt=""></div>
+                                <div class="swiper-slide"><img src="assets/images/offplan/4.webp" alt=""></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right: Agent panel -->
+                <div class="col-12 col-lg-4">
+                    <aside class="hh-gallery-01-agent">
+                        <div class="card-head">
+                            <div class="avatar">
+                                <svg width="28" height="28" viewBox="0 0 24 24">
+                                    <path
+                                        d="M12 2a5 5 0 1 1 0 10A5 5 0 0 1 12 2Zm0 12c4.2 0 8 2.1 8 5v3H4v-3c0-2.9 3.8-5 8-5Z"
+                                        fill="#fff" />
+                                </svg>
+                            </div>
+                            <div class="info">
+                                <strong>Sarah Al-Mansouri</strong>
+                                <span>Senior Property Consultant</span>
+                                <em>★★★★★ · 5.0 Rating</em>
+                            </div>
+                        </div>
+
+                        <div class="cta-row">
+                            <button type="button" class="call" onclick="window.location.href='tel:+971 42554683'">
+                                <img src="assets/flaticons/phone.png" alt="" width="16">
+                                Call
+                            </button>
+                            <button type="button" class="wa"
+                                onclick="window.open('https://wa.me/97142554683','_blank')">
+                                <img src="assets/flaticons/whatsapp.png" alt="WhatsApp" width="20">
+                                WhatsApp
+                            </button>
+
+                        </div>
+
+                        <button type="button" class="ghost-wide" onclick="openPopup()">
+                            <img src="assets/icons/calendar.png" alt="" width="16">
+                            Schedule Viewing
+                        </button>
+
+                        <div class="actions">
+                            <button type="button">
+                                <img src="assets/icons/video-call.png" alt="" width="20">
+                                3D Virtual Tour
+                            </button>
+                            <button type="button" onclick="Brochurepopup()">
+                                <img src="assets/icons/brochure-download.png" alt="" width="20">
+                                Download Brochure
+                            </button>
+                            <button type="button" onclick="openPopup()">
+                                <img src="assets/icons/floorplan.png" alt="" width="20">
+                                View Floor Plans
+                            </button>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lightbox (custom, no extra lib) -->
+        <div class="hh-gallery-01-lightbox" aria-hidden="true">
+            <button type="button" class="lb-close" aria-label="Close">×</button>
+            <button type="button" class="lb-prev" aria-label="Previous"></button>
+            <img alt="">
+            <button type="button" class="lb-next" aria-label="Next"></button>
+        </div>
+    </div>
+
+    <!-- parent: .hh-details-01 -->
+    <div class="hh-details-01">
+        <div class="container">
+            <!-- Body -->
+            <div class="row">
+                <div class="col-12 col-lg-8">
+                    <nav class="hh-tabs" role="tablist" aria-label="Property details tabs">
+                        <ul>
+                            <li>
+                                <button id="hh-tab-overview-btn" type="button" class="active" role="tab"
+                                    aria-selected="true" aria-controls="hh-tab-overview" data-bs-toggle="tab"
+                                    data-bs-target="#hh-tab-overview">
+                                    Overview
+                                </button>
+                            </li>
+                            <li>
+                                <button id="hh-tab-features-btn" type="button" role="tab" aria-selected="false"
+                                    aria-controls="hh-tab-features" data-bs-toggle="tab"
+                                    data-bs-target="#hh-tab-features">
+                                    Features
+                                </button>
+                            </li>
+                            <li>
+                                <button id="hh-tab-floor-btn" type="button" role="tab" aria-selected="false"
+                                    aria-controls="hh-tab-floor" data-bs-toggle="tab" data-bs-target="#hh-tab-floor">
+                                    Floor Plan
+                                </button>
+                            </li>
+                            <li>
+                                <button id="hh-tab-developer-btn" type="button" role="tab" aria-selected="false"
+                                    aria-controls="hh-tab-developer" data-bs-toggle="tab"
+                                    data-bs-target="#hh-tab-developer">
+                                    Developer
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
+
+                    <!-- Bootstrap required wrapper -->
+                    <div class="tab-content">
+
+                        <!-- Overview -->
+                        <div id="hh-tab-overview" class="tab-pane fade show active" role="tabpanel"
+                            aria-labelledby="hh-tab-overview-btn">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-lg-12 p-0">
+                                        <div class="project-overview">
+                                            <div class="project-header">
+                                                <h3>Breez by Danube</h3>
+                                                <h6>At Dubai Maritime City</h6>
+                                            </div>
+                                            <p>Discover Danube Breez, where seafront elegance meets the dynamic energy
+                                                of Dubai Maritime City. This isn’t just a residence it’s a lifestyle
+                                                upgrade. Every element of Breez is designed to offer comfort,
+                                                sophistication, and effortless living, from panoramic ocean views to a
+                                                location that keeps the city’s vibrant opportunities within easy reach.
+                                                Here, the sea isn’t just scenery; it’s part of your daily experience,
+                                                creating a tranquil backdrop to a life of modern luxury.
+                                            </p>
+                                            <p>Homes at Breez range from chic studios to expansive four-bedroom villas,
+                                                each thoughtfully designed to maximize space, natural light, and
+                                                comfort. Large windows frame breathtaking vistas, while smart layouts
+                                                ensure every corner of your home is functional and inviting. The design
+                                                is meant not only to impress but to provide a sanctuary where you can
+                                                relax, entertain, and enjoy life at your own pace.</p>
+                                            <p>The lifestyle extends far beyond the interiors, with over 40 resort-style
+                                                amenities at your disposal. Lounge by the infinity pool, enjoy family
+                                                movie nights under the stars at the outdoor cinema, or perfect your
+                                                swing at the mini-golf course—all without leaving home. Backed by the
+                                                trusted Danube Properties and flexible payment plans, Breez offers a
+                                                seamless path to luxury living. It’s not just a property; it’s a
+                                                permanent vacation and a smart investment in a life of ease and
+                                                indulgence.</p>
+                                        </div>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Features -->
+                        <div id="hh-tab-features" class="tab-pane fade" role="tabpanel"
+                            aria-labelledby="hh-tab-features-btn">
+                            <!-- parent: .hh-amenities-01 -->
+                            <div class="hh-amenities-01">
+                                <div class="container-fluid">
+                                    <h3>Key Features & Amenities</h3>
+                                    <ul class="amenities-list">
+                                        <li><img src="assets/icons/tick.png" alt="✓"> Cinema</li>
+                                        <li><img src="assets/icons/tick.png" alt="✓"> Club</li>
+                                        <li><img src="assets/icons/tick.png" alt="✓"> Spa & Sauna</li>
+                                        <li><img src="assets/icons/tick.png" alt="✓"> Gym</li>
+                                        <li><img src="assets/icons/tick.png" alt="✓"> Hammock BBQ</li>
+                                        <li><img src="assets/icons/tick.png" alt="✓"> Kids Daycare</li>
+                                        <li><img src="assets/icons/tick.png" alt="✓"> Kids Splash Pool</li>
+                                        <li><img src="assets/icons/tick.png" alt="✓"> Pool</li>
+                                        <li><img src="assets/icons/tick.png" alt="✓"> Swing</li>
+                                        <li><img src="assets/icons/tick.png" alt="✓"> View Deck</li>
+                                    </ul>
+                                </div>
+
+                            </div>
+                        </div>
+
+                        <!-- Floor Plan -->
+                        <div id="hh-tab-floor" class="tab-pane fade" role="tabpanel" aria-labelledby="hh-tab-floor-btn">
+                            <div class="hh-floorplans-01">
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <div class="col-12">
+                                            <h3>Interactive Floor Plans</h3>
+                                            <p>Click on rooms to view details</p>
+                                        </div>
+                                    </div>
+
+                                    <div class="row">
+                                        <!-- Left: plan canvas -->
+                                        <div class="col-12 col-lg-8">
+                                            <div class="fp-canvas tab-content">
+                                                <!-- Tab 1 -->
+                                                <div id="fp-tab-ground" class="fp-pane tab-pane fade show active" role="tabpanel">
+                                                    <img src="assets/images/offplan/studio.png" alt="">
+                                                </div>
+                                                <!-- Tab 2 -->
+                                                <div id="fp-tab-first" class="fp-pane tab-pane fade" role="tabpanel">
+                                                    <img src="assets/images/offplan/1-br.png" alt="">
+                                                </div>
+                                                <!-- Tab 3 -->
+                                                <div id="fp-tab-second" class="fp-pane tab-pane fade" role="tabpanel">
+                                                    <img src="assets/images/offplan/2-br.png" alt="">
+                                                </div>
+                                                <!-- Tab 4 -->
+                                                <div id="fp-tab-third" class="fp-pane tab-pane fade" role="tabpanel">
+                                                    <img src="assets/images/offplan/3-br.png" alt="">
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Right: vertical tabs -->
+                                        <div class="col-12 col-lg-4">
+                                            <aside class="fp-aside nav flex-column" role="tablist" aria-orientation="vertical">
+                                                <!-- Button 1 -->
+                                                <button id="fp-btn-ground" type="button" class="fp-box active"
+                                                    data-bs-toggle="tab" data-bs-target="#fp-tab-ground" role="tab" aria-selected="true">
+                                                    <div class="fp-box-head">
+                                                        <img src="assets/icons/floorplan.png" alt="">
+                                                        <div><strong>Studio</strong></div>
+                                                    </div>
+                                                    <ul class="fp-meta">
+                                                        <li><em>Total Area</em><b>1,600 sq ft</b></li>
+                                                        <li><em>Bedrooms</em><b>0</b></li>
+                                                        <li><em>Total Rooms</em><b>1</b></li>
+                                                    </ul>
+                                                </button>
+
+                                                <!-- Button 2 -->
+                                                <button id="fp-btn-first" type="button" class="fp-box"
+                                                    data-bs-toggle="tab" data-bs-target="#fp-tab-first" role="tab" aria-selected="false">
+                                                    <div class="fp-box-head">
+                                                        <img src="assets/icons/floorplan.png" alt="">
+                                                        <div><strong>1 Bedroom</strong></div>
+                                                    </div>
+                                                    <ul class="fp-meta">
+                                                        <li><em>Total Area</em><b>1,450 sq ft</b></li>
+                                                        <li><em>Bedrooms</em><b>1</b></li>
+                                                        <li><em>Total Rooms</em><b>3</b></li>
+                                                    </ul>
+                                                </button>
+
+                                                <!-- Button 3 -->
+                                                <button id="fp-btn-second" type="button" class="fp-box"
+                                                    data-bs-toggle="tab" data-bs-target="#fp-tab-second" role="tab" aria-selected="false">
+                                                    <div class="fp-box-head">
+                                                        <img src="assets/icons/floorplan.png" alt="">
+                                                        <div><strong>2 Bedroom</strong></div>
+                                                    </div>
+                                                    <ul class="fp-meta">
+                                                        <li><em>Total Area</em><b>2,800 sq ft</b></li>
+                                                        <li><em>Bedrooms</em><b>2</b></li>
+                                                        <li><em>Total Rooms</em><b>5</b></li>
+                                                    </ul>
+                                                </button>
+
+                                                <!-- Button 4 -->
+                                                <button id="fp-btn-third" type="button" class="fp-box"
+                                                    data-bs-toggle="tab" data-bs-target="#fp-tab-third" role="tab" aria-selected="false">
+                                                    <div class="fp-box-head">
+                                                        <img src="assets/icons/floorplan.png" alt="">
+                                                        <div><strong>3 Bedroom</strong></div>
+                                                    </div>
+                                                    <ul class="fp-meta">
+                                                        <li><em>Total Area</em><b>3,200 sq ft</b></li>
+                                                        <li><em>Bedrooms</em><b>3</b></li>
+                                                        <li><em>Total Rooms</em><b>7</b></li>
+                                                    </ul>
+                                                </button>
+                                            </aside>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Developer -->
+                        <div id="hh-tab-developer" class="tab-pane fade" role="tabpanel"
+                            aria-labelledby="hh-tab-developer-btn">
+                            <div class="hh-developer-01">
+                                <div class="container-fluid">
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <h4>About the Developer</h4>
+                                        </div>
+                                        <div class="col-12">
+                                            <section class="dev-card">
+                                                <div class="dev-head">
+                                                    <div class="dev-ico">
+                                                        <img src="assets/flaticons/residential.png" width="25" alt="">
+                                                    </div>
+                                                    <div class="dev-title">
+                                                        <strong>Danube Properties</strong>
+                                                        <div class="dev-rating">
+                                                            <svg width="14" height="14" viewBox="0 0 24 24">
+                                                                <path
+                                                                    d="M12 17.3l-6.2 3.3 1.2-6.9L2 8.9l7-1 3-6 3 6 7 1-5 4.8 1.2 6.9z"
+                                                                    fill="#fff" />
+                                                            </svg>
+                                                            4.9 Developer Rating
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="dev-body">
+
+                                                    <div class="row justify-content-start align-items-center">
+                                                        <!-- <div class="col-lg-5">
+                                                            <div class="developer-profile">
+                                                                <img class="img-fluid" src="assets/images/offplan/DANUBE-Logo.png" alt="">
+                                                            </div>
+                                                        </div> -->
+                                                        <div class="col-lg-12">
+                                                            <div class="developer-profile-logo">
+                                                                <img class="img-fluid" src="assets/images/offplan/DANUBE-Logo.png" alt="">
+                                                            </div>
+                                                            <p>Danube Properties is widely recognized as one of the most
+                                                                reliable and respected real estate developers in the
+                                                                UAE. Over
+                                                                the years, the company has built a strong reputation for
+                                                                delivering residential and commercial projects that
+                                                                combine
+                                                                quality, affordability, and modern design. As the real
+                                                                estate
+                                                                arm of the Danube Group, the brand reflects the same
+                                                                values of
+                                                                trust, innovation, and excellence that have made the
+                                                                group a
+                                                                household name across the region. With a commitment to
+                                                                providing
+                                                                homes that cater to both investors and end-users, Danube
+                                                                Properties has successfully bridged the gap between
+                                                                luxury
+                                                                living and affordability.</p>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="row dev-stats">
+                                                        <div class="col-6 col-lg-3">
+                                                            <div class="stat">
+                                                                <strong>1985</strong>
+                                                                <span>Established</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 col-lg-3">
+                                                            <div class="stat">
+                                                                <strong>187</strong>
+                                                                <span>Completed Projects</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 col-lg-3">
+                                                            <div class="stat">
+                                                                <strong>🏆</strong>
+                                                                <span>International Awards</span>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-6 col-lg-3">
+                                                            <div class="stat">
+                                                                <strong>98%</strong>
+                                                                <span>On-Time Delivery</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </section>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+
+                <!-- Right: sidebar -->
+                <div class="col-12 col-lg-4">
+                    <aside>
+                        <!-- Contact Agent card -->
+                        <div class="agent-card">
+                            <div class="agent-title">Contact Agent</div>
+
+                            <div class="agent-head">
+                                <div class="avatar">
+                                    <img src="assets/icons/chat.png" alt="">
+                                </div>
+                                <div class="agent-info">
+                                    <strong>Get in Touch</strong>
+                                    <span>Schedule your private viewing</span>
+                                </div>
+                            </div>
+
+                            <form>
+                                <label>
+                                    <span class="field-head">
+                                        <img src="assets/icons/local-user.png" alt="" class="ico">
+                                        <span>Full Name *</span>
+                                    </span>
+                                    <input type="text" placeholder="Enter your full name">
+                                </label>
+
+                                <label>
+                                    <span class="field-head">
+                                        <img src="assets/flaticons/email.png" alt="" class="ico">
+                                        <span>Email Address *</span>
+                                    </span>
+                                    <input type="email" placeholder="your.email@example.com">
+                                </label>
+
+                                <label>
+                                    <span class="field-head">
+                                        <img src="assets/flaticons/phone.png" alt="" class="ico">
+                                        <span>Phone Number *</span>
+                                    </span>
+                                    <input type="tel" name="phone" id="phone" placeholder="+971 50 123 4567">
+                                </label>
+
+
+                                <label>
+                                    <span class="field-head">
+                                        <img src="assets/icons/conversation.png" alt="" class="ico">
+                                        <span>Inquiry Type</span>
+                                    </span>
+                                    <div class="select-ico ">
+                                        <select class="form-control select-dropDownClass">
+                                            <option>Select inquiry type</option>
+                                            <option>Schedule Viewing</option>
+                                            <option>Request Callback</option>
+                                            <option>Download Brochure</option>
+                                        </select>
+                                    </div>
+                                </label>
+
+                                <label>
+                                    <span class="field-head">
+                                        <img src="assets/icons/message.png" alt="" class="ico">
+                                        <span>Additional Message</span>
+                                    </span>
+                                    <textarea rows="4" placeholder="Any specific questions or requirements…"></textarea>
+                                </label>
+
+                                <!-- <div class="switches">
+                                    <label class="switch">
+                                        <input type="checkbox">
+                                        <img src="assets/icons/circle.png" width="14" alt="">
+                                        <span>Subscribe to our newsletter for latest property updates</span>
+                                    </label>
+                                    <label class="switch">
+                                        <input type="checkbox" checked>
+                                        <img src="assets/icons/circle.png" width="14" alt="">
+                                        <span>Receive SMS updates about this property</span>
+                                    </label>
+                                </div> -->
+
+                                <button type="button" class="send">Send Message</button>
+                            </form>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- parent: .hh-invest-01 -->
+    <div class="hh-invest-01">
+        <div class="container">
+            <div class="row">
+                <!-- LEFT: Highlights + Payment Plan -->
+                <div class="col-12 col-lg-8">
+
+                    <!-- Investment Highlights -->
+                    <section class="inv-high">
+                        <header>
+                            <span><img src="assets/icons/growth-chart.png" alt="" width="25"></span>
+                            <h4>Investment Highlights</h4>
+                        </header>
+
+                        <div class="hi-grid">
+                            <div>
+                                <strong>8–12%</strong>
+                                <span>ROI Potential</span>
+                                <em>Annual rental yield</em>
+                            </div>
+                            <div>
+                                <strong>+15%</strong>
+                                <span>Capital Growth</span>
+                                <em>Expected 3-year growth</em>
+                            </div>
+                            <div>
+                                <strong>95%</strong>
+                                <span>Occupancy Rate</span>
+                                <em>Marina average</em>
+                            </div>
+                            <div>
+                                <strong>High</strong>
+                                <span>Resale Value</span>
+                                <em>Prime location advantage</em>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- Flexible Payment Plan -->
+                    <section class="pay-plan">
+                        <header>
+                            <span><img src="assets/icons/wallet.png" alt="" width="25"></span>
+                            <h4>Flexible Payment Plan</h4>
+                        </header>
+
+                        <div class="plan-list">
+                            <!-- item -->
+                            <div class="plan-item">
+                                <div class="pct">10%</div>
+                                <div class="txt">
+                                    <strong>Down Payment</strong>
+                                    <span>Secure your unit</span>
+                                </div>
+                                <div class="amt">
+                                    <b>AED 1,300,000</b>
+                                    <em>10% of total</em>
+                                </div>
+                            </div>
+
+                            <div class="plan-item">
+                                <div class="pct">70%</div>
+                                <div class="txt">
+                                    <strong>During Construction</strong>
+                                    <span>Flexible payment options</span>
+                                </div>
+                                <div class="amt">
+                                    <b>AED 1,300,000</b>
+                                    <em>70% of total</em>
+                                </div>
+                            </div>
+
+                            <div class="plan-item">
+                                <div class="pct">20%</div>
+                                <div class="txt">
+                                    <strong>On Handover</strong>
+                                    <span>Upon completion</span>
+                                </div>
+                                <div class="amt">
+                                    <b>AED 1,300,000</b>
+                                    <em>20% of total</em>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+
+                <!-- RIGHT: Mortgage Calculator -->
+                <div class="col-12 col-lg-4">
+                    <aside class="mort-card">
+                        <header>
+                            <img src="assets/icons/mortgage.png" alt="" width="20">
+                            <h5>Mortgage Calculator</h5>
+                        </header>
+
+                        <!-- price + rate -->
+                        <div class="fld-row">
+                            <label>Property Price</label>
+                            <div class="amount">
+                                <span class="adorn">$</span>
+                                <input id="mc-price" type="text" value="2,500,000" inputmode="numeric" />
+                            </div>
+                        </div>
+
+                        <div class="fld-row">
+                            <label>Interest Rate (%)</label>
+                            <div class="amount">
+                                <span class="adorn">%</span>
+                                <input id="mc-rate" type="number" step="0.1" value="3.5" />
+                            </div>
+                        </div>
+
+                        <!-- Down payment -->
+                        <div class="range-row">
+                            <div class="r-label">
+                                <span>Down Payment: <b id="mc-dp-lbl">25%</b> (<b id="mc-dp-amt">AED 625,000</b>)</span>
+                            </div>
+                            <input id="mc-dp" type="range" min="10" max="50" step="1" value="25" />
+                            <div class="r-scale">
+                                <span>10%</span><span>50%</span>
+                            </div>
+                        </div>
+
+                        <!-- Loan term -->
+                        <div class="range-row">
+                            <div class="r-label">
+                                <span>Loan Term: <b id="mc-term-lbl">25 years</b></span>
+                            </div>
+                            <input id="mc-term" type="range" min="10" max="35" step="1" value="25" />
+                            <div class="r-scale">
+                                <span>10 years</span><span>35 years</span>
+                            </div>
+                        </div>
+
+                        <!-- Results -->
+                        <div class="result-row">
+                            <div class="pill gray">
+                                <span>Loan Amount</span>
+                                <strong id="mc-loan">AED 1,875,000</strong>
+                            </div>
+                            <div class="pill green">
+                                <span>Monthly Payment</span>
+                                <strong id="mc-monthly">AED 9,387</strong>
+                            </div>
+                        </div>
+
+                        <div class="totals">
+                            <div>
+                                <span>Total Interest</span>
+                                <b id="mc-interest">AED 941,008</b>
+                            </div>
+                            <div>
+                                <span>Total Payment</span>
+                                <b id="mc-total">AED 2,816,008</b>
+                            </div>
+                            <div>
+                                <span>P&I Payment</span>
+                                <b id="mc-pi">AED 9,387</b>
+                            </div>
+                        </div>
+
+                        <button type="button" class="cta">Get Pre-Approved</button>
+                    </aside>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- parent: .hh-location-01 -->
+    <div class="hh-location-01">
+        <div class="container">
+
+            <!-- Heading -->
+            <div class="row">
+                <div class="col-12">
+                    <div>
+                        <div class="hh-location-01-head">
+                            <img src="assets/icons/location.png" alt="" />
+                            <h3>Prime Location &amp; Connectivity</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main grid -->
+            <div class="row">
+                <!-- LEFT: Map + Landmarks (col-lg-8) -->
+                <div class="col-12 col-lg-8">
+                    <div class="row">
+                        <!-- Map card -->
+                        <div class="col-12 col-md-6">
+                            <div class="hh-location-01-map">
+                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14432.090492336873!2d55.26420855!3d25.2698244!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e5f4384740a5241%3A0xe6d78cfd14c6ada3!2sDubai%20Maritime%20City%20-%20Dubai%20-%20United%20Arab%20Emirates!5e0!3m2!1sen!2sin!4v1758894120139!5m2!1sen!2sin" width="100%" height="290" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                            </div>
+                        </div>
+
+                        <!-- Landmarks list -->
+                        <div class="col-12 col-md-6">
+                            <div class="hh-location-01-landmarks">
+
+                                <!-- item -->
+                                <button type="button">
+                                    <div class="left">
+                                        <img class="dot" src="assets/icons/dot-green.png" alt="" />
+                                        <div>
+                                            <b>Port Rashid Boat Station</b>
+                                        </div>
+                                    </div>
+                                    <div class="right">
+                                        <a href="#">2 Mins</a>
+                                    </div>
+                                </button>
+
+                                <button type="button">
+                                    <div class="left">
+                                        <img class="dot" src="assets/icons/dot-green.png" alt="" />
+                                        <div>
+                                            <b>Dubai Cruise Terminal 2</b>
+                                        </div>
+                                    </div>
+                                    <div class="right">
+                                        <a href="#">3 Mins</a>
+                                    </div>
+                                </button>
+
+                                <button type="button">
+                                    <div class="left">
+                                        <img class="dot" src="assets/icons/dot-green.png" alt="" />
+                                        <div>
+                                            <b>Gold Souk & Jumeirah Beach</b>
+                                        </div>
+                                    </div>
+                                    <div class="right">
+                                        <a href="#">8 Mins</a>
+                                    </div>
+                                </button>
+
+                                <button type="button">
+                                    <div class="left">
+                                        <img class="dot" src="assets/icons/dot-green.png" alt="" />
+                                        <div>
+                                            <b>Dubai World Trade Centre</b>
+                                        </div>
+                                    </div>
+                                    <div class="right">
+                                        <a href="#">8 Mins</a>
+                                    </div>
+                                </button>
+
+                                <button type="button">
+                                    <div class="left">
+                                        <img class="dot" src="assets/icons/dot-green.png" alt="" />
+                                        <div>
+                                            <b>Burj Khalifa</b>
+                                        </div>
+                                    </div>
+                                    <div class="right">
+                                        <a href="#">10 Mins</a>
+                                        
+                                    </div>
+                                </button>
+
+                                <button type="button">
+                                    <div class="left">
+                                        <img class="dot" src="assets/icons/dot-green.png" alt="" />
+                                        <div>
+                                            <b>Dubai International Airport</b>
+                                        </div>
+                                    </div>
+                                    <div class="right">
+                                        <a href="#">15 Mins</a>
+                                        
+                                    </div>
+                                </button>
+
+
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT: Permit + Quick Contact (col-lg-4) -->
+                <div class="col-12 col-lg-4">
+                    <div class="hh-location-01-side">
+
+                        <!-- Permit card -->
+                        <div class="hh-location-01-permit">
+                            <div class="head">
+                                <strong>Property Permit</strong>
+                            </div>
+
+                            <div class="qr-row">
+                                <img class="qr" src="assets/images/offplan/danube-permit-QR.png" alt="Permit QR" />
+                                <div class="permit-box">
+                                    <span>Listing Number.</span>
+                                    <b>0662770883</b>
+                                    <em>End Date: 25/12/2025</em>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick contact -->
+                        <div class="hh-location-01-contact">
+                            <div class="head">
+                                <strong>Quick Contact</strong>
+                            </div>
+
+                            <button type="button" class="call" onclick="window.location.href='tel:+971 42554683'">
+                                <img src="assets/flaticons/phone.png" alt="" />
+                                <span>Call Now: +971 42554683</span>
+                            </button>
+
+                            <button type="button" class="email" onclick="openPopup()">
+                                <img src="assets/flaticons/email.png" alt="" />
+                                <span>Email Agent</span>
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- parent: .hh-cta-01 -->
+    <div class="hh-cta-01">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+
+                    <div class="cta-banner">
+                        <h3>Ready to Invest in Your Future?</h3>
+                        <p>Contact our property specialists today for exclusive pricing.</p>
+
+                        <div class="cta-actions">
+                            <button onclick="window.location.href='tel:+971 42554683'" type="button"
+                                class="cta-btn">Call Now</button>
+                            <button type="button" class="cta-btn" onclick="openPopup()">Enquire Now</button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- parent: .hh-register-01 -->
+    <div class="hh-register-01">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+
+                    <form class="reg-card" action="#" method="post" novalidate>
+                        <div class="reg-head">
+                            <h3>Register your interest</h3>
+                            <p>Fill form below and our agent will contact you shortly.</p>
+                        </div>
+
+                        <div class="row">
+
+                            <div class="col-12 col-lg-4">
+                                <label for="ri-name">Full Name*</label>
+                                <input id="ri-name" name="full_name" type="text" placeholder="Full Name*">
+                            </div>
+
+                            <div class="col-12 col-lg-4">
+                                <label for="ri-email">Email*</label>
+                                <input id="ri-email" name="email" type="email" placeholder="Email Address*">
+                            </div>
+
+                            <div class="col-12 col-lg-4">
+                                <label for="ri-mobile">Mobile*</label>
+                                <input id="ri-mobile" name="mobile" type="tel" placeholder="50 123 4567">
+                            </div>
+
+                            <div class="col-12 col-lg-4">
+                                <label for="ri-project">Interested In*</label>
+                                <select id="ri-project" name="project_name" class="select-dropDownClass">
+                                    <option value="">Interested In</option>
+                                    <option value="jumeirah-reside">Secondary</option>
+                                    <option value="downtown-dubai">Offplan</option>
+                                </select>
+                            </div>
+
+
+                            <div class="col-12 col-lg-4">
+                                <label for="ri-budget">Select Country*</label>
+                                <input id="ri-budget" name="budget_range" type="text" placeholder="Budget Range*">
+                            </div>
+
+                            <div class="col-12 col-lg-4">
+                                <label class="only-for-space">&nbsp;</label>
+                                <button type="submit" class="submit-btn">Submit Details</button>
+                            </div>
+                        </div>
+
+                        <p class="reg-note">
+                            By clicking Submit, you agree to our
+                            <a href="terms-and-conditions.php">Terms</a> &amp;
+                            <a href="privacy-policy.php">Privacy Policy</a>.
+                        </p>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- footer five start -->
+    <div class="footer-section-five">
+        <div class="container">
+            <div class="row gutter-y-30">
+                <div class="col-12 col-lg-3 col-md-6">
+                    <div class="footer-about-five">
+                        <div class="footer-logo-five animate fadeInUp wow">
+                            <img src="assets/images/logo/logo.svg">
+                        </div>
+                        <p class="lead">Your trusted partner in premium real estate across the UAE and Middle East. We
+                            bring
+                            you curated properties, expert advice and a smooth real estate experience tailored for
+                            modern
+                            living.
+                        </p>
+                        <ul class="footer-social-media-five">
+                            <li>
+                                <a href="https://www.instagram.com/houzzhunt/?hl=en"><img
+                                        src="assets/icons/instagram.png" alt="icon"></a>
+                            </li>
+                            <li>
+                                <a href="https://www.facebook.com/people/Houzz-Hunt/61574436629351/"><img
+                                        src="assets/icons/facebook.png" alt="icon"></a>
+                            </li>
+                            <li>
+                                <a href="https://x.com/HouzzHunt"><img src="assets/icons/twitter.png" alt="icon"></a>
+                            </li>
+                            <li>
+                                <a href="https://www.linkedin.com/company/houzz-hunt/"><img
+                                        src="assets/icons/linkedin.png" alt="icon"></a>
+                            </li>
+                            <li>
+                                <a href="https://www.youtube.com/@HouzzHunt"><img src="assets/icons/youtube.png"
+                                        alt="icon"></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3 col-md-6">
+                    <div class="footer-widget-two">
+                        <h4>Usefull Links</h4>
+                        <ul class="footer-menu-two">
+                            <li>
+
+                                <a href="index.php">Home</a>
+                            </li>
+                            <li>
+
+                                <a href="about.php">About</a>
+                            </li>
+                            <li>
+
+                                <a href="services.php">Services </a>
+                            </li>
+                            <li>
+
+                                <a href="blogs.php">Blogs</a>
+                            </li>
+                            <li>
+
+                                <a href="contact.php">Contact Us</a>
+                            </li>
+                            <li>
+
+                                <a href="careers.php">Career</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-6 col-lg-3 col-md-6">
+                    <div class="footer-widget-two">
+                        <h4>Services</h4>
+                        <ul class="footer-menu-two">
+                            <li>
+
+                                <a href="residential.php">Residential</a>
+                            </li>
+                            <li>
+
+                                <a href="commercial.php">Commercial</a>
+                            </li>
+                            <li>
+
+                                <a href="mortgage-services.php">Mortgage Services</a>
+                            </li>
+                            <li>
+
+                                <a href="investment.php">Investment</a>
+                            </li>
+                            <li>
+
+                                <a href="valuation-advisory.php">Valuation & Advisory</a>
+                            </li>
+                            <li>
+
+                                <a href="research.php">Research</a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-3 col-md-6">
+                    <div class="footer-widget-contact">
+                        <h4>Contact Us</h4>
+                        <ul class="footer-location-four">
+                            <li>
+                                <span><img src="assets/images/svg/footer-two/footer-two-mail.svg" alt="icon"></span>
+                                <a href="mailto:contact@houzzhunt.com">contact@houzzhunt.com</a>
+                            </li>
+                            <li>
+                                <span><img src="assets/images/svg/footer-two/footer-two-address.svg" alt="icon"></span>
+                                <p>806, Capital Golden Tower
+
+                                    Business Bay, Dubai, U.A.E</p>
+                            </li>
+                            <li>
+                                <span><img src="assets/images/svg/footer-two/footer-two-call.svg" alt="icon"></span>
+                                <a href="telto:+97142554683">+971 42554683</a>
+                            </li>
+                        </ul>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <!-- footer five end -->
+
+    <!-- Popup Form -->
+    <div class="popup-overlay" id="propertyEnquirey">
+        <div class="popup-content">
+            <div class="popup-image"></div>
+            <div class="popup-form">
+                <div class="popup-close" onclick="closePopup()">X</div>
+                <h4 class="heading-title"><span>Register Your Interest</span></h4>
+                <p style="font-size: 14px !important; margin-bottom: 10px;">
+                    Unlock expert advice, exclusive listings & investment insights.
+                </p>
+                <form method="POST" class="appointment-form" action="danuber">
+                    <div class="form-group">
+                        <label for="full_name">Enter Name</label>
+                        <input type="text" name="name" id="full_name" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email_address">Enter Email</label>
+                        <input type="email" name="email" id="email_address" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="country">Select Country</label>
+                        <input type="text" name="country" id="country" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mobile_number">Phone Number</label>
+                        <input type="tel" name="phone" id="mobile_number" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="g-recaptcha" data-sitekey="YOUR_SITE_KEY_HERE"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="gradient-btn btn-green-glossy w-100 mt-3 text-center">
+                            Submit Enquiry
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Download Brochure -->
+    <div class="popup-overlay" id="downloadBrochure">
+        <div class="popup-content">
+            <div class="popup-image"></div>
+            <div class="popup-form">
+                <div class="popup-close" onclick="closeBrochurepopup()">X</div>
+                <h4 class="heading-title"><span>Download Brochure</span></h4>
+                <p style="font-size: 14px !important; margin-bottom: 10px;">
+                    Get your brochure instantly. Enter your details below to access the download.
+                </p>
+                <form method="POST" class="appointment-form" action="download-brochure">
+                    <div class="form-group">
+                        <label for="brochure_name">Full Name</label>
+                        <input type="text" name="brochure_name" id="brochure_name" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="brochure_email">Email Address</label>
+                        <input type="email" name="brochure_email" id="brochure_email" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="brochure_country">Country</label>
+                        <input type="text" name="brochure_country" id="brochure_country" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="brochure_phone">Phone Number</label>
+                        <input type="tel" name="brochure_phone" id="brochure_phone" class="form-control" required>
+                    </div>
+
+                    <div class="form-group">
+                        <div class="g-recaptcha" data-sitekey="YOUR_SITE_KEY_HERE"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <button type="submit" class="gradient-btn btn-green-glossy w-100 mt-3 text-center">
+                            Download Brochure
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="assets/vendors/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/vendors/jquery/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/country-select-js@2.0.1/build/js/countrySelect.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+
+
+    <script>
+        /* ---- Swiper thumbs + main ---- */
+        (function() {
+            // thumbs
+            const thumbs = new Swiper('.hh-gallery-01 .hh-gallery-01-thumbs', {
+                slidesPerView: 4.5,
+                spaceBetween: 12,
+                watchSlidesProgress: true,
+                breakpoints: {
+                    576: {
+                        slidesPerView: 5,
+                        spaceBetween: 12
+                    },
+                    992: {
+                        slidesPerView: 5,
+                        spaceBetween: 14
+                    }
+                }
+            });
+
+            // main
+            const main = new Swiper('.hh-gallery-01 .hh-gallery-01-main', {
+                slidesPerView: 1,
+                speed: 500,
+                effect: 'slide',
+                thumbs: {
+                    swiper: thumbs
+                },
+                on: {
+                    slideChange: function() {
+                        // update fraction + progress
+                        const cur = this.realIndex + 1;
+                        const total = this.slides.length;
+                        const root = this.el.closest('.hh-gallery-01');
+                        root.querySelector('.fraction span:first-child').textContent = cur;
+                        root.querySelector('.fraction span:last-child').textContent = total;
+                        root.querySelector('.progress i').style.width = (cur / total * 100) + '%';
+                    }
+                }
+            });
+
+            // init fraction at load
+            main.emit('slideChange');
+
+            // custom nav
+            document.querySelector('.hh-gallery-01 .nav.prev').addEventListener('click', () => main.slidePrev());
+            document.querySelector('.hh-gallery-01 .nav.next').addEventListener('click', () => main.slideNext());
+
+            // Lightbox
+            const lb = document.querySelector('.hh-gallery-01 .hh-gallery-01-lightbox');
+            const lbImg = lb.querySelector('img');
+            let lbIndex = 0;
+
+            function openLB(i) {
+                lbIndex = i;
+                lbImg.src = main.slides[lbIndex].querySelector('img').src;
+                lb.classList.add('open');
+                lb.setAttribute('aria-hidden', 'false');
+            }
+
+            function closeLB() {
+                lb.classList.remove('open');
+                lb.setAttribute('aria-hidden', 'true');
+            }
+
+            function prevLB() {
+                lbIndex = (lbIndex - 1 + main.slides.length) % main.slides.length;
+                lbImg.src = main.slides[lbIndex].querySelector('img').src;
+                main.slideTo(lbIndex);
+            }
+
+            function nextLB() {
+                lbIndex = (lbIndex + 1) % main.slides.length;
+                lbImg.src = main.slides[lbIndex].querySelector('img').src;
+                main.slideTo(lbIndex);
+            }
+
+            // click on main image or "View All"
+            document.querySelectorAll('.hh-gallery-01 .hh-gallery-01-main .swiper-slide img').forEach((img, i) => {
+                img.style.cursor = 'zoom-in';
+                img.addEventListener('click', () => openLB(i));
+            });
+            document.querySelector('.hh-gallery-01 [data-action="view-all"]').addEventListener('click', () => openLB(main.realIndex));
+            document.querySelector('.hh-gallery-01 .fullscreen').addEventListener('click', () => openLB(main.realIndex));
+
+            // lb controls
+            lb.querySelector('.lb-close').addEventListener('click', closeLB);
+            lb.querySelector('.lb-prev').addEventListener('click', prevLB);
+            lb.querySelector('.lb-next').addEventListener('click', nextLB);
+            lb.addEventListener('click', (e) => {
+                if (e.target === lb) closeLB();
+            });
+
+            // keyboard nav
+            window.addEventListener('keydown', (e) => {
+                if (!lb.classList.contains('open')) return;
+                if (e.key === 'Escape') closeLB();
+                if (e.key === 'ArrowLeft') prevLB();
+                if (e.key === 'ArrowRight') nextLB();
+            });
+        })();
     </script>
-';
 
-include 'includes/common-header.php';
-include 'includes/navbar.php';
-?>
+    <script>
+        (function() {
+            const section = document.querySelector('.hh-floorplans-01');
+            if (!section) return;
+            const canvas = section.querySelector('.fp-canvas');
 
-<!-- Enhanced page header with better accessibility -->
-<div class="page-header-section" style="background-image: url(assets/images/banner/offplan-banner.webp); background-size: cover; background-position: center;">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-8">
-                <div class="page-header-heading animate fadeInLeft wow" data-wow-duration="2000ms">
-                    <h1 class="h2">The Weave - Premium Apartments in JVC</h1>
-                    <p class="lead">Discover Al Ghurair's masterpiece in Jumeirah Village Circle. Exclusive prices, flexible payment plans, and prime future-ready location with world-class amenities.</p>
-                </div>
-            </div>
-        </div>
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb">
-                <li class="breadcrumb-item">
-                    <a href="index.php">Home</a>
-                </li>
-                <li class="breadcrumb-item">
-                    <img src="assets/images/about/arrow-brudcrumb.svg" alt="breadcrumb separator" width="16" height="16">
-                </li>
-                <li class="breadcrumb-item active" aria-current="page">
-                    <span>Property Details</span>
-                </li>
-            </ol>
-        </nav>
-    </div>
-</div>
-
-<!-- Enhanced Residential Services Section -->
-<section class="residential-services-section py-5" aria-labelledby="residential-heading">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-7 col-md-6">
-                <div class="residential-text">
-                    <h2 id="residential-heading" class="residential-title heading-title">
-                        <span>An Iconic Residential Presence in JVC</span>
-                    </h2>
-                    <p>
-                        The Weave by Al Ghurair represents a new standard in Dubai's residential landscape. Our RICS-compliant development offers apartments, designed with meticulous attention to detail. Each unit is crafted based on market analysis, location advantages, and future growth potential.
-                    </p>
-                    <p>
-                        Set within the vibrant community of Jumeirah Village Circle, The Weave introduces a new benchmark for modern apartment living in Dubai. This thoughtfully designed development offers serene community views and lush green surroundings, allowing you to immerse yourself in tranquility while maintaining easy access to premier dining, shopping, and entertainment venues throughout the city.
-                    </p>
-
-                    <!-- Added key features -->
-                    <div class="key-features mt-4">
-                        <h3 class="h5 mb-3">Key Highlights:</h3>
-                        <ul class="list-unstyled">
-                            <li class="mb-2"><i class="fas fa-check text-primary me-2"></i> 1, 2 & 3.5 bedroom apartments</li>
-                            <li class="mb-2"><i class="fas fa-check text-primary me-2"></i> Rooftop club with premium amenities</li>
-                            <li class="mb-2"><i class="fas fa-check text-primary me-2"></i> Flexible 80/20 payment plan</li>
-                            <li class="mb-2"><i class="fas fa-check text-primary me-2"></i> Prime JVC location</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-lg-5 col-md-6">
-                <div class="residential-image">
-                    <img src="assets/images/allservices/worth-beyond-1.webp"
-                        alt="The Weave residential building exterior view"
-                        class="img-fluid rounded shadow-lg"
-                        loading="lazy"
-                        width="600"
-                        height="400">
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Enhanced Property Gallery Section -->
-<section class="property-gallery-section" aria-labelledby="gallery-heading">
-    <div class="container">
-        <div class="row g-3">
-            <div class="col-lg-12">
-                <h2 id="gallery-heading" class="heading-title">The <span>Weave | Al Ghurair | Jumeirah Village Circle,</span> Dubai</h2>
-            </div>
-
-            <!-- Main gallery image with modal trigger -->
-            <div class="col-12 col-lg-8 position-relative">
-                <div class="gallery-main-image h-100" data-bs-toggle="modal" data-bs-target="#galleryModal" style="cursor: pointer;">
-                    <img src="https://houzzhunt.com/assets/images/banner/offplan-banner.webp"
-                        alt="The Weave main building view"
-                        class="img-fluid w-100 rounded h-100 shadow-sm"
-                        loading="lazy">
-                    <div class="gallery-overlay">
-                        <i class="fas fa-expand-alt text-white fa-2x"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="col-12 col-lg-4">
-                <div class="row g-3">
-                    <div class="col-12">
-                        <div class="gallery-thumb" data-bs-toggle="modal" data-bs-target="#galleryModal" style="cursor: pointer;">
-                            <img src="https://d33om22pidobo4.cloudfront.net/projects/gallery/4jpg-727f9584-8b71-47df-add6-acced22a441d.jpg?d=500x333&f=webp"
-                                alt="Rooftop jacuzzi area"
-                                class="img-fluid w-100 rounded shadow-sm"
-                                loading="lazy">
-                        </div>
-                    </div>
-                    <div class="col-12">
-                        <div class="gallery-thumb" data-bs-toggle="modal" data-bs-target="#galleryModal" style="cursor: pointer;">
-                            <img src="https://d33om22pidobo4.cloudfront.net/projects/gallery/5jpg-dbb4e1d6-8f7d-44cf-8660-e93edec0a993.jpg?d=500x333&f=webp"
-                                alt="Modern living room interior"
-                                class="img-fluid w-100 rounded shadow-sm"
-                                loading="lazy">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Enhanced property description -->
-            <div class="col-lg-12">
-                <div class="property-descriptiondetails">
-                    <h3 class="h4 mb-4">About This Development</h3>
-                    <div class="description-content">
-                        <p>
-                            Developed by Al Ghurair, The Weave is a charming new residential development nestled in the vibrant community of Jumeirah Village Circle (JVC), Dubai. Designed to bring people together through thoughtful architecture and inviting spaces, The Weave blends modern urban living with a cozy, neighborhood feel.
-                        </p>
-                        <p>
-                            Offering a collection of impeccably designed 1, 2 and 3.5 bedroom apartments, The Weave is perfect for young professionals, couples, and families seeking comfort, connectivity, and convenience. Each apartment is designed with contemporary finishes, open-plan layouts, and ample natural light - creating a relaxed and airy living environment.
-                        </p>
-                        <p>
-                            The community features a curated selection of lifestyle amenities, including a rooftop club with swimming pool, jacuzzis, sauna, ice room, barbecue and dining area, private cinema and a social lounge for residents to unwind and connect. With its central location in JVC, residents also enjoy easy access to key areas like Dubai Marina, Downtown Dubai, and major highways.
-                        </p>
-                        <p>
-                            The Weave reflects Al Ghurair's commitment to excellence in quality, functionality, and design integrity. Whether you're investing or planning to live in it, The Weave is a place where modern comfort meets meaningful community living.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Enhanced Amenities Section -->
-<section class="amenities-section py-5" aria-labelledby="amenities-heading">
-    <div class="container">
-        <h2 id="amenities-heading" class="section-title heading-title mb-5"><span>Amenities & Property Details</span></h2>
-
-        <!-- Enhanced Listing Details -->
-        <div class="listing-details mb-5">
-            <h3 class="sub-title h4 mb-4">Property Information</h3>
-            <div class="row g-4">
-                <div class="col-6 col-md-4 col-lg-3">
-                    <div class="detail-item p-3 border rounded">
-                        <p class="label mb-1 text-muted small">Property ID</p>
-                        <p class="value mb-0 fw-bold">5TF65R</p>
-                    </div>
-                </div>
-                <div class="col-6 col-md-4 col-lg-3">
-                    <div class="detail-item p-3 border rounded">
-                        <p class="label mb-1 text-muted small">MLS#</p>
-                        <p class="value mb-0 fw-bold">GS-S-48420</p>
-                    </div>
-                </div>
-                <div class="col-6 col-md-4 col-lg-3">
-                    <div class="detail-item p-3 border rounded">
-                        <p class="label mb-1 text-muted small">Starting Price</p>
-                        <p class="value mb-0 fw-bold text-primary">From $850K</p>
-                    </div>
-                </div>
-                <div class="col-6 col-md-4 col-lg-3">
-                    <div class="detail-item p-3 border rounded">
-                        <p class="label mb-1 text-muted small">Property Type</p>
-                        <p class="value mb-0 fw-bold">Apartments</p>
-                    </div>
-                </div>
-                <div class="col-12 col-md-8 col-lg-6">
-                    <div class="detail-item p-3 border rounded">
-                        <p class="label mb-1 text-muted small">Developed By</p>
-                        <p class="value mb-0 fw-bold">Al Ghurair Real Estate</p>
-                    </div>
-                </div>
-                <div class="col-12 col-md-4 col-lg-3">
-                    <div class="detail-item p-3 border rounded">
-                        <p class="label mb-1 text-muted small">Status</p>
-                        <p class="value mb-0 fw-bold text-success">Available</p>
-                    </div>
-                </div>
-                <div class="col-12 col-md-4 col-lg-3">
-                    <div class="detail-item p-3 border rounded">
-                        <p class="label mb-1 text-muted small">Completion</p>
-                        <p class="value mb-0 fw-bold">Q4 2026</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Unit Specifications -->
-        <div class="interior-details mt-5">
-            <h3 class="sub-title h4 mb-4">Unit Specifications</h3>
-            <div class="row g-4">
-                <div class="col-6 col-md-4 col-lg-3">
-                    <div class="detail-item p-3 border rounded">
-                        <p class="label mb-1 text-muted small">Bathrooms</p>
-                        <p class="value mb-0 fw-bold">1-3</p>
-                    </div>
-                </div>
-                <div class="col-6 col-md-4 col-lg-3">
-                    <div class="detail-item p-3 border rounded">
-                        <p class="label mb-1 text-muted small">Bedrooms</p>
-                        <p class="value mb-0 fw-bold">1-3.5</p>
-                    </div>
-                </div>
-                <div class="col-12 col-md-4 col-lg-6">
-                    <div class="detail-item p-3 border rounded">
-                        <p class="label mb-1 text-muted small">Size Range</p>
-                        <p class="value mb-0 fw-bold">43.8 - 153.2 sqm</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Amenities List -->
-        <div class="amenities-list mt-5">
-            <h3 class="sub-title h4 mb-4">World-Class Amenities</h3>
-            <div class="row g-3">
-                <div class="col-md-6 col-lg-4">
-                    <div class="amenity-item d-flex align-items-center p-2">
-                        <i class="fas fa-swimming-pool text-primary me-3"></i>
-                        <span>Rooftop Swimming Pool</span>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4">
-                    <div class="amenity-item d-flex align-items-center p-2">
-                        <i class="fas fa-hot-tub text-primary me-3"></i>
-                        <span>Jacuzzis & Spa</span>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4">
-                    <div class="amenity-item d-flex align-items-center p-2">
-                        <i class="fas fa-film text-primary me-3"></i>
-                        <span>Private Cinema</span>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4">
-                    <div class="amenity-item d-flex align-items-center p-2">
-                        <i class="fas fa-dumbbell text-primary me-3"></i>
-                        <span>Fitness Center</span>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4">
-                    <div class="amenity-item d-flex align-items-center p-2">
-                        <i class="fas fa-fire text-primary me-3"></i>
-                        <span>BBQ & Dining Area</span>
-                    </div>
-                </div>
-                <div class="col-md-6 col-lg-4">
-                    <div class="amenity-item d-flex align-items-center p-2">
-                        <i class="fas fa-users text-primary me-3"></i>
-                        <span>Social Lounge</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Enhanced Floor Plans Section -->
-<section class="floorplans-section py-5" aria-labelledby="floorplans-heading">
-    <div class="container">
-        <div class="row g-4 align-items-start">
-            <div class="col-lg-12">
-                <h2 id="floorplans-heading" class="heading-title mb-4"><span>Floor Plans & Unit Types</span></h2>
-            </div>
-            <div class="col-12 col-lg-7">
-                <div class="floorplan-tabs">
-                    <div class="floorplan-tab active p-3 border rounded mb-3"
-                        data-image="https://a.storyblok.com/f/165304/762x726/1beddd4474/gardenia-bay-floor-plan.png"
-                        role="button" tabindex="0">
-                        <h4 class="h5 mb-2">Studio Apartment</h4>
-                        <p class="mb-1 text-muted">43.828 to 45.625 sqm</p>
-                        <p class="mb-0 small text-primary">Starting from $850K</p>
-                    </div>
-                    <div class="floorplan-tab p-3 border rounded mb-3"
-                        data-image="https://a.storyblok.com/f/165304/668x690/d73ba1d330/gardenia-bay-floor-plan.png"
-                        role="button" tabindex="0">
-                        <h4 class="h5 mb-2">1 Bedroom Apartment</h4>
-                        <p class="mb-1 text-muted">70.780 to 73.467 sqm</p>
-                        <p class="mb-0 small text-primary">Starting from $1.2M</p>
-                    </div>
-                    <div class="floorplan-tab p-3 border rounded mb-3"
-                        data-image="https://a.storyblok.com/f/165304/996x668/1a83678dd5/gardenia-bay-floor-plan.png"
-                        role="button" tabindex="0">
-                        <h4 class="h5 mb-2">2 Bedroom Apartment</h4>
-                        <p class="mb-1 text-muted">106.375 to 109.641 sqm</p>
-                        <p class="mb-0 small text-primary">Starting from $1.8M</p>
-                    </div>
-                    <div class="floorplan-tab p-3 border rounded mb-3"
-                        data-image="https://a.storyblok.com/f/165304/1322x750/97d0d615e6/gardenia-bay-floor-plan.png"
-                        role="button" tabindex="0">
-                        <h4 class="h5 mb-2">3 Bedroom Apartment</h4>
-                        <p class="mb-1 text-muted">145.533 to 153.224 sqm</p>
-                        <p class="mb-0 small text-primary">Starting from $2.5M</p>
-                    </div>
-                    <div class="floorplan-tab p-3 border rounded mb-3"
-                        data-image="https://a.storyblok.com/f/165304/800x800/0ff6642c7e/gardenia-bay-4-br-townhouse-floor-plan.png"
-                        role="button" tabindex="0">
-                        <h4 class="h5 mb-2">3.5 Bedroom Duplex</h4>
-                        <p class="mb-1 text-muted">165+ sqm</p>
-                        <p class="mb-0 small text-primary">Starting from $3.2M</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 col-lg-5">
-                <div class="floorplan-image-wrapper text-center">
-                    <img id="floorplan-image"
-                        src="https://a.storyblok.com/f/165304/762x726/1beddd4474/gardenia-bay-floor-plan.png"
-                        alt="Studio apartment floor plan"
-                        class="img-fluid rounded shadow-lg"
-                        loading="lazy">
-                    <p class="mt-3 text-muted small">Click on unit types to view different floor plans</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Enhanced Location Section -->
-<section class="location-section py-5" aria-labelledby="location-heading">
-    <div class="container">
-        <div class="row g-4">
-            <div class="col-12 col-lg-6">
-                <div class="map-container">
-                    <iframe
-                        src="https://www.openstreetmap.org/export/embed.html?bbox=55.2620%2C25.1850%2C55.3050%2C25.2300&layer=mapnik&marker=25.2048%2C55.2708"
-                        style="border:0; width:100%; height:400px; border-radius:15px;"
-                        allowfullscreen=""
-                        loading="lazy"
-                        referrerpolicy="no-referrer-when-downgrade"
-                        title="The Weave location map in Jumeirah Village Circle">
-                    </iframe>
-                </div>
-            </div>
-            <div class="col-12 col-lg-6">
-                <div class="location-content">
-                    <h2 id="location-heading" class="heading-title mb-4"><span>Prime JVC Location</span></h2>
-                    <h3 class="location-title h4 mb-4">Strategically positioned in Jumeirah Village Circle, offering connectivity and community lifestyle</h3>
-
-                    <div class="location-highlights mb-4">
-                        <h4 class="h5 mb-3">Nearby Attractions & Distances:</h4>
-                        <ul class="list-unstyled">
-                            <li class="mb-2"><i class="fas fa-map-marker-alt text-primary me-2"></i> Dubai Marina - 10 minutes</li>
-                            <li class="mb-2"><i class="fas fa-map-marker-alt text-primary me-2"></i> Dubai Mall - 20 minutes</li>
-                            <li class="mb-2"><i class="fas fa-map-marker-alt text-primary me-2"></i> Palm Jumeirah - 15 minutes</li>
-                            <li class="mb-2"><i class="fas fa-map-marker-alt text-primary me-2"></i> DXB Airport - 35 minutes</li>
-                            <li class="mb-2"><i class="fas fa-map-marker-alt text-primary me-2"></i> Circle Mall JVC - 5 minutes</li>
-                        </ul>
-                    </div>
-
-                    <p class="location-description mb-3">
-                        The Weave is strategically located in Jumeirah Village Circle, offering seamless connectivity to key destinations throughout Dubai. With excellent access to major highways, residents enjoy easy commutes to business districts, entertainment hubs, and shopping destinations while living in a peaceful, family-friendly community.
-                    </p>
-                    <p class="location-description">
-                        JVC is renowned for its pet-friendly environment, numerous parks, and family-oriented facilities, making it one of Dubai's most sought-after residential communities for those seeking quality of life and investment potential.
-                    </p>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Enhanced Payment Plan Section -->
-<section class="payment-plan-section py-5" aria-labelledby="payment-heading">
-    <div class="container">
-        <div class="row justify-content-center mb-5">
-            <div class="col-12 text-center">
-                <h2 id="payment-heading" class="payment-title heading-title mb-3"><span>Flexible Payment Plan</span></h2>
-                <p class="lead text-muted">Investor-friendly payment structure designed for your convenience</p>
-            </div>
-        </div>
-        <div class="row justify-content-center g-4">
-            <div class="col-12 col-md-5">
-                <div class="payment-box text-center p-5 border rounded shadow-sm">
-                    <h3 class="payment-percentage display-4 text-primary mb-3">80%</h3>
-                    <p class="payment-description h5 mb-3">During Construction</p>
-                    <p class="text-muted small">Flexible installments spread over construction period</p>
-                </div>
-            </div>
-            <div class="col-12 col-md-5">
-                <div class="payment-box text-center p-5 border rounded shadow-sm">
-                    <h3 class="payment-percentage display-4 text-success mb-3">20%</h3>
-                    <p class="payment-description h5 mb-3">On Completion</p>
-                    <p class="text-muted small">Final payment upon handover in Q4 2026</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Added CTA section -->
-        <div class="row justify-content-center mt-5">
-            <div class="col-12 col-md-8 text-center">
-                <div class="cta-section p-4 bg-light rounded">
-                    <h3 class="h4 mb-3">Ready to Invest in Your Future?</h3>
-                    <p class="mb-4">Contact our property specialists today for exclusive pricing and floor plan details.</p>
-                    <div class="row g-3 justify-content-center">
-                        <div class="col-auto">
-                            <a href="tel:+971-XXX-XXXX" class="btn btn-primary btn-lg">
-                                <i class="fas fa-phone me-2"></i>Call Now
-                            </a>
-                        </div>
-                        <div class="col-auto">
-                            <a href="#inquiry-form" class="btn btn-outline-primary btn-lg">
-                                <i class="fas fa-envelope me-2"></i>Request Info
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Image Gallery Modal -->
-<div class="modal fade" id="galleryModal" tabindex="-1" aria-labelledby="galleryModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="galleryModalLabel">The Weave - Property Gallery</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body p-0">
-                <div id="propertyGalleryCarousel" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-inner">
-                        <div class="carousel-item active">
-                            <img src="https://houzzhunt.com/assets/images/banner/offplan-banner.webp" class="d-block w-100" alt="Building exterior">
-                        </div>
-                        <div class="carousel-item">
-                            <img src="https://d33om22pidobo4.cloudfront.net/projects/gallery/4jpg-727f9584-8b71-47df-add6-acced22a441d.jpg?d=1200x800&f=webp" class="d-block w-100" alt="Rooftop jacuzzi">
-                        </div>
-                        <div class="carousel-item">
-                            <img src="https://d33om22pidobo4.cloudfront.net/projects/gallery/5jpg-dbb4e1d6-8f7d-44cf-8660-e93edec0a993.jpg?d=1200x800&f=webp" class="d-block w-100" alt="Living room interior">
-                        </div>
-                    </div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#propertyGalleryCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Previous</span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#propertyGalleryCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Next</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Newsletter section start -->
-<?php include 'includes/subscribe-form.php'; ?>
-<!-- Newsletter section end -->
-
-<!-- Enhanced JavaScript with better functionality -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Enhanced floor plan tab functionality
-        const tabs = document.querySelectorAll('.floorplan-tab');
-        const image = document.getElementById('floorplan-image');
-
-        tabs.forEach(tab => {
-            // Mouse click event
-            tab.addEventListener('click', function() {
-                switchFloorPlan(this);
-            });
-
-            // Keyboard accessibility
-            tab.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    switchFloorPlan(this);
-                }
-            });
-
-            // Hover effects for better UX
-            tab.addEventListener('mouseenter', function() {
-                if (!this.classList.contains('active')) {
-                    this.style.backgroundColor = '#f8f9fa';
-                    this.style.transition = 'background-color 0.3s ease';
-                }
-            });
-
-            tab.addEventListener('mouseleave', function() {
-                if (!this.classList.contains('active')) {
-                    this.style.backgroundColor = '';
-                }
-            });
-        });
-
-        function switchFloorPlan(activeTab) {
-            // Remove active state from all tabs
-            tabs.forEach(t => {
-                t.classList.remove('active');
-                t.style.backgroundColor = '';
-                t.style.borderColor = '';
-            });
-
-            // Add active state to clicked tab
-            activeTab.classList.add('active');
-            activeTab.style.backgroundColor = '#e3f2fd';
-            activeTab.style.borderColor = '#2196f3';
-
-            // Get new image source and alt text
-            const newSrc = activeTab.getAttribute('data-image');
-            const unitType = activeTab.querySelector('h4').textContent;
-
-            // Smooth image transition with loading state
-            image.style.opacity = '0.3';
-            image.style.transition = 'opacity 0.3s ease';
-
-            // Create new image to preload
-            const newImage = new Image();
-            newImage.onload = function() {
-                image.src = newSrc;
-                image.alt = unitType + ' floor plan';
-                image.style.opacity = '1';
-            };
-            newImage.src = newSrc;
-
-            // Update URL hash for deep linking
-            const unitSlug = unitType.toLowerCase().replace(/\s+/g, '-');
-            history.replaceState(null, null, '#' + unitSlug);
-        }
-
-        // Gallery modal enhancements
-        const galleryImages = document.querySelectorAll('.gallery-thumb, .gallery-main-image');
-        const modal = document.getElementById('galleryModal');
-        const carousel = document.getElementById('propertyGalleryCarousel');
-
-        if (galleryImages && modal && carousel) {
-            galleryImages.forEach((img, index) => {
-                img.addEventListener('click', function() {
-                    // Set active slide based on clicked image
-                    const carouselItems = carousel.querySelectorAll('.carousel-item');
-                    carouselItems.forEach((item, i) => {
-                        item.classList.toggle('active', i === index);
-                    });
-                });
-            });
-        }
-
-        // Smooth scrolling for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function(e) {
-                e.preventDefault();
-                const targetId = this.getAttribute('href').substring(1);
-                const targetElement = document.getElementById(targetId);
-
-                if (targetElement) {
-                    targetElement.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
-            });
-        });
-
-        // Load specific floor plan from URL hash
-        const urlHash = window.location.hash.substring(1);
-        if (urlHash) {
-            const targetTab = Array.from(tabs).find(tab => {
-                const unitType = tab.querySelector('h4').textContent.toLowerCase().replace(/\s+/g, '-');
-                return unitType === urlHash;
-            });
-
-            if (targetTab) {
-                switchFloorPlan(targetTab);
+            function showPane(targetSel) {
+                canvas.querySelectorAll('.fp-pane').forEach(p => p.classList.remove('active'));
+                const pane = canvas.querySelector(targetSel);
+                if (pane) pane.classList.add('active');
             }
-        }
 
-        // Lazy loading enhancement for images
-        const lazyImages = document.querySelectorAll('img[loading="lazy"]');
-        if ('IntersectionObserver' in window) {
-            const imageObserver = new IntersectionObserver((entries, observer) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        const img = entry.target;
-                        img.classList.add('fade-in');
-                        observer.unobserve(img);
-                    }
-                });
-            });
+            // Default ground floor
+            showPane('#fp-tab-ground');
 
-            lazyImages.forEach(img => imageObserver.observe(img));
-        }
-
-        // Form validation and enhancement (if contact forms exist)
-        const contactForms = document.querySelectorAll('form');
-        contactForms.forEach(form => {
-            form.addEventListener('submit', function(e) {
-                const requiredFields = form.querySelectorAll('[required]');
-                let isValid = true;
-
-                requiredFields.forEach(field => {
-                    if (!field.value.trim()) {
-                        isValid = false;
-                        field.classList.add('is-invalid');
-
-                        // Remove invalid class after user starts typing
-                        field.addEventListener('input', function() {
-                            this.classList.remove('is-invalid');
-                        });
-                    }
-                });
-
-                if (!isValid) {
-                    e.preventDefault();
-                    // Scroll to first invalid field
-                    const firstInvalid = form.querySelector('.is-invalid');
-                    if (firstInvalid) {
-                        firstInvalid.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'center'
-                        });
-                    }
-                }
-            });
-        });
-
-        // Add loading states for buttons
-        const buttons = document.querySelectorAll('button, .btn');
-        buttons.forEach(btn => {
-            if (btn.type === 'submit') {
+            // Bind vertical buttons
+            section.querySelectorAll('.fp-aside [data-bs-toggle="tab"]').forEach(btn => {
                 btn.addEventListener('click', function() {
-                    const originalText = this.innerHTML;
-                    this.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
-                    this.disabled = true;
-
-                    // Re-enable after 3 seconds (adjust based on your needs)
-                    setTimeout(() => {
-                        this.innerHTML = originalText;
-                        this.disabled = false;
-                    }, 3000);
+                    section.querySelectorAll('.fp-box').forEach(b => b.classList.remove('active'));
+                    this.classList.add('active');
+                    const targetSel = this.getAttribute('data-bs-target');
+                    showPane(targetSel);
                 });
+            });
+        })();
+    </script>
+
+    <script>
+        (function() {
+            const root = document.querySelector('.hh-invest-01');
+            if (!root) return;
+
+            const priceEl = root.querySelector('#mc-price');
+            const rateEl = root.querySelector('#mc-rate');
+            const dpEl = root.querySelector('#mc-dp');
+            const termEl = root.querySelector('#mc-term');
+
+            const dpLbl = root.querySelector('#mc-dp-lbl');
+            const dpAmt = root.querySelector('#mc-dp-amt');
+            const termLbl = root.querySelector('#mc-term-lbl');
+
+            const outLoan = root.querySelector('#mc-loan');
+            const outMon = root.querySelector('#mc-monthly');
+            const outInt = root.querySelector('#mc-interest');
+            const outTot = root.querySelector('#mc-total');
+            const outPI = root.querySelector('#mc-pi');
+
+            function toNum(str) {
+                return Number(String(str).replace(/[^\d.]/g, ''));
             }
-        });
 
-        // Performance: Preload critical images
-        const criticalImages = [
-            'https://houzzhunt.com/assets/images/banner/offplan-banner.webp',
-            'assets/images/allservices/worth-beyond-1.webp'
-        ];
+            function fmt(n) {
+                const parts = Math.round(n).toString().split('');
+                for (let i = parts.length - 3; i > 0; i -= 3) {
+                    parts.splice(i, 0, ',');
+                }
+                return 'AED ' + parts.join('');
+            }
 
-        criticalImages.forEach(src => {
-            const link = document.createElement('link');
-            link.rel = 'preload';
-            link.as = 'image';
-            link.href = src;
-            document.head.appendChild(link);
-        });
-    });
+            function compute() {
+                const P = toNum(priceEl.value || 0);
+                const rA = Number(rateEl.value || 0); // annual %
+                const dp = Number(dpEl.value || 0); // %
+                const yrs = Number(termEl.value || 0);
 
-    // Advanced analytics tracking (Google Analytics 4 example)
-    function trackPropertyInterest(action, property_name = 'The Weave JVC') {
-        if (typeof gtag !== 'undefined') {
-            gtag('event', action, {
-                'custom_parameter_1': property_name,
-                'custom_parameter_2': 'JVC',
-                'value': 1
+                const down = P * dp / 100;
+                const L = Math.max(P - down, 0);
+                const i = (rA / 100) / 12;
+                const n = yrs * 12;
+
+                const M = (i > 0) ? (L * i * Math.pow(1 + i, n)) / (Math.pow(1 + i, n) - 1) : (n > 0 ? L / n : 0);
+                const totalPay = M * n;
+                const totalInt = totalPay - L;
+
+                dpLbl.textContent = dp + '%';
+                dpAmt.textContent = fmt(down);
+                termLbl.textContent = yrs + ' years';
+
+                outLoan.textContent = fmt(L);
+                outMon.textContent = fmt(M);
+                outPI.textContent = fmt(M);
+                outTot.textContent = fmt(totalPay);
+                outInt.textContent = fmt(totalInt);
+            }
+
+            // formatting on blur for price
+            priceEl.addEventListener('blur', () => {
+                priceEl.value = (toNum(priceEl.value) || 0).toLocaleString();
+                compute();
             });
-        }
-    }
+            [priceEl, rateEl].forEach(el => el.addEventListener('input', compute));
+            [dpEl, termEl].forEach(el => el.addEventListener('input', compute));
 
-    // Track floor plan views
-    document.addEventListener('DOMContentLoaded', function() {
-        const floorPlanTabs = document.querySelectorAll('.floorplan-tab');
-        floorPlanTabs.forEach(tab => {
-            tab.addEventListener('click', function() {
-                const unitType = this.querySelector('h4').textContent;
-                trackPropertyInterest('view_floor_plan', `The Weave - ${unitType}`);
+            // init
+            priceEl.value = (toNum(priceEl.value) || 0).toLocaleString();
+            compute();
+        })();
+    </script>
+
+    <script>
+        function openPopup() {
+            document.getElementById("propertyEnquirey").classList.add("show");
+            document.body.classList.add("no-scroll");
+        }
+
+        function closePopup() {
+            document.getElementById("propertyEnquirey").classList.remove("show");
+            document.body.classList.remove("no-scroll");
+        }
+
+        function Brochurepopup() {
+            document.getElementById("downloadBrochure").classList.add("show");
+            document.body.classList.add("no-scroll");
+        }
+
+        function closeBrochurepopup() {
+            document.getElementById("downloadBrochure").classList.remove("show");
+            document.body.classList.remove("no-scroll");
+        }
+
+        // Optional: Auto open after delay
+        // window.addEventListener("load", function () {
+        //   setTimeout(function () {
+        //     openPopup();
+        //   }, 3000);
+        // });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $("#country").countrySelect({
+                defaultCountry: "ae",
+                preferredCountries: ['ae', 'in', 'gb'] // gb = United Kingdom
+            });
+
+            $("#brochure_country").countrySelect({
+                defaultCountry: "ae",
+                preferredCountries: ['ae', 'in', 'gb']
+            });
+
+            $("#ri-budget").countrySelect({
+                defaultCountry: "ae",
+                preferredCountries: ['ae', 'in', 'gb']
             });
         });
-    });
-</script>
+    </script>
 
-<!-- Additional CSS for enhancements -->
-<style>
-    .gallery-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.5);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        border-radius: 15px;
-    }
 
-    .gallery-main-image:hover .gallery-overlay,
-    .gallery-thumb:hover .gallery-overlay {
-        opacity: 1;
-    }
+    <script>
+        // Initialize multiple inputs with intlTelInput
+        function initIntlTelInput(id) {
+            const input = document.querySelector(id);
+            if (!input) return null;
 
-    .floorplan-tab {
-        transition: all 0.3s ease;
-        cursor: pointer;
-        border: 2px solid #e9ecef !important;
-    }
+            const iti = window.intlTelInput(input, {
+                initialCountry: "ae", // Default UAE
+                separateDialCode: true,
+                preferredCountries: ["ae", "in", "us", "gb", "sa"], // Common options
+            });
 
-    .floorplan-tab:hover {
-        border-color: #dee2e6 !important;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-    }
+            // Get full number on form submit
+            input.form.addEventListener("submit", function() {
+                input.value = iti.getNumber();
+            });
 
-    .floorplan-tab.active {
-        background-color: #e3f2fd !important;
-        border-color: #2196f3 !important;
-        box-shadow: 0 4px 8px rgba(33, 150, 243, 0.2);
-    }
-
-    .amenity-item {
-        transition: background-color 0.3s ease;
-    }
-
-    .amenity-item:hover {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-    }
-
-    .detail-item {
-        transition: box-shadow 0.3s ease;
-    }
-
-    .detail-item:hover {
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    .fade-in {
-        animation: fadeIn 0.5s ease-in;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
+            return iti;
         }
 
-        to {
-            opacity: 1;
-        }
-    }
+        // Apply on both IDs
+        const itiPhone = initIntlTelInput("#phone");
+        const itiRiMobile = initIntlTelInput("#ri-mobile");
+    </script>
 
-    .cta-section {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    }
 
-    .btn {
-        transition: all 0.3s ease;
-    }
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.select-dropDownClass').forEach(el => {
+                new Choices(el, {
+                    searchEnabled: false,
+                    itemSelectText: '',
+                    shouldSort: false
+                });
+            });
+        });
+    </script>
 
-    .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
 
-    @media (max-width: 768px) {
-        .floorplan-tabs .floorplan-tab {
-            margin-bottom: 1rem;
-        }
 
-        .payment-box {
-            margin-bottom: 2rem;
-        }
 
-        .detail-item {
-            margin-bottom: 1rem;
-        }
-    }
 
-    /* Accessibility improvements */
-    .floorplan-tab:focus {
-        outline: 2px solid #2196f3;
-        outline-offset: 2px;
-    }
+</body>
 
-    .btn:focus {
-        box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.3);
-    }
-
-    /* Print styles */
-    @media print {
-
-        .gallery-overlay,
-        .modal,
-        .btn {
-            display: none !important;
-        }
-
-        .container {
-            max-width: none !important;
-        }
-    }
-</style>
-
-<?php include 'includes/footer.php'; ?>
-<?php include 'includes/common-footer.php'; ?>
+</html>

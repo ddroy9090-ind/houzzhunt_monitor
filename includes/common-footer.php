@@ -18,6 +18,7 @@
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/country-select-js@2.0.1/build/js/countrySelect.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
 
 
@@ -268,24 +269,24 @@
 </script>
 
 <script>
-  var swiper1 = new Swiper(".hh-review-slider", {
-    slidesPerView: 3,
-    spaceBetween: 30,
-    navigation: {
-      nextEl: ".swiper-button-next",
-      prevEl: ".swiper-button-prev",
-    },
-    breakpoints: {
-      0: {
-        slidesPerView: 1,
-        spaceBetween: 20,
-      },
-      768: {
+    var swiper1 = new Swiper(".hh-review-slider", {
         slidesPerView: 3,
         spaceBetween: 30,
-      }
-    }
-  });
+        navigation: {
+            nextEl: ".swiper-button-next",
+            prevEl: ".swiper-button-prev",
+        },
+        breakpoints: {
+            0: {
+                slidesPerView: 1,
+                spaceBetween: 20,
+            },
+            768: {
+                slidesPerView: 3,
+                spaceBetween: 30,
+            }
+        }
+    });
 </script>
 
 
@@ -451,6 +452,20 @@
         });
     });
 </script>
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.select-dropDownClass').forEach(el => {
+        new Choices(el, {
+            searchEnabled: false,
+            itemSelectText: '',
+            shouldSort: false
+        });
+    });
+});
+</script>
+
 
 </body>
 

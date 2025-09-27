@@ -36,6 +36,7 @@ $recaptchaSiteKey = hh_recaptcha_site_key();
     <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/country-select-js@2.0.1/build/css/countrySelect.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -50,6 +51,7 @@ $recaptchaSiteKey = hh_recaptcha_site_key();
     <link rel="stylesheet" href="assets/css/style.css">
     <link rel="stylesheet" href="assets/css/responsive.css">
     <link rel="stylesheet" href="assets/css/custom.css">
+    <link rel="stylesheet" href="assets/css/properties.css">
 
     <!-- Slick Carousel CSS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/slick-carousel@1.8.1/slick/slick.css" />
@@ -79,9 +81,9 @@ $recaptchaSiteKey = hh_recaptcha_site_key();
 <body class="custom-cursor">
 
     <!-- Preloader Start -->
-    <div id="preloader">
+    <!-- <div id="preloader">
         <img src="assets/images/logo/preloader.gif" alt="houzzhunt loader">
-    </div> 
+    </div>  -->
     <!-- Preloader End -->
 
     <!-- <elevenlabs-convai agent-id="agent_3301k15cbk5jfxsr5dp18e65e5kd"></elevenlabs-convai>

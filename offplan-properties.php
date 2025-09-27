@@ -27,223 +27,286 @@ include 'includes/navbar.php';
 ?>
 
 <!-- page header start -->
-<div class="page-header-section" style="background-image: url(assets/images/banner/offplan-banner.webp);">
+<!-- <div class="page-header-section PropertiesList" style="background-image: url(assets/images/banner/offplan-banner.webp);">
     <div class="container">
         <div class="row">
-            <div class="col-lg-7">
-                <div class="page-header-heading animate fadeInLeft wow" data-wow-duration="2000ms">
-                    <h2>Offplan Properties</h2>
-                    <p class="lead">Discover handpicked off-plan projects across Dubai. Exclusive prices, flexible plans, and prime future-ready locations.</p>
+            <div class="col-lg-12">
+                <div class="page-header-heading animate fadeInLeft wow">
+                    <h2>Exclusive Off-Plan Properties</h2>
+                    <p class="lead">Discover handpicked off-plan projects across Dubai's most prestigious locations. Exclusive prices, flexible payment plans, and prime investment opportunities.</p>
                 </div>
             </div>
         </div>
-        <ul class="breadcrumb">
-            <li>
-                <a href="index.php">Home</a>
-            </li>
-            <li>
-                <img src="assets/images/about/arrow-brudcrumb.svg" alt="icon">
-            </li>
-            <li>
-                <span>Offplan Properties</span>
-            </li>
-        </ul>
+
     </div>
-</div>
+</div> -->
 <!-- page header start -->
 
-<!-- <section style="padding: 100px 0px; text-align: center;">
+<!-- parent: .hh-hero-01 -->
+<div class="hh-hero-01" style="background-image: url(assets/images/banner/offplan-banner.webp);">
     <div class="container">
-        <h2 style="font-size:60px; font-weight:500px;" class="heading-title"><span>Coming Soon</span></h2>
-        <p style="font-size: 16px; max-width: 600px; margin: 0 auto;">
-            We’re working on something amazing! <br> Stay tuned for updates and announcements from houzzhunt.
-        </p>
-    </div>
-</section> -->
-
-<div class="propertiesSection">
-    <div class="container">
+        <!-- Hero copy -->
         <div class="row">
-
-            <div class="col-lg-12">
-                <div class="offplan-heading">
-                    <h2 class="heading-title mb-2">Invest in the <span>Future of Luxury Living</span></h2>
-                    <p>From iconic waterfront skyscrapers to serene gated communities, explore a curated selection of
-                        high-end <br> off-plan properties  tailored for discerning buyers. Your gateway to elevated
-                        living starts here.</p>
-                </div>
+            <div class="col-12">
+                <header>
+                    <h1>Exclusive Off-Plan Properties</h1>
+                    <p>Discover handpicked off-plan projects across Dubai's most prestigious locations.
+                        Exclusive prices, flexible payment plans, and prime investment opportunities.</p>
+                </header>
             </div>
-
-           
-            <div class="col-lg-4">
-                <div class="propertiesList">
-                    <div class="property-card">
-                        <a href="property-details.php"  class="">
-                            <img src="assets/images/offplan/binghatti-elite-1.png" class="img-fluid w-100" alt="">
-                            <div class="p-3">
-                                <div class="d-flex align-items-center justify-content-between property-top-details">
-                                    <h5 class="property-title mb-0">For Sale</h5>
-                                    <h5 class="property-title1 mb-0"><img src="assets/icons/dirham.svg" alt=""> 550,000</h5>
-                                </div>
-                                <h5 class="property-name">Binghatti Elite</h5>
-                                <div class="property-info">
-                                    <div class="location">
-                                        <img src="assets/icons/location.png" alt="" width="15">
-                                        <span>Dubai Production City</span>
-                                    </div>
-                                    <div class="room-details">
-                                       
-                                        <span><img src="assets/icons/area.png" alt="">Total Area 363-532 sqft.</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </a >
-                    </div>
-                </div>
-            </div>
-
-            
-            <!-- <div class="col-lg-4">
-                <div class="propertiesList">
-                    <div class="property-card">
-                        <div class="">
-                            <img src="assets/images/offplan/binghatti-elite.png" class="img-fluid w-100" alt="">
-                            <div class="p-3">
-                                <div class="d-flex align-items-center justify-content-between property-top-details">
-                                    <h5 class="property-title mb-0">For Sale</h5>
-                                    <h5 class="property-title1 mb-0"><img src="assets/icons/dirham.svg" alt=""> 875,000</h5>
-                                </div>
-                                <h5 class="property-name">Binghatti Elite</h5>
-                                <div class="property-info">
-                                    <div class="location">
-                                        <img src="assets/icons/location.png" alt="" width="15">
-                                        <span>Dubai Production City</span>
-                                    </div>
-                                    <div class="room-details">
-                                        <span><img src="assets/icons/bed.png" alt=""> 1 bedroom</span> &nbsp;
-                                        <span><img src="assets/icons/area.png" alt="">Total Area 363-532 sqft.</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-           
-            <div class="col-lg-4">
-                <div class="propertiesList">
-                    <div class="property-card">
-                        <div class="">
-                            <img src="assets/images/offplan/Binghatti-Skyrise-1.png" class="img-fluid w-100" alt="">
-                            <div class="p-3">
-                                <div class="d-flex align-items-center justify-content-between property-top-details">
-                                    <h5 class="property-title mb-0">For Sale</h5>
-                                    <h5 class="property-title1 mb-0"><img src="assets/icons/dirham.svg" alt=""> 975,000</h5>
-                                </div>
-                                <h5 class="property-name">Binghatti Skyrise</h5>
-                                <div class="property-info">
-                                    <div class="location">
-                                        <img src="assets/icons/location.png" alt="" width="15">
-                                        <span>Business Bay</span>
-                                    </div>
-                                    <div class="room-details">
-                                        <span><img src="assets/icons/bed.png" alt=""> Studio Apartment</span> &nbsp;
-                                        <span><img src="assets/icons/area.png" alt=""> Area 422-476 sqft.</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            
-            <div class="col-lg-4">
-                <div class="propertiesList">
-                    <div class="property-card">
-                        <div class="">
-                            <img src="assets/images/offplan/Binghatti-Skyrise-2.png" class="img-fluid w-100" alt="">
-                            <div class="p-3">
-                                <div class="d-flex align-items-center justify-content-between property-top-details">
-                                    <h5 class="property-title mb-0">For Sale</h5>
-                                    <h5 class="property-title1 mb-0"><img src="assets/icons/dirham.svg" alt=""> 1.65 Million</h5>
-                                </div>
-                                <h5 class="property-name">Binghatti Skyrise</h5>
-                                <div class="property-info">
-                                    <div class="location">
-                                        <img src="assets/icons/location.png" alt="" width="15">
-                                        <span>Business Bay</span>
-                                    </div>
-                                    <div class="room-details">
-                                        <span><img src="assets/icons/bed.png" alt=""> 1 bedroom</span> &nbsp;
-                                        <span><img src="assets/icons/area.png" alt=""> Area 762-1021 sqft.</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            
-            <div class="col-lg-4">
-                <div class="propertiesList">
-                    <div class="property-card">
-                        <div class="">
-                            <img src="assets/images/offplan/Binghatti-Skyrise-3.png" class="img-fluid w-100" alt="">
-                            <div class="p-3">
-                                <div class="d-flex align-items-center justify-content-between property-top-details">
-                                    <h5 class="property-title mb-0">For Sale</h5>
-                                    <h5 class="property-title1 mb-0"><img src="assets/icons/dirham.svg" alt=""> 2.5 Million</h5>
-                                </div>
-                                <h5 class="property-name">Binghatti Skyrise</h5>
-                                <div class="property-info">
-                                    <div class="location">
-                                        <img src="assets/icons/location.png" alt="" width="15">
-                                        <span>Business Bay</span>
-                                    </div>
-                                    <div class="room-details">
-                                        <span><img src="assets/icons/bed.png" alt=""> 1 bedroom</span> &nbsp;
-                                        <span><img src="assets/icons/area.png" alt=""> Area 1299-1393 sqft.</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-           
-            <div class="col-lg-4">
-                <div class="propertiesList">
-                    <div class="property-card">
-                        <div class="">
-                            <img src="assets/images/offplan/Binghatti-Skyrise-4.png" class="img-fluid w-100" alt="">
-                            <div class="p-3">
-                                <div class="d-flex align-items-center justify-content-between property-top-details">
-                                    <h5 class="property-title mb-0">For Sale</h5>
-                                    <h5 class="property-title1 mb-0"><img src="assets/icons/dirham.svg" alt=""> 3.25 Million</h5>
-                                </div>
-                                <h5 class="property-name">Binghatti Skyrise</h5>
-                                <div class="property-info">
-                                    <div class="location">
-                                        <img src="assets/icons/location.png" alt="" width="15">
-                                        <span>Business Bay</span>
-                                    </div>
-                                    <div class="room-details">
-                                        <span><img src="assets/icons/bed.png" alt=""> 1 bedroom</span> &nbsp;
-                                        <span><img src="assets/icons/area.png" alt=""> Area 1785-2271 sqft.</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> -->
         </div>
+
+        <!-- Floating search panel -->
+        <div class="row">
+            <div class="col-12">
+                <form>
+                    <div class="container">
+                        <div class="row">
+
+                            <!-- Location -->
+                            <div class="col-12 col-md">
+                                <label>
+                                    <span>
+                                        <!-- location pin -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin w-4 h-4 mr-1" data-lov-id="src/components/PropertyCard.tsx:63:12" data-lov-name="MapPin" data-component-path="src/components/PropertyCard.tsx" data-component-line="63" data-component-file="PropertyCard.tsx" data-component-name="MapPin" data-component-content="%7B%22className%22%3A%22w-4%20h-4%20mr-1%22%7D">
+                                            <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
+                                            <circle cx="12" cy="10" r="3"></circle>
+                                        </svg>
+                                        Location
+                                    </span>
+                                    <select class="select-dropDownClass">
+                                        <option>Downtown Dubai</option>
+                                        <option>Dubai Marina</option>
+                                        <option>Business Bay</option>
+                                    </select>
+                                </label>
+                            </div>
+
+                            <!-- Type -->
+                            <div class="col-12 col-md">
+                                <label>
+                                    <span>
+                                        <!-- home -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-house w-4 h-4" data-lov-id="src/components/SearchFilters.tsx:34:12" data-lov-name="Home" data-component-path="src/components/SearchFilters.tsx" data-component-line="34" data-component-file="SearchFilters.tsx" data-component-name="Home" data-component-content="%7B%22className%22%3A%22w-4%20h-4%22%7D">
+                                            <path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"></path>
+                                            <path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                                        </svg>
+                                        Type
+                                    </span>
+                                    <select id="property-type" class="select-dropDownClass">
+                                        <option>Villa</option>
+                                        <option>Apartment</option>
+                                        <option>Townhouse</option>
+                                    </select>
+                                </label>
+                            </div>
+
+                            <!-- Bedrooms -->
+                            <div class="col-12 col-md">
+                                <label>
+                                    <span>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-bed w-4 h-4" data-lov-id="src/components/PropertyCard.tsx:71:14" data-lov-name="Bed" data-component-path="src/components/PropertyCard.tsx" data-component-line="71" data-component-file="PropertyCard.tsx" data-component-name="Bed" data-component-content="%7B%22className%22%3A%22w-4%20h-4%22%7D">
+                                            <path d="M2 4v16"></path>
+                                            <path d="M2 8h18a2 2 0 0 1 2 2v10"></path>
+                                            <path d="M2 17h20"></path>
+                                            <path d="M6 8v9"></path>
+                                        </svg>
+                                        Bedrooms
+                                    </span>
+                                    <select class="select-dropDownClass">
+                                        <option>Studio</option>
+                                        <option>1 Bed</option>
+                                        <option selected>2 Beds</option>
+                                        <option>3 Beds</option>
+                                        <option>4+ Beds</option>
+                                    </select>
+                                </label>
+                            </div>
+
+                            <!-- Price Range -->
+                            <div class="col-12 col-md">
+                                <label>
+                                    <span>
+                                        <!-- dollar -->
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-dollar-sign w-4 h-4" data-lov-id="src/components/SearchFilters.tsx:69:12" data-lov-name="DollarSign" data-component-path="src/components/SearchFilters.tsx" data-component-line="69" data-component-file="SearchFilters.tsx" data-component-name="DollarSign" data-component-content="%7B%22className%22%3A%22w-4%20h-4%22%7D">
+                                            <line x1="12" x2="12" y1="2" y2="22"></line>
+                                            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                                        </svg>
+                                        Price Range
+                                    </span>
+                                    <select class="select-dropDownClass">
+                                        <option>Budget</option>
+                                        <option>Mid</option>
+                                        <option>Premium</option>
+                                        <option>Ultra</option>
+                                    </select>
+                                </label>
+                            </div>
+
+                            <!-- Search input -->
+                            <div class="col-12 col-lg">
+
+                                <label>
+                                    <span>
+                                        <!-- search -->
+                                        <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path d="M21 21 15.8 15.8M10.5 18a7.5 7.5 0 1 1 0-15 7.5 7.5 0 0 1 0 15z" fill="none" stroke="currentColor" stroke-width="2" />
+                                        </svg>
+                                        Search
+                                    </span>
+                                    <input type="search" placeholder="Search properties…">
+                                </label>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="col-12 col-lg-auto">
+                                <div class="mt-3">
+                                    <button type="submit">Search</button>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
     </div>
 </div>
+
+
+<!-- parent: .hh-properties-01 -->
+<div class="hh-properties-01">
+    <div class="container">
+
+        <!-- Heading + sort -->
+        <div class="row">
+            <div class="col-12">
+                <div class="hh-properties-01-head">
+                    <div>
+                        <h2>Investment Opportunities</h2>
+                        <p>Showing 1 premium properties • Updated today</p>
+                    </div>
+                    <div>
+                        <label>
+                            Sort by:
+                            <select>
+                                <option>Price: High to Low</option>
+                                <option>Price: Low to High</option>
+                                <option>Newest</option>
+                                <option>Oldest</option>
+                            </select>
+                        </label>
+                        <div class="hh-properties-01-toggle">
+                            <button type="button" data-view="grid" class="active">
+                                <!-- grid icon -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-grid3x3 w-4 h-4" data-lov-id="src/components/PropertyListing.tsx:142:16" data-lov-name="Grid3X3" data-component-path="src/components/PropertyListing.tsx" data-component-line="142" data-component-file="PropertyListing.tsx" data-component-name="Grid3X3" data-component-content="%7B%22className%22%3A%22w-4%20h-4%22%7D">
+                                    <rect width="18" height="18" x="3" y="3" rx="2"></rect>
+                                    <path d="M3 9h18"></path>
+                                    <path d="M3 15h18"></path>
+                                    <path d="M9 3v18"></path>
+                                    <path d="M15 3v18"></path>
+                                </svg>
+                            </button>
+                            <button type="button" data-view="list">
+                                <!-- list icon -->
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list w-4 h-4" data-lov-id="src/components/PropertyListing.tsx:145:16" data-lov-name="List" data-component-path="src/components/PropertyListing.tsx" data-component-line="145" data-component-file="PropertyListing.tsx" data-component-name="List" data-component-content="%7B%22className%22%3A%22w-4%20h-4%22%7D">
+                                    <path d="M3 12h.01"></path>
+                                    <path d="M3 18h.01"></path>
+                                    <path d="M3 6h.01"></path>
+                                    <path d="M8 12h13"></path>
+                                    <path d="M8 18h13"></path>
+                                    <path d="M8 6h13"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cards -->
+        <div class="row hh-properties-01-grid">
+
+            <div class="col-12 col-md-6 col-lg-4">
+                <a href="property-details.php" class="property-link">
+                    <article>
+                        <div class="hh-properties-01-img">
+                            <img src="assets/images/offplan/breez-by-danube.webp" alt="">
+                            <div class="hh-properties-01-tags">
+                                <span class="green">New Launch</span>
+                                <span>Apartment</span>
+                            </div>
+                            <button type="button" class="hh-properties-01-fav" aria-label="Save">
+                                ♥
+                            </button>
+                        </div>
+                        <div class="hh-properties-01-body">
+                            <h3>Breez by Danube</h3>
+                            <p><img src="assets/icons/location.png" width="16" alt=""> Dubai Maritime City, UAE</p>
+                            <ul>
+                                <li><img src="assets/icons/bed.png" width="16" alt=""> 3 Beds</li>
+                                <li><img src="assets/icons/bathroom.png" width="16" alt=""> 4 Baths</li>
+                                <li><img src="assets/icons/area.png" width="16" alt=""> 2,450 sq ft</li>
+                            </ul>
+                            <div class="hh-properties-01-foot">
+                                <strong><span>AED</span> 1,300,000</strong>
+                                <span class="details-link">View Details</span>
+                            </div>
+                        </div>
+                    </article>
+                </a>
+            </div>
+
+
+            <!-- <div class="col-lg-12">
+                <div class="text-center">
+                    <a href="#" class="hh-btn-load">Load more properties</a>
+                </div>
+            </div> -->
+
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+    document.querySelectorAll('.hh-properties-01-toggle button').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.hh-properties-01-toggle button')
+                .forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const grid = document.querySelector('.hh-properties-01-grid');
+            if (btn.dataset.view === 'list') {
+                grid.classList.add('list-view');
+            } else {
+                grid.classList.remove('list-view');
+            }
+        });
+    });
+</script>
+
+<style>
+    .hh-properties-01-grid.list-view .col-12 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+
+    .hh-properties-01-grid.list-view article {
+        display: flex;
+        gap: 20px;
+    }
+
+    .hh-properties-01-grid.list-view .hh-properties-01-img {
+        flex: 0 0 40%;
+    }
+
+    .hh-properties-01-grid.list-view .hh-properties-01-body {
+        flex: 1;
+    }
+</style>
 
 
 <?php include 'includes/footer.php'; ?>
