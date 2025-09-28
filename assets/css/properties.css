@@ -857,7 +857,7 @@ p {
     height: 40px;
     border: none;
     cursor: pointer;
-    border-radius:50%;
+    border-radius: 50%;
     background: rgba(0, 0, 0, .4);
     transition: background .2s ease-in-out, transform .2s ease-in-out;
     z-index: 99;
@@ -874,7 +874,8 @@ p {
 .hh-gallery-01-main .nav::after {
     content: "";
     display: block;
-    width: 20px;   /* size of your icon */
+    width: 20px;
+    /* size of your icon */
     height: 20px;
     background-size: contain;
     background-repeat: no-repeat;
@@ -2363,16 +2364,14 @@ p {
     color: #243533;
 }
 
-/* Button styling same as yours */
 .hh-location-01 .hh-location-01-landmarks button {
     width: 100%;
     text-align: left;
     background: #fff;
     border: 1px solid #e6eceb;
     border-radius: 12px;
-    padding: 10px;
+    padding: 8px 2px 8px 6px;
     display: flex;
-    /* flex works better inside */
     align-items: start;
     justify-content: space-between;
     gap: 0px;
@@ -2398,6 +2397,8 @@ p {
     display: flex;
     align-items: center;
     gap: 0px;
+    position: relative;
+    right: 7px;
 }
 
 .hh-location-01 .hh-location-01-landmarks .left .dot {
@@ -2424,7 +2425,7 @@ p {
     text-decoration: none;
     font-weight: 500;
     font-size: 14px;
-    padding-left: 20px;
+    padding-left: 0px;
 }
 
 /* Side column */
@@ -3262,6 +3263,7 @@ body.no-scroll {
     margin: 20px auto;
     /* centers the circle */
 }
+
 .developer-profile-logo {
     width: 200px;
     margin: 20px 0;

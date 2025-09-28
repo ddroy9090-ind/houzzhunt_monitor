@@ -810,6 +810,7 @@
                                     </div>
                                     <div class="right">
                                         <a href="#">2 Mins</a>
+                                        <em>Shopping</em>
                                     </div>
                                 </button>
 
@@ -822,6 +823,7 @@
                                     </div>
                                     <div class="right">
                                         <a href="#">3 Mins</a>
+                                        <em>Shopping</em>
                                     </div>
                                 </button>
 
@@ -834,6 +836,7 @@
                                     </div>
                                     <div class="right">
                                         <a href="#">8 Mins</a>
+                                        <em>Shopping</em>
                                     </div>
                                 </button>
 
@@ -846,6 +849,7 @@
                                     </div>
                                     <div class="right">
                                         <a href="#">8 Mins</a>
+                                        <em>Shopping</em>
                                     </div>
                                 </button>
 
@@ -858,6 +862,7 @@
                                     </div>
                                     <div class="right">
                                         <a href="#">10 Mins</a>
+                                        <em>Shopping</em>
                                         
                                     </div>
                                 </button>
@@ -871,6 +876,7 @@
                                     </div>
                                     <div class="right">
                                         <a href="#">15 Mins</a>
+                                        <em>Shopping</em>
                                         
                                     </div>
                                 </button>
@@ -1527,10 +1533,6 @@
             });
         });
     </script>
-
-
-
-
 
 </body>
 
