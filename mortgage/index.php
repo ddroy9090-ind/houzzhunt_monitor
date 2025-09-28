@@ -1,4 +1,157 @@
-<?php include 'includes/common-header.php'; ?>
+<?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/../includes/config.php';
+
+$recaptchaSiteKey = hh_recaptcha_site_key();
+
+$propertyLocations = [
+    'Dubai',
+    'Abu Dhabi',
+    'Sharjah',
+    'Ajman',
+    'Umm Al Quwain',
+    'Ras Al Khaimah',
+    'Fujairah',
+];
+
+$defaultLocation = $propertyLocations[0];
+
+$formErrors = [
+    'hero'   => null,
+    'footer' => null,
+];
+
+$formOld = [
+    'hero' => [
+        'name'         => '',
+        'email'        => '',
+        'phone'        => '',
+        'country_code' => '',
+        'location'     => $defaultLocation,
+    ],
+    'footer' => [
+        'name'         => '',
+        'email'        => '',
+        'phone'        => '',
+        'country_code' => '',
+        'location'     => $defaultLocation,
+    ],
+];
+
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
+    $formSource = (string)($_POST['form_source'] ?? 'hero');
+    if (!in_array($formSource, ['hero', 'footer'], true)) {
+        $formSource = 'hero';
+    }
+
+    $name        = trim((string)($_POST['name'] ?? ''));
+    $email       = trim((string)($_POST['email'] ?? ''));
+    $phone       = trim((string)($_POST['phone'] ?? ''));
+    $countryCode = trim((string)($_POST['country_code'] ?? ''));
+    $location    = trim((string)($_POST['location'] ?? ''));
+    $token       = (string)($_POST['g-recaptcha-response'] ?? '');
+
+    if ($phone === '' && isset($_POST['phone_display'])) {
+        $phone = trim((string)$_POST['phone_display']);
+    }
+
+    if (!in_array($location, $propertyLocations, true)) {
+        $location = '';
+    }
+
+    $formOld[$formSource] = [
+        'name'         => $name,
+        'email'        => $email,
+        'phone'        => $phone,
+        'country_code' => $countryCode,
+        'location'     => $location !== '' ? $location : $defaultLocation,
+    ];
+
+    if ($name === '' || $email === '' || $phone === '' || $location === '') {
+        $formErrors[$formSource] = 'Please complete all required fields.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $formErrors[$formSource] = 'Please enter a valid email address.';
+    } elseif ($token === '') {
+        $formErrors[$formSource] = 'Please confirm you are not a robot.';
+    } else {
+        $secretKey = hh_recaptcha_secret_key();
+        if ($secretKey === '' || $secretKey === 'your-secret-key-here') {
+            $formErrors[$formSource] = 'Captcha verification is temporarily unavailable. Please try again later.';
+        } else {
+            $recaptchaVerified = false;
+            $postData = http_build_query([
+                'secret'   => $secretKey,
+                'response' => $token,
+                'remoteip' => $_SERVER['REMOTE_ADDR'] ?? '',
+            ]);
+
+            $context = stream_context_create([
+                'http' => [
+                    'header'  => "Content-type: application/x-www-form-urlencoded\r\n",
+                    'method'  => 'POST',
+                    'content' => $postData,
+                    'timeout' => 10,
+                ],
+            ]);
+
+            $response = @file_get_contents('https://www.google.com/recaptcha/api/siteverify', false, $context);
+
+            if ($response === false && function_exists('curl_init')) {
+                $ch = curl_init('https://www.google.com/recaptcha/api/siteverify');
+                if ($ch !== false) {
+                    curl_setopt_array($ch, [
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_POST           => true,
+                        CURLOPT_POSTFIELDS     => $postData,
+                        CURLOPT_TIMEOUT        => 10,
+                    ]);
+                    $curlResponse = curl_exec($ch);
+                    if ($curlResponse !== false) {
+                        $response = $curlResponse;
+                    }
+                    curl_close($ch);
+                }
+            }
+
+            if ($response !== false) {
+                $decodedResponse = json_decode((string)$response, true);
+                $recaptchaVerified = is_array($decodedResponse) && ($decodedResponse['success'] ?? false) === true;
+            }
+
+            if (!$recaptchaVerified) {
+                $formErrors[$formSource] = 'Captcha verification failed. Please try again.';
+            } else {
+                try {
+                    $pdo = hh_db();
+                    $stmt = $pdo->prepare(
+                        'INSERT INTO mortgage_leads (name, email, phone, country_code, location, form_source, ip_address, user_agent, created_at)
+                         VALUES (:name, :email, :phone, :country_code, :location, :form_source, :ip_address, :user_agent, NOW())'
+                    );
+                    $stmt->execute([
+                        ':name'        => $name,
+                        ':email'       => $email,
+                        ':phone'       => $phone,
+                        ':country_code'=> $countryCode !== '' ? $countryCode : null,
+                        ':location'    => $location,
+                        ':form_source' => $formSource,
+                        ':ip_address'  => $_SERVER['REMOTE_ADDR'] ?? null,
+                        ':user_agent'  => $_SERVER['HTTP_USER_AGENT'] ?? null,
+                    ]);
+
+                    header('Location: thankyou.php');
+                    exit;
+                } catch (Throwable $exception) {
+                    error_log('Mortgage lead form: database error - ' . $exception->getMessage());
+                    $formErrors[$formSource] = 'We were unable to submit your request. Please try again later.';
+                }
+            }
+        }
+    }
+}
+
+include 'includes/common-header.php';
+?>
 
 <!-- Hero Section -->
 <section id="hero-section">
@@ -26,30 +179,52 @@
                     <div class="col-lg-4">
                         <div id="lead-form-wrapper" class="bg-white p-4 rounded shadow">
                             <h4 class="">Start Your Mortgage Journey Today</h4>
-                            <form id="lead-form" method="post">
+                            <form id="hero-lead-form" method="post">
+                                <input type="hidden" name="form_source" value="hero">
+
+                                <?php if ($formErrors['hero'] !== null): ?>
+                                    <div class="alert alert-danger" role="alert">
+                                        <?php echo htmlspecialchars($formErrors['hero'], ENT_QUOTES, 'UTF-8'); ?>
+                                    </div>
+                                <?php endif; ?>
+
                                 <div class="form-group mb-3">
-                                    <label for="name" class="form-label">Full Name</label>
-                                    <input type="text" class="form-control" id="name" required />
+                                    <label for="hero-name" class="form-label">Full Name</label>
+                                    <input type="text" class="form-control" id="hero-name" name="name"
+                                        value="<?php echo htmlspecialchars($formOld['hero']['name'], ENT_QUOTES, 'UTF-8'); ?>"
+                                        required />
                                 </div>
                                 <div class="form-group mb-3">
-                                    <label for="email" class="form-label">Email Address</label>
-                                    <input type="email" class="form-control" id="email" required />
+                                    <label for="hero-email" class="form-label">Email Address</label>
+                                    <input type="email" class="form-control" id="hero-email" name="email"
+                                        value="<?php echo htmlspecialchars($formOld['hero']['email'], ENT_QUOTES, 'UTF-8'); ?>"
+                                        required />
                                 </div>
                                 <div class="form-group mb-3">
-                                    <label for="phone" class="form-label">Phone Number</label>
-                                    <input type="tel" class="form-control" id="phone" required />
+                                    <label for="hero-phone" class="form-label">Phone Number</label>
+                                    <input type="tel" class="form-control js-intl-phone" id="hero-phone" name="phone_display" required
+                                        data-hidden-input="hero-phone-full" data-country-input="hero-country-code"
+                                        data-initial-value="<?php echo htmlspecialchars($formOld['hero']['phone'], ENT_QUOTES, 'UTF-8'); ?>" />
+                                    <input type="hidden" name="phone" id="hero-phone-full"
+                                        value="<?php echo htmlspecialchars($formOld['hero']['phone'], ENT_QUOTES, 'UTF-8'); ?>">
+                                    <input type="hidden" name="country_code" id="hero-country-code"
+                                        value="<?php echo htmlspecialchars($formOld['hero']['country_code'], ENT_QUOTES, 'UTF-8'); ?>">
                                 </div>
                                 <div class="form-group mb-3">
-                                    <label for="location" class="form-label">Where is the property located? *</label>
-                                    <select name="location" id="location" class="form-select form-control" required>
-                                        <option value="Dubai">Dubai</option>
-                                        <option value="Abu Dhabi">Abu Dhabi</option>
-                                        <option value="Sharjah">Sharjah</option>
-                                        <option value="Ajman">Ajman</option>
-                                        <option value="Umm Al Quwain">Umm Al Quwain</option>
-                                        <option value="Ras Al Khaimah">Ras Al Khaimah</option>
-                                        <option value="Fujairah">Fujairah</option>
+                                    <label for="hero-location" class="form-label">Where is the property located? *</label>
+                                    <select name="location" id="hero-location" class="form-select form-control" required>
+                                        <?php foreach ($propertyLocations as $propertyLocation): ?>
+                                            <option value="<?php echo htmlspecialchars($propertyLocation, ENT_QUOTES, 'UTF-8'); ?>"
+                                                <?php echo $propertyLocation === ($formOld['hero']['location'] ?? $defaultLocation) ? 'selected' : ''; ?>>
+                                                <?php echo htmlspecialchars($propertyLocation, ENT_QUOTES, 'UTF-8'); ?>
+                                            </option>
+                                        <?php endforeach; ?>
                                     </select>
+                                </div>
+                                <div class="form-group mb-3">
+                                    <div class="g-recaptcha"
+                                        data-sitekey="<?php echo htmlspecialchars($recaptchaSiteKey, ENT_QUOTES, 'UTF-8'); ?>">
+                                    </div>
                                 </div>
                                 <button type="submit" class="btn btn-primary w-100">Submit</button>
                             </form>
@@ -588,30 +763,52 @@
                 <div class="col-lg-6">
                     <div id="lead-form-wrapper" class="bg-white p-4 rounded shadow w-100">
                         <h4 class="">Start Your Mortgage Journey Today</h4>
-                        <form id="lead-form-footer" method="post">
+                        <form id="footer-lead-form" method="post">
+                            <input type="hidden" name="form_source" value="footer">
+
+                            <?php if ($formErrors['footer'] !== null): ?>
+                                <div class="alert alert-danger" role="alert">
+                                    <?php echo htmlspecialchars($formErrors['footer'], ENT_QUOTES, 'UTF-8'); ?>
+                                </div>
+                            <?php endif; ?>
+
                             <div class="form-group mb-3">
-                                <label for="name" class="form-label">Full Name</label>
-                                <input type="text" class="form-control" id="nameone" required />
+                                <label for="footer-name" class="form-label">Full Name</label>
+                                <input type="text" class="form-control" id="footer-name" name="name"
+                                    value="<?php echo htmlspecialchars($formOld['footer']['name'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    required />
                             </div>
                             <div class="form-group mb-3">
-                                <label for="email" class="form-label">Email Address</label>
-                                <input type="email" class="form-control" id="emailone" required />
+                                <label for="footer-email" class="form-label">Email Address</label>
+                                <input type="email" class="form-control" id="footer-email" name="email"
+                                    value="<?php echo htmlspecialchars($formOld['footer']['email'], ENT_QUOTES, 'UTF-8'); ?>"
+                                    required />
                             </div>
                             <div class="form-group mb-3">
-                                <label for="phone" class="form-label">Phone Number</label>
-                                <input type="tel" class="form-control" id="phoneone" required />
+                                <label for="footer-phone" class="form-label">Phone Number</label>
+                                <input type="tel" class="form-control js-intl-phone" id="footer-phone" name="phone_display" required
+                                    data-hidden-input="footer-phone-full" data-country-input="footer-country-code"
+                                    data-initial-value="<?php echo htmlspecialchars($formOld['footer']['phone'], ENT_QUOTES, 'UTF-8'); ?>" />
+                                <input type="hidden" name="phone" id="footer-phone-full"
+                                    value="<?php echo htmlspecialchars($formOld['footer']['phone'], ENT_QUOTES, 'UTF-8'); ?>">
+                                <input type="hidden" name="country_code" id="footer-country-code"
+                                    value="<?php echo htmlspecialchars($formOld['footer']['country_code'], ENT_QUOTES, 'UTF-8'); ?>">
                             </div>
                             <div class="form-group mb-3">
-                                <label for="location" class="form-label">Where is the property located? *</label>
-                                <select name="location" id="locationone" class="form-select form-control" required>
-                                    <option value="Dubai">Dubai</option>
-                                    <option value="Abu Dhabi">Abu Dhabi</option>
-                                    <option value="Sharjah">Sharjah</option>
-                                    <option value="Ajman">Ajman</option>
-                                    <option value="Umm Al Quwain">Umm Al Quwain</option>
-                                    <option value="Ras Al Khaimah">Ras Al Khaimah</option>
-                                    <option value="Fujairah">Fujairah</option>
+                                <label for="footer-location" class="form-label">Where is the property located? *</label>
+                                <select name="location" id="footer-location" class="form-select form-control" required>
+                                    <?php foreach ($propertyLocations as $propertyLocation): ?>
+                                        <option value="<?php echo htmlspecialchars($propertyLocation, ENT_QUOTES, 'UTF-8'); ?>"
+                                            <?php echo $propertyLocation === ($formOld['footer']['location'] ?? $defaultLocation) ? 'selected' : ''; ?>>
+                                            <?php echo htmlspecialchars($propertyLocation, ENT_QUOTES, 'UTF-8'); ?>
+                                        </option>
+                                    <?php endforeach; ?>
                                 </select>
+                            </div>
+                            <div class="form-group mb-3">
+                                <div class="g-recaptcha"
+                                    data-sitekey="<?php echo htmlspecialchars($recaptchaSiteKey, ENT_QUOTES, 'UTF-8'); ?>">
+                                </div>
                             </div>
                             <button type="submit" class="btn btn-primary w-100">Submit</button>
                         </form>
@@ -621,5 +818,66 @@
         </div>
     </div>
 </section>
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof window.intlTelInput !== 'function') {
+            return;
+        }
+
+        var phoneInputs = document.querySelectorAll('.js-intl-phone');
+        phoneInputs.forEach(function(input) {
+            var hiddenInputId = input.getAttribute('data-hidden-input') || '';
+            var countryInputId = input.getAttribute('data-country-input') || '';
+            var hiddenInput = hiddenInputId ? document.getElementById(hiddenInputId) : null;
+            var countryInput = countryInputId ? document.getElementById(countryInputId) : null;
+
+            var iti = window.intlTelInput(input, {
+                initialCountry: 'ae',
+                autoPlaceholder: 'polite'
+            });
+
+            var initialValue = input.getAttribute('data-initial-value');
+            if (initialValue) {
+                try {
+                    iti.setNumber(initialValue);
+                } catch (error) {
+                    if (window.console && typeof window.console.warn === 'function') {
+                        window.console.warn('Unable to set initial phone number', error);
+                    }
+                }
+            }
+
+            var form = input.form;
+            if (!form) {
+                return;
+            }
+
+            if (!form._intlTelEntries) {
+                form._intlTelEntries = [];
+                form.addEventListener('submit', function() {
+                    form._intlTelEntries.forEach(function(entry) {
+                        var number = entry.iti.getNumber();
+                        if (entry.hiddenInput) {
+                            entry.hiddenInput.value = number || entry.input.value.trim();
+                        }
+                        if (entry.countryInput) {
+                            var countryData = entry.iti.getSelectedCountryData();
+                            entry.countryInput.value = countryData && countryData.dialCode ? '+' + countryData.dialCode : '';
+                        }
+                    });
+                });
+            }
+
+            form._intlTelEntries.push({
+                input: input,
+                iti: iti,
+                hiddenInput: hiddenInput,
+                countryInput: countryInput
+            });
+        });
+    });
+</script>
 
 <?php include 'includes/common-footer.php'; ?>
