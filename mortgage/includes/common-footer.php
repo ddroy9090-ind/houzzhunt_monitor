@@ -32,9 +32,13 @@
 <!-- Bootstrap JS CDN -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/utils.min.js"></script>
 <!-- jQuery CDN required for AJAX -->
+
+<!-- intl-tel-input v18.1.1 JS -->
+<script src="https://cdn.jsdelivr.net/npm/intl-tel-input@18.1.1/build/js/intlTelInput.min.js"></script>
+
+<!-- reCAPTCHA script -->
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
 
 <!-- SCRIPT -->
@@ -159,6 +163,27 @@
 
     calculate();
 </script>
+
+<script>
+    const phoneInput1 = document.querySelector("#phone");
+    const phoneInput2 = document.querySelector("#phone2");
+
+    // Initialize Form 1 phone field
+    window.intlTelInput(phoneInput1, {
+        initialCountry: "ae", // Default UAE
+        preferredCountries: ["ae", "in", "gb", "us", "pk"],
+        separateDialCode: true
+    });
+
+    // Initialize Form 2 phone field
+    window.intlTelInput(phoneInput2, {
+        initialCountry: "ae", // Default India
+        preferredCountries: ["in", "in", "gb", "us", "pk"],
+        separateDialCode: true
+    });
+</script>
+
+
 
 </body>
 
