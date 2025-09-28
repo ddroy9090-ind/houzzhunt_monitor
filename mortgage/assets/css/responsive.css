@@ -1,0 +1,148 @@
+/* Responsive */
+@media (max-width: 767px) {
+    #hero-content {
+        max-width: 100%;
+        top: 25px;
+        display: none;
+    }
+
+    #hero-content .hero-heading {
+        font-size: 24px;
+        margin-bottom: 10px;
+    }
+
+    #lead-form-wrapper {
+        margin-top: 30px;
+        width: 100%;
+    }
+
+    #hero-banner {
+        padding-top: 60px;
+        padding-bottom: 60px;
+    }
+
+    #hero-logo {
+        top: 15px;
+        left: 15px;
+    }
+
+    #hero-logo img {
+        max-height: 50px;
+    }
+
+    #financing-intro h2 {
+        font-size: 16px;
+        line-height: 1.4;
+
+    }
+
+    #financing-intro p {
+        text-align: justify;
+    }
+
+    .feature-box {
+        text-align: left;
+    }
+
+    #mortgage-title {
+        text-align: left;
+        font-size: 16px;
+    }
+
+    .mortgage-box {
+        text-align: left;
+        padding: 0;
+    }
+
+    .mortgage-heading {
+        font-size: 15px;
+    }
+
+    .mortgage-desc {
+        font-size: 14px;
+    }
+
+    .mortgage-list li {
+        font-size: 13px;
+    }
+
+    .equity-description {
+        max-width: 100%;
+    }
+
+    .equity-heading {
+        font-size: 15px;
+        text-align: left;
+    }
+
+    .equity-text-wrapper {
+        text-align: left;
+    }
+
+    .equity-img-wrapper {
+        text-align: left;
+        padding: 0;
+    }
+
+    .process-step {
+        min-width: 240px;
+        max-width: 240px;
+        padding: 15px;
+    }
+
+
+    .mortgage-main-title {
+        font-size: 16px;
+        text-align: left;
+    }
+
+    .mortgage-subtitle {
+        text-align: left;
+    }
+
+    .mortgage-card {
+        text-align: left;
+    }
+
+    .process-title {
+        text-align: left;
+        font-size: 16px;
+    }
+
+    .step-content h5 {
+        font-size: 15px;
+    }
+
+    .step-content p {
+        font-size: 13px;
+    }
+
+    .step-circle {
+        width: 24px;
+        height: 24px;
+        font-size: 13px;
+    }
+
+    .footer-copy {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .footer-social {
+        text-align: center;
+    }
+
+    .btn-group {
+        flex-direction: column;
+    }
+
+    .btn {
+        border-radius: 5px !important;
+        width: 100% !important;
+    }
+
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 15px;
+    }
+}

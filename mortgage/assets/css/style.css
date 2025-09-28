@@ -1,0 +1,513 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+/* Global font */
+body {
+    font-family: "Poppins", sans-serif;
+}
+
+input, select, input:focus{
+    box-shadow: none !important;
+    border-color: #4b0082 !important;
+}
+/* Hero Section */
+#hero-banner {
+    background-image: url("../images/banner/hero.png");
+    background-size: cover;
+    background-position: center;
+    /* min-height: 750px; */
+    position: relative;
+    z-index: 1;
+    padding: 150px 0;
+}
+
+#hero-banner::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 0;
+}
+
+#hero-content {
+    position: relative;
+    z-index: 2;
+    color: white;
+    max-width: 550px;
+}
+
+#hero-content .hero-heading {
+    font-size: 48px;
+    line-height: 1.3;
+    font-weight: 600;
+    margin-bottom: 24px;
+}
+
+#hero-content .lead {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 28px;
+    color: #fff;
+
+}
+
+/* Logo */
+#hero-logo {
+    position: absolute;
+    top: 28px;
+    /* left: 175px; */
+    z-index: 3;
+}
+
+#hero-logo img {
+    height: 50px;
+    width: 100%;
+}
+
+a.btn.btn-light {
+    background-color: #4b0082;
+    border-color: #4b0082;
+    color: #fff;
+}
+
+/* Form wrapper */
+#lead-form-wrapper {
+    position: relative;
+    z-index: 2;
+    width: 365px;
+}
+
+
+#lead-form-wrapper h4 {
+    text-align: center;
+    font-size: 24px;
+    color: #4b0082;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+#lead-form-wrapper label {
+    font-size: 16px;
+    margin-bottom: 10px;
+    color: #7a7a7a;
+}
+
+#lead-form-wrapper input,
+#lead-form-wrapper select {
+    box-shadow: none;
+    border-color: #7a7a7a;
+    font-size: 14px;
+
+}
+
+#lead-form-wrapper input {
+    height: 33px;
+}
+
+#lead-form-wrapper .btn-primary {
+    background-color: #4b0082;
+    border-color: #4b0082;
+}
+
+/* Financing Section */
+#financing-section {
+    padding: 50px 0;
+    background-color: #fff;
+    font-family: "Poppins", sans-serif;
+}
+
+#financing-intro {
+    width: 100%;
+    text-align: left;
+    margin-bottom: 50px;
+}
+
+#financing-intro h2 {
+    font-size: 28px;
+    font-weight: 600;
+    color: #6d28a8;
+    text-transform: capitalize;
+    line-height: 1.2;
+}
+
+#financing-intro h2 span {
+    color: #4b0082;
+}
+
+#financing-intro p {
+    font-size: 16px;
+    color: #7a7a7a;
+    margin-top: 20px;
+    line-height: 1.7;
+}
+
+/* Feature Box */
+.feature-box {
+    text-align: left;
+    margin-bottom: 40px;
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+.feature-box img {
+    width: 30px;
+    margin-bottom: 15px;
+}
+
+.feature-box h4 {
+    font-size: 16px;
+    font-weight: 400;
+    color: #6d28a8;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+}
+
+.feature-box p {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+}
+
+
+/* Mortgage Services Section */
+#mortgage-services {
+    padding: 0px 0;
+    background-color: #fff;
+    font-family: "Poppins", sans-serif;
+}
+
+#mortgage-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #6d28a8;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    text-align: left;
+    line-height: 1.3;
+}
+
+.mortgage-box {
+    margin-bottom: 15px;
+    padding-right: 15px;
+    padding-left: 15px;
+}
+
+.mortgage-img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin-bottom: 10px;
+}
+
+.mortgage-heading {
+    font-size: 16px;
+    font-weight: 400;
+    color: #6d28a8;
+    text-transform: uppercase;
+    margin-bottom: 0px;
+}
+
+.mortgage-desc {
+    font-size: 14px;
+    color: #222;
+    margin-bottom: 8px;
+}
+
+.mortgage-list {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.mortgage-list li {
+    font-size: 14px;
+    color: #6d28a8;
+    margin-bottom: 5px;
+    position: relative;
+    padding-left: 15px;
+}
+
+.mortgage-list li::before {
+    content: "»";
+    position: absolute;
+    left: 0;
+    color: #6d28a8;
+}
+
+
+
+/* Equity Release Section */
+#equity-release-section {
+    padding: 60px 0;
+    font-family: "Poppins", sans-serif;
+    background-color: #fff;
+}
+
+.equity-img-wrapper {
+    padding: 15px;
+}
+
+.equity-img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.equity-text-wrapper {
+    padding: 15px;
+}
+
+.equity-heading {
+    font-size: 24px;
+    font-weight: 400;
+    color: #6d28a8;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+}
+
+.equity-description {
+    font-size: 16px;
+    color: #222;
+    line-height: 1.6;
+    max-width: 100%;
+    text-align: justify;
+}
+
+
+/* Mortgage Process Vertical */
+#mortgage-process-vertical {
+    padding-top: 0;
+    padding-bottom: 50px;
+    font-family: "Poppins", sans-serif;
+    background-color: #fff;
+}
+
+.step-content {
+    padding-left: 20px;
+}
+
+.process-title {
+    font-size: 28px;
+    font-weight: 600;
+    color: #6d28a8;
+    text-transform: uppercase;
+    margin-bottom: 40px;
+    line-height: 1.3;
+}
+
+/* Vertical Wrapper */
+.process-vertical-wrapper {
+    position: relative;
+    border-left: 2px dashed #ccc;
+    margin-left: 20px;
+    padding-left: 20px;
+}
+
+/* Step Block */
+.process-step-vertical {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+/* Step Number */
+.step-circle {
+    background-color: #6d28a8;
+    color: #fff;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+    font-weight: 400;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    left: -34px;
+    top: 0;
+}
+
+/* Step Text */
+.step-content h5 {
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 1.2;
+}
+
+.step-content p {
+    font-size: 14px;
+    color: #555;
+    margin: 0;
+    line-height: 1.5;
+}
+
+
+/* HouzzHunt Mortgage Section */
+#houzzhunt-mortgage {
+    background-color: #6d28a8;
+    color: #fff;
+    padding: 80px 0;
+    font-family: "Poppins", sans-serif;
+}
+
+.mortgage-main-title {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.3;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.mortgage-subtitle {
+    font-size: 16px;
+    margin-bottom: 40px;
+    color: #eee;
+}
+
+/* Card Style */
+.mortgage-card {
+    background-color: #fff;
+    padding: 25px;
+    border-radius: 10px;
+    color: #111;
+    height: 100%;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.mortgage-card h5 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+}
+
+.mortgage-card p {
+    font-size: 14px;
+    color: #444;
+    line-height: 1.6;
+}
+
+/* Footer Section */
+#site-footer {
+    background-color: #4b0082;
+    padding: 25px 0;
+    color: #fff;
+    font-family: "Poppins", sans-serif;
+}
+
+.footer-copy {
+    font-size: 16px;
+    margin: 0;
+}
+
+.footer-social {
+    text-align: right;
+}
+
+.footer-social a {
+    display: inline-block;
+    margin-left: 12px;
+}
+
+.footer-social img {
+    width: 22px;
+    height: 22px;
+    filter: brightness(0) invert(1);
+    transition: 0.3s ease;
+}
+
+.footer-social img:hover {
+    opacity: 0.7;
+}
+
+/* Contact Section Wrapper */
+#contact-section .contact-wrapper {
+  background-image: url('../images/banner/contact.png'); /* Your background image */
+  background-size: cover;
+  background-position: center;
+  /* height: 650px; */
+  position: relative;
+  display: flex;
+  align-items: center;
+  z-index: 1;
+  overflow: hidden;
+  padding: 50px 0;
+  /* margin: 50px 0; */
+}
+
+/* Overlay Layer */
+#contact-section .contact-wrapper::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(75, 0, 130, 0.33),  /* #4b0082 */
+    rgba(109, 40, 168, 0.33) /* #6d28a8 */
+  );
+  z-index: 1;
+}
+
+/* Content Z-Index */
+#contact-section .container {
+  position: relative;
+  z-index: 2;
+}
+
+/* Left Text Block */
+.contact-info {
+  padding-right: 60px;
+}
+
+.contact-title {
+  font-size: 38px;
+  font-weight: 400;
+  line-height: 1.3;
+  color: #fff;
+  margin-bottom: 15px;
+}
+
+.contact-description {
+  font-size: 16px;
+  color: #f0f0f0;
+  line-height: 1.6;
+}
+
+/* Form Wrapper */
+#lead-form-wrapper {
+  background-color: #fff;
+}
+
+#lead-form-wrapper h4 {
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+/* Responsive */
+@media (max-width: 991.98px) {
+  .contact-info {
+    padding-right: 0;
+    margin-bottom: 40px;
+    text-align: center;
+  }
+
+  #lead-form-wrapper {
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 576px) {
+  .contact-title {
+    font-size: 26px;
+  }
+
+  .contact-description {
+    font-size: 14px;
+  }
+}
