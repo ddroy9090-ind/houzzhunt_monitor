@@ -36,7 +36,10 @@ render_sidebar('add-property');
       <div class="col-12">
         <section class="form-section">
           <div class="section-header">
-            <h4 class="section-title">🖼 Media Uploads</h4>
+            <h4 class="section-title">
+              <img src="assets/images/icon-media.svg" alt="Media uploads icon" class="section-title-icon">
+              <span>Media Uploads</span>
+            </h4>
             <p class="section-subtitle">Upload the marketing assets that will showcase this project.</p>
           </div>
           <div class="row g-4">
@@ -123,7 +126,10 @@ render_sidebar('add-property');
       <div class="col-12">
         <section class="form-section">
           <div class="section-header">
-            <h4 class="section-title">📊 Project Details</h4>
+            <h4 class="section-title">
+              <img src="assets/images/icon-project-details.svg" alt="Project details icon" class="section-title-icon">
+              <span>Project Details</span>
+            </h4>
             <p class="section-subtitle">Capture essential project details to help clients evaluate the opportunity.</p>
           </div>
           <div class="row g-4">
@@ -188,7 +194,10 @@ render_sidebar('add-property');
       <div class="col-12">
         <section class="form-section">
           <div class="section-header">
-            <h4 class="section-title">🏗 Developer Information</h4>
+            <h4 class="section-title">
+              <img src="assets/images/icon-developer.svg" alt="Developer information icon" class="section-title-icon">
+              <span>Developer Information</span>
+            </h4>
             <p class="section-subtitle">Share the developer's credentials and proven track record.</p>
           </div>
           <div class="row g-4">
@@ -223,7 +232,10 @@ render_sidebar('add-property');
       <div class="col-12">
         <section class="form-section">
           <div class="section-header">
-            <h4 class="section-title">🎥 Media &amp; Links</h4>
+            <h4 class="section-title">
+              <img src="assets/images/icon-media-links.svg" alt="Video and links icon" class="section-title-icon">
+              <span>Media &amp; Links</span>
+            </h4>
             <p class="section-subtitle">Add supporting media links to enhance the listing.</p>
           </div>
           <div class="row g-4">
@@ -242,7 +254,10 @@ render_sidebar('add-property');
       <div class="col-12">
         <section class="form-section">
           <div class="section-header">
-            <h4 class="section-title">🏢 Location &amp; Accessibility</h4>
+            <h4 class="section-title">
+              <img src="assets/images/icon-location.svg" alt="Location pin icon" class="section-title-icon">
+              <span>Location &amp; Accessibility</span>
+            </h4>
             <p class="section-subtitle">Highlight key landmarks and travel times.</p>
           </div>
           <div class="row g-4">
@@ -261,7 +276,10 @@ render_sidebar('add-property');
       <div class="col-12">
         <section class="form-section">
           <div class="section-header">
-            <h4 class="section-title">🌟 Investment Highlights</h4>
+            <h4 class="section-title">
+              <img src="assets/images/icon-investment.svg" alt="Investment growth icon" class="section-title-icon">
+              <span>Investment Highlights</span>
+            </h4>
             <p class="section-subtitle">Summarize the investment rationale to attract buyers.</p>
           </div>
           <div class="row g-4">
@@ -288,7 +306,10 @@ render_sidebar('add-property');
       <div class="col-12">
         <section class="form-section">
           <div class="section-header">
-            <h4 class="section-title">💰 Payment Plan</h4>
+            <h4 class="section-title">
+              <img src="assets/images/icon-payment.svg" alt="Payment plan icon" class="section-title-icon">
+              <span>Payment Plan</span>
+            </h4>
             <p class="section-subtitle">Outline the financial structure to help investors plan their purchase.</p>
           </div>
           <div class="row g-4">
@@ -333,6 +354,39 @@ render_sidebar('add-property');
     </form>
   </div>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/@ckeditor/ckeditor5-build-classic@39.0.1/build/ckeditor.js"></script>
+<script>
+  (function () {
+    const textarea = document.getElementById('about_project');
+    if (!textarea) {
+      return;
+    }
+
+    const form = textarea.closest('form');
+
+    ClassicEditor
+      .create(textarea)
+      .then(editor => {
+        if (textarea.hasAttribute('required')) {
+          textarea.removeAttribute('required');
+        }
+
+        if (form) {
+          form.addEventListener('submit', () => {
+            textarea.value = editor.getData();
+          });
+
+          form.addEventListener('reset', () => {
+            editor.setData('');
+            textarea.value = '';
+          });
+        }
+      })
+      .catch(error => {
+        console.error('CKEditor initialization failed for About Project field', error);
+      });
+  })();
+</script>
 <?php
 render_footer();
 ?>
