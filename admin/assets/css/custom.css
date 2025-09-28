@@ -316,6 +316,7 @@ table td {
         min-height: 260px;
     }
 }
+
 .form-section {
     border: 1px solid #d7e4de;
     border-radius: 18px;
@@ -342,17 +343,33 @@ table td {
 }
 
 .section-title-icon {
-    width: 32px;
-    height: 32px;
+    width: 24px;
+    height: 24px;
 }
 
 .section-subtitle {
     margin: 0;
     font-size: 15px;
-    color: #5b6f7c;
+    color: #666;
 }
 
 .section-subtitle + .row {
     margin-top: 0;
 }
+
+h4.section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 20px;
+    font-weight: 600;
+    color: #004a44;
+}
+
+h4.section-title img{
+    filter: brightness(0) saturate(100%) invert(21%) sepia(66%) saturate(661%) hue-rotate(133deg) brightness(95%) contrast(97%);
+}
+
+
+
 

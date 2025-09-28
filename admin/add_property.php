@@ -37,13 +37,13 @@ render_sidebar('add-property');
         <section class="form-section">
           <div class="section-header">
             <h4 class="section-title">
-              <img src="assets/images/icon-media.svg" alt="Media uploads icon" class="section-title-icon">
+              <img src="assets/images/file.png" alt="Media uploads icon" class="section-title-icon">
               <span>Media Uploads</span>
             </h4>
             <p class="section-subtitle">Upload the marketing assets that will showcase this project.</p>
           </div>
           <div class="row g-4">
-            <div class="col-lg-6">
+            <div class="col-lg-4">
               <label for="hero_banner" class="form-label">Upload Project Hero Banner</label>
               <div class="upload-box">
                 <input
@@ -58,7 +58,7 @@ render_sidebar('add-property');
                 </div>
               </div>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-4">
               <label for="brochure" class="form-label">Upload Brochure</label>
               <div class="upload-box">
                 <input
@@ -73,7 +73,7 @@ render_sidebar('add-property');
                 </div>
               </div>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-4">
               <label for="gallery_images" class="form-label">Upload Gallery Images (Multiple)</label>
               <div class="upload-box">
                 <input
@@ -89,7 +89,7 @@ render_sidebar('add-property');
                 </div>
               </div>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-4">
               <label for="developer_logo" class="form-label">Upload Developer Logo</label>
               <div class="upload-box">
                 <input
@@ -104,7 +104,7 @@ render_sidebar('add-property');
                 </div>
               </div>
             </div>
-            <div class="col-lg-6">
+            <div class="col-lg-8">
               <label for="permit_barcode" class="form-label">Upload Permit Barcode</label>
               <div class="upload-box">
                 <input
@@ -139,7 +139,7 @@ render_sidebar('add-property');
             </div>
             <div class="col-md-4">
               <label for="property_type" class="form-label">Property Type</label>
-              <select class="form-select" id="property_type" name="property_type">
+              <select class="form-select form-control" id="property_type" name="property_type">
                 <option value="" selected disabled>Select property type</option>
                 <option value="Apartment">Apartment</option>
                 <option value="Villa">Villa</option>
@@ -151,37 +151,33 @@ render_sidebar('add-property');
               <label for="property_title" class="form-label">Property Title</label>
               <input type="text" class="form-control" id="property_title" name="property_title" placeholder="Project name">
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label for="property_location" class="form-label">Property Location</label>
               <input type="text" class="form-control" id="property_location" name="property_location" placeholder="City, Community">
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label for="starting_price" class="form-label">Starting From (Price AED)</label>
-              <input type="number" class="form-control" id="starting_price" name="starting_price" min="0" step="1000" placeholder="AED">
+              <input type="text" class="form-control" id="starting_price" name="starting_price" min="0" step="1000" placeholder="AED">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
               <label for="bedroom" class="form-label">Bedroom</label>
               <input type="text" class="form-control" id="bedroom" name="bedroom" placeholder="e.g., 1 - 4">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
               <label for="bathroom" class="form-label">Bathroom</label>
               <input type="text" class="form-control" id="bathroom" name="bathroom" placeholder="e.g., 1 - 3">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
               <label for="parking" class="form-label">Parking</label>
               <input type="text" class="form-control" id="parking" name="parking" placeholder="e.g., 1 Allocated">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
               <label for="total_area" class="form-label">Total Area</label>
               <input type="text" class="form-control" id="total_area" name="total_area" placeholder="e.g., 1,200 sq.ft">
             </div>
             <div class="col-md-4">
               <label for="completion_date" class="form-label">Completion Date</label>
               <input type="date" class="form-control" id="completion_date" name="completion_date">
-            </div>
-            <div class="col-md-4">
-              <label for="category" class="form-label">Category</label>
-              <input type="text" class="form-control" id="category" name="category" placeholder="e.g., Luxury">
             </div>
             <div class="col-12">
               <label for="about_project" class="form-label">About Project (Overview In Rich Text Editor)</label>
@@ -195,7 +191,7 @@ render_sidebar('add-property');
         <section class="form-section">
           <div class="section-header">
             <h4 class="section-title">
-              <img src="assets/images/icon-developer.svg" alt="Developer information icon" class="section-title-icon">
+              <img src="../assets/flaticons/residential.png" alt="Developer information icon" class="section-title-icon">
               <span>Developer Information</span>
             </h4>
             <p class="section-subtitle">Share the developer's credentials and proven track record.</p>
@@ -215,7 +211,7 @@ render_sidebar('add-property');
             </div>
             <div class="col-md-4">
               <label for="completed_projects" class="form-label">Completed Projects</label>
-              <input type="number" class="form-control" id="completed_projects" name="completed_projects" min="0" step="1" placeholder="Number of projects">
+              <input type="text" class="form-control" id="completed_projects" name="completed_projects" min="0" step="1" placeholder="Number of projects">
             </div>
             <div class="col-md-4">
               <label for="international_awards" class="form-label">International Awards</label>
@@ -233,7 +229,7 @@ render_sidebar('add-property');
         <section class="form-section">
           <div class="section-header">
             <h4 class="section-title">
-              <img src="assets/images/icon-media-links.svg" alt="Video and links icon" class="section-title-icon">
+              <img src="assets/images/icons/video-call.png" alt="Video and links icon" class="section-title-icon">
               <span>Media &amp; Links</span>
             </h4>
             <p class="section-subtitle">Add supporting media links to enhance the listing.</p>
@@ -255,19 +251,23 @@ render_sidebar('add-property');
         <section class="form-section">
           <div class="section-header">
             <h4 class="section-title">
-              <img src="assets/images/icon-location.svg" alt="Location pin icon" class="section-title-icon">
+              <img src="assets/images/icons/location.png" alt="Location pin icon" class="section-title-icon">
               <span>Location &amp; Accessibility</span>
             </h4>
             <p class="section-subtitle">Highlight key landmarks and travel times.</p>
           </div>
           <div class="row g-4">
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label for="landmark_name" class="form-label">Landmark Name</label>
               <input type="text" class="form-control" id="landmark_name" name="landmark_name" placeholder="Nearest landmark">
             </div>
-            <div class="col-md-6">
+            <div class="col-md-4">
               <label for="distance_time" class="form-label">Distance Time</label>
               <input type="text" class="form-control" id="distance_time" name="distance_time" placeholder="e.g., 10 mins by car">
+            </div>
+            <div class="col-md-4">
+              <label for="category" class="form-label">Location Category</label>
+              <input type="text" class="form-control" id="category" name="category" placeholder="e.g., Luxury">
             </div>
           </div>
         </section>
@@ -277,7 +277,7 @@ render_sidebar('add-property');
         <section class="form-section">
           <div class="section-header">
             <h4 class="section-title">
-              <img src="assets/images/icon-investment.svg" alt="Investment growth icon" class="section-title-icon">
+              <img src="assets/images/icons/growth-chart.png" alt="Investment growth icon" class="section-title-icon">
               <span>Investment Highlights</span>
             </h4>
             <p class="section-subtitle">Summarize the investment rationale to attract buyers.</p>
@@ -307,7 +307,7 @@ render_sidebar('add-property');
         <section class="form-section">
           <div class="section-header">
             <h4 class="section-title">
-              <img src="assets/images/icon-payment.svg" alt="Payment plan icon" class="section-title-icon">
+              <img src="assets/images/icons/wallet.png" alt="Payment plan icon" class="section-title-icon">
               <span>Payment Plan</span>
             </h4>
             <p class="section-subtitle">Outline the financial structure to help investors plan their purchase.</p>
@@ -319,7 +319,7 @@ render_sidebar('add-property');
             </div>
             <div class="col-md-4">
               <label for="booking_amount" class="form-label">Booking Amount</label>
-              <input type="number" class="form-control" id="booking_amount" name="booking_amount" min="0" step="1000" placeholder="AED">
+              <input type="text" class="form-control" id="booking_amount" name="booking_amount" min="0" step="1000" placeholder="AED">
             </div>
             <div class="col-md-4">
               <label for="during_construction_percentage" class="form-label">During Construction Percentage</label>
@@ -327,7 +327,7 @@ render_sidebar('add-property');
             </div>
             <div class="col-md-4">
               <label for="during_construction_amount" class="form-label">During Construction Amount</label>
-              <input type="number" class="form-control" id="during_construction_amount" name="during_construction_amount" min="0" step="1000" placeholder="AED">
+              <input type="text" class="form-control" id="during_construction_amount" name="during_construction_amount" min="0" step="1000" placeholder="AED">
             </div>
             <div class="col-md-4">
               <label for="handover_percentage" class="form-label">Handover Percentage</label>
@@ -335,7 +335,7 @@ render_sidebar('add-property');
             </div>
             <div class="col-md-4">
               <label for="handover_amount" class="form-label">Handover Amount</label>
-              <input type="number" class="form-control" id="handover_amount" name="handover_amount" min="0" step="1000" placeholder="AED">
+              <input type="text" class="form-control" id="handover_amount" name="handover_amount" min="0" step="1000" placeholder="AED">
             </div>
             <div class="col-md-4">
               <label for="permit_no" class="form-label">Permit No</label>
