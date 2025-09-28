@@ -316,3 +316,31 @@ table td {
         min-height: 260px;
     }
 }
+.form-section {
+    border: 1px solid #e2e8f0;
+    border-radius: 16px;
+    padding: 24px;
+    background: #f9fdfc;
+}
+
+.section-header {
+    margin-bottom: 16px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #004a44;
+    margin-bottom: 4px;
+}
+
+.section-subtitle {
+    margin: 0;
+    font-size: 14px;
+    color: #64748b;
+}
+
+.section-subtitle + .row {
+    margin-top: 0;
+}
+
