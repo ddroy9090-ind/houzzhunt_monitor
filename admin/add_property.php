@@ -55,6 +55,7 @@ render_sidebar('add-property');
                 <div class="upload-content">
                   <img src="assets/images/file.png" alt="Upload Icon" width="30px">
                   <p>Drop files here or click to upload</p>
+                  <p class="upload-file-name text-muted"></p>
                 </div>
               </div>
             </div>
@@ -70,6 +71,7 @@ render_sidebar('add-property');
                 <div class="upload-content">
                   <img src="assets/images/file.png" alt="Upload Icon" width="30px">
                   <p>Drop files here or click to upload</p>
+                  <p class="upload-file-name text-muted"></p>
                 </div>
               </div>
             </div>
@@ -86,6 +88,7 @@ render_sidebar('add-property');
                 <div class="upload-content">
                   <img src="assets/images/file.png" alt="Upload Icon" width="30px">
                   <p>Drop files here or click to upload</p>
+                  <p class="upload-file-name text-muted"></p>
                 </div>
               </div>
             </div>
@@ -101,6 +104,7 @@ render_sidebar('add-property');
                 <div class="upload-content">
                   <img src="assets/images/file.png" alt="Upload Icon" width="30px">
                   <p>Drop files here or click to upload</p>
+                  <p class="upload-file-name text-muted"></p>
                 </div>
               </div>
             </div>
@@ -116,6 +120,7 @@ render_sidebar('add-property');
                 <div class="upload-content">
                   <img src="assets/images/file.png" alt="Upload Icon" width="30px">
                   <p>Drop files here or click to upload</p>
+                  <p class="upload-file-name text-muted"></p>
                 </div>
               </div>
             </div>
@@ -357,12 +362,48 @@ render_sidebar('add-property');
 <script src="https://cdn.jsdelivr.net/npm/@ckeditor/ckeditor5-build-classic@39.0.1/build/ckeditor.js"></script>
 <script>
   (function () {
+    const form = document.querySelector('.box form');
+
+    if (form) {
+      const uploadInputs = form.querySelectorAll('.file-input');
+
+      uploadInputs.forEach(input => {
+        const uploadBox = input.closest('.upload-box');
+        const fileNameOutput = uploadBox ? uploadBox.querySelector('.upload-file-name') : null;
+
+        if (!fileNameOutput) {
+          return;
+        }
+
+        const updateFileName = () => {
+          const { files } = input;
+
+          if (!files || files.length === 0) {
+            fileNameOutput.textContent = '';
+            return;
+          }
+
+          const names = Array.from(files)
+            .map(file => file.name)
+            .join(', ');
+          fileNameOutput.textContent = names;
+        };
+
+        input.addEventListener('change', updateFileName);
+
+        form.addEventListener('reset', () => {
+          window.setTimeout(() => {
+            fileNameOutput.textContent = '';
+          }, 0);
+        });
+      });
+    }
+
     const textarea = document.getElementById('about_project');
+
     if (!textarea) {
       return;
     }
-
-    const form = textarea.closest('form');
 
     ClassicEditor
       .create(textarea)
