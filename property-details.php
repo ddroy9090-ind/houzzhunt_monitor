@@ -47,6 +47,49 @@ $decodeList = static function (?string $json): array {
     ));
 };
 
+$extractParagraphs = static function ($value): array {
+    if (!is_string($value)) {
+        return [];
+    }
+
+    $value = trim($value);
+    if ($value === '') {
+        return [];
+    }
+
+    $decoded = html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+
+    $withBreaks = preg_replace(
+        [
+            '#<\s*br\s*/?>#i',
+            '#<\s*/p\s*>#i',
+            '#<\s*/div\s*>#i',
+            '#<\s*/li\s*>#i',
+            '#<\s*/h[1-6]\s*>#i',
+            '#<\s*/tr\s*>#i',
+            '#<\s*/table\s*>#i',
+            '#<\s*/ul\s*>#i',
+            '#<\s*/ol\s*>#i',
+        ],
+        "\n",
+        $decoded
+    );
+
+    $withBreaks = preg_replace('#<\s*li\b[^>]*>#i', '- ', $withBreaks);
+    $withBreaks = preg_replace('#<\s*(p|div|h[1-6]|tr|td|th)\b[^>]*>#i', '', $withBreaks);
+
+    $withoutTags = strip_tags($withBreaks);
+    $normalized = preg_replace("/\r\n|\r|\n/", "\n", $withoutTags);
+
+    return array_values(array_filter(array_map(
+        static function (string $paragraph): string {
+            $paragraph = trim(preg_replace('/\s+/u', ' ', $paragraph));
+            return $paragraph;
+        },
+        preg_split("/\n+/", $normalized) ?: []
+    ), static fn($paragraph): bool => $paragraph !== ''));
+};
+
 $uploadsBasePath = 'admin/assets/uploads/properties/';
 $legacyUploadsPrefix = 'assets/uploads/properties/';
 $normalizeImagePath = static function (?string $path) use ($uploadsBasePath, $legacyUploadsPrefix): ?string {
@@ -214,15 +257,9 @@ foreach ($amenitiesRaw as $amenity) {
     }
 }
 
-$aboutProjectParagraphs = array_values(array_filter(array_map(
-    static fn(string $paragraph): string => trim($paragraph),
-    preg_split('/\r\n|\r|\n/', (string)($property['about_project'] ?? ''), flags: PREG_SPLIT_NO_EMPTY) ?: []
-)));
+$aboutProjectParagraphs = $extractParagraphs($property['about_project'] ?? null);
 
-$aboutDeveloperParagraphs = array_values(array_filter(array_map(
-    static fn(string $paragraph): string => trim($paragraph),
-    preg_split('/\r\n|\r|\n/', (string)($property['about_developer'] ?? ''), flags: PREG_SPLIT_NO_EMPTY) ?: []
-)));
+$aboutDeveloperParagraphs = $extractParagraphs($property['about_developer'] ?? null);
 
 $specItems = [];
 if (!empty($property['bedroom'])) {
