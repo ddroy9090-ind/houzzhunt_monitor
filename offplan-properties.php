@@ -126,6 +126,7 @@ include 'includes/navbar.php';
                                         <option>Villa</option>
                                         <option>Apartment</option>
                                         <option>Townhouse</option>
+                                        <option>Penthouse</option>
                                     </select>
                                 </label>
                             </div>
