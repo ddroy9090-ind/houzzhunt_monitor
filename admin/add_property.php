@@ -234,28 +234,37 @@ render_sidebar('add-property');
         <section class="form-section">
           <div class="section-header">
             <h4 class="section-title">
-              <img src="assets/icons/floorplan.png" alt="Floor plan icon" class="section-title-icon">
+              <img src="../assets/icons/floorplan.png" alt="Floor plan icon" class="section-title-icon">
               <span>Floor Plans</span>
             </h4>
             <p class="section-subtitle">Upload floor plans with their key details.</p>
           </div>
           <div class="d-flex justify-content-end mb-3">
-            <button type="button" class="btn btn-outline-secondary" id="add-floor-plan">Add Floor Plan</button>
+            <button type="button" class="btn btn-primary" id="add-floor-plan">Add Floor Plan</button>
           </div>
           <div class="floor-plan-list" data-floor-plan-list>
             <div class="floor-plan-item border rounded p-3 mb-3" data-floor-plan-index="0">
               <div class="row g-4 align-items-end">
-                <div class="col-lg-3 col-md-6">
-                  <label for="floor_plan_file_0" class="form-label" data-floor-plan-label="file">Upload Floor Plan</label>
-                  <input
-                    type="file"
-                    class="form-control"
-                    id="floor_plan_file_0"
-                    name="floor_plan_file[]"
-                    accept="image/*,application/pdf"
-                    data-floor-plan-input="file">
+                <div class="col-lg-12">
+                  <label for="floor_plan_file_0" class="form-label" data-floor-plan-label="file">
+                    Upload Floor Plan
+                  </label>
+                  <div class="upload-box">
+                    <input
+                      type="file"
+                      class="form-control file-input"
+                      id="floor_plan_file_0"
+                      name="floor_plan_file[]"
+                      accept="image/*,application/pdf"
+                      data-floor-plan-input="file">
+                    <div class="upload-content">
+                      <img src="assets/images/file.png" alt="Upload Icon" width="30px">
+                      <p>Drop files here or click to upload</p>
+                      <p class="upload-file-name text-muted"></p>
+                    </div>
+                  </div>
                 </div>
-                <div class="col-lg-3 col-md-6">
+                <div class="col-lg-4 col-md-4">
                   <label for="floor_plan_title_0" class="form-label" data-floor-plan-label="title">Floor Plan Title Name</label>
                   <input
                     type="text"
@@ -265,7 +274,7 @@ render_sidebar('add-property');
                     placeholder="e.g., 2 Bedroom"
                     data-floor-plan-input="title">
                 </div>
-                <div class="col-lg-3 col-md-6">
+                <div class="col-lg-4 col-md-4">
                   <label for="floor_plan_area_0" class="form-label" data-floor-plan-label="area">Total Area</label>
                   <input
                     type="text"
@@ -275,7 +284,7 @@ render_sidebar('add-property');
                     placeholder="e.g., 1,200 sq.ft"
                     data-floor-plan-input="area">
                 </div>
-                <div class="col-lg-2 col-md-6">
+                <div class="col-lg-4 col-md-4">
                   <label for="floor_plan_price_0" class="form-label" data-floor-plan-label="price">Price In</label>
                   <input
                     type="text"
@@ -470,7 +479,7 @@ render_sidebar('add-property');
 </main>
 <script src="https://cdn.jsdelivr.net/npm/@ckeditor/ckeditor5-build-classic@39.0.1/build/ckeditor.js"></script>
 <script>
-  (function () {
+  (function() {
     const form = document.querySelector('.box form');
 
     if (form) {
@@ -482,7 +491,9 @@ render_sidebar('add-property');
           return;
         }
 
-        const { files } = input;
+        const {
+          files
+        } = input;
 
         if (!files || files.length === 0) {
           fileNameOutput.textContent = '';
