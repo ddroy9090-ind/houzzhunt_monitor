@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.2
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: 127.0.0.1:3306
--- Generation Time: Sep 28, 2025 at 10:02 AM
--- Server version: 11.8.3-MariaDB-log
--- PHP Version: 7.2.34
+-- Host: 127.0.0.1
+-- Generation Time: Sep 29, 2025 at 08:29 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -144,6 +144,14 @@ CREATE TABLE `popup_form` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+--
+-- Dumping data for table `popup_form`
+--
+
+INSERT INTO `popup_form` (`id`, `name`, `email`, `phone`, `country`, `ip_address`, `user_agent`, `created_at`) VALUES
+(1, 'Shoaib Ahmad', 'shoaib@reliantsurveyors.com', '08400438136', 'India (भारत)', '2409:40e3:183:1048:c51f:3db3:dcd9:2ca9', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36', '2025-09-23 08:08:45'),
+(2, 'Rahul', 'surveyor@gmail.com', '53446798', 'United Arab Emirates (‫الإمارات العربية المتحدة‬‎)', '2409:40e3:183:1048:c51f:3db3:dcd9:2ca9', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36', '2025-09-23 08:46:30');
+
 -- --------------------------------------------------------
 
 --
@@ -154,7 +162,7 @@ CREATE TABLE `properties_list` (
   `id` int(10) UNSIGNED NOT NULL,
   `hero_banner` varchar(255) DEFAULT NULL,
   `brochure` varchar(255) DEFAULT NULL,
-  `gallery_images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `gallery_images` longtext DEFAULT NULL,
   `developer_logo` varchar(255) DEFAULT NULL,
   `permit_barcode` varchar(255) DEFAULT NULL,
   `project_status` varchar(255) DEFAULT NULL,
@@ -167,14 +175,14 @@ CREATE TABLE `properties_list` (
   `parking` varchar(255) DEFAULT NULL,
   `total_area` varchar(255) DEFAULT NULL,
   `completion_date` date DEFAULT NULL,
-  `about_project` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `about_project` longtext DEFAULT NULL,
   `developer_name` varchar(255) DEFAULT NULL,
   `developer_established` varchar(255) DEFAULT NULL,
-  `about_developer` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `about_developer` longtext DEFAULT NULL,
   `completed_projects` varchar(255) DEFAULT NULL,
   `international_awards` varchar(255) DEFAULT NULL,
   `on_time_delivery` varchar(255) DEFAULT NULL,
-  `floor_plans` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `floor_plans` longtext DEFAULT NULL,
   `video_link` varchar(255) DEFAULT NULL,
   `location_map` varchar(255) DEFAULT NULL,
   `landmark_name` varchar(255) DEFAULT NULL,
@@ -195,12 +203,11 @@ CREATE TABLE `properties_list` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
--- Dumping data for table `popup_form`
+-- Dumping data for table `properties_list`
 --
 
-INSERT INTO `popup_form` (`id`, `name`, `email`, `phone`, `country`, `ip_address`, `user_agent`, `created_at`) VALUES
-(1, 'Shoaib Ahmad', 'shoaib@reliantsurveyors.com', '08400438136', 'India (भारत)', '2409:40e3:183:1048:c51f:3db3:dcd9:2ca9', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36', '2025-09-23 08:08:45'),
-(2, 'Rahul', 'surveyor@gmail.com', '53446798', 'United Arab Emirates (‫الإمارات العربية المتحدة‬‎)', '2409:40e3:183:1048:c51f:3db3:dcd9:2ca9', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36', '2025-09-23 08:46:30');
+INSERT INTO `properties_list` (`id`, `hero_banner`, `brochure`, `gallery_images`, `developer_logo`, `permit_barcode`, `project_status`, `property_type`, `property_title`, `property_location`, `starting_price`, `bedroom`, `bathroom`, `parking`, `total_area`, `completion_date`, `about_project`, `developer_name`, `developer_established`, `about_developer`, `completed_projects`, `international_awards`, `on_time_delivery`, `floor_plans`, `video_link`, `location_map`, `landmark_name`, `distance_time`, `category`, `roi_potential`, `capital_growth`, `occupancy_rate`, `resale_value`, `booking_percentage`, `booking_amount`, `during_construction_percentage`, `during_construction_amount`, `handover_percentage`, `handover_amount`, `permit_no`, `created_at`) VALUES
+(1, 'assets/uploads/properties/hero_banner_2f7d8159b0af85b6e6680692a7d0d5c0.jpg', 'assets/uploads/properties/brochure_0d2d9431f25c254063d10dbad22f4690.pdf', '[\"assets/uploads/properties/gallery_ff520de12dd07a28d24ae11cf4eb6220.webp\",\"assets/uploads/properties/gallery_9bfdb0960ba3b20feae96703444a7dec.webp\",\"assets/uploads/properties/gallery_3243bf9f52e6b6f7a0ed519ab4d3cdb7.webp\",\"assets/uploads/properties/gallery_950e841ac37bdb0402a8a39a8b8a6a5b.png\"]', 'assets/uploads/properties/developer_logo_85b8d2b5f7fd36f29c8004115c17fc6f.png', 'assets/uploads/properties/permit_barcode_b4fdec0f137aa7859f81ec2c6b7a938c.png', 'New Launch', 'Apartment', 'Unparalleled Seafront Luxury Living in Dubai Maritime City', 'Dubai Maritime City, UAE', 'AED 1.3M', '4', '2', '2', '2,100 sq ft', '2025-09-29', '<h4>Breez by Danube</h4><p><strong>At Dubai Maritime City</strong></p><p>Discover Danube Breez, where seafront elegance meets the dynamic energy of Dubai Maritime City. This isn’t just a residence it’s a lifestyle upgrade. Every element of Breez is designed to offer comfort, sophistication, and effortless living, from panoramic ocean views to a location that keeps the city’s vibrant opportunities within easy reach. Here, the sea isn’t just scenery; it’s part of your daily experience, creating a tranquil backdrop to a life of modern luxury.</p><p>Homes at Breez range from chic studios to expansive four-bedroom villas, each thoughtfully designed to maximize space, natural light, and comfort. Large windows frame breathtaking vistas, while smart layouts ensure every corner of your home is functional and inviting. The design is meant not only to impress but to provide a sanctuary where you can relax, entertain, and enjoy life at your own pace.</p><p>The lifestyle extends far beyond the interiors, with over 40 resort-style amenities at your disposal. Lounge by the infinity pool, enjoy family movie nights under the stars at the outdoor cinema, or perfect your swing at the mini-golf course—all without leaving home. Backed by the trusted Danube Properties and flexible payment plans, Breez offers a seamless path to luxury living. It’s not just a property; it’s a permanent vacation and a smart investment in a life of ease and indulgence.</p>', 'Danube Properties', '1985', 'Danube Properties is widely recognized as one of the most reliable and respected real estate developers in the UAE. Over the years, the company has built a strong reputation for delivering residential and commercial projects that combine quality, affordability, and modern design. As the real estate arm of the Danube Group, the brand reflects the same values of trust, innovation, and excellence that have made the group a household name across the region. With a commitment to providing homes that cater to both investors and end-users, Danube Properties has successfully bridged the gap between luxury living and affordability.', '187', '5', '98%', '[{\"title\":\"Studio\",\"area\":\"1,600 sq ft\",\"price\":\"AED 1.3 M\",\"file\":\"assets/uploads/properties/floor_plan_f6b3372664dfb1d1776fda95ed3f7a9c.png\"},{\"title\":\"2 Bedroom\",\"area\":\"3,600 sq ft\",\"price\":\"AED 1.3 M\",\"file\":\"assets/uploads/properties/floor_plan_5f72b27c70f4592c9524d31f32928fb1.png\"}]', 'https://youtu.be/MAm0RLQpYas?si=z3d8PE6ZHuQH1m1x', 'https://maps.app.goo.gl/yyn7Lf5xZe1pBZdb9', 'Port Rashid Boat Station', '2 min', 'Shopping', '8–12%', '+15%', '95%', 'High', '10%', 'AED 1,300,000', '70%', 'AED 1,300,000', '20%', 'AED 1,300,000', '0662770883', '2025-09-29 11:53:44');
 
 --
 -- Indexes for dumped tables
@@ -280,7 +287,7 @@ ALTER TABLE `popup_form`
 -- AUTO_INCREMENT for table `properties_list`
 --
 ALTER TABLE `properties_list`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
