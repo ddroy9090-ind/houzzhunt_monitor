@@ -13,6 +13,476 @@ if (!is_authenticated()) {
   exit;
 }
 
+$errors = [];
+$successMessage = null;
+
+$formData = [
+  'project_status'                 => '',
+  'property_type'                  => '',
+  'property_title'                 => '',
+  'property_location'              => '',
+  'starting_price'                 => '',
+  'bedroom'                        => '',
+  'bathroom'                       => '',
+  'parking'                        => '',
+  'total_area'                     => '',
+  'completion_date'                => '',
+  'about_project'                  => '',
+  'developer_name'                 => '',
+  'developer_established'          => '',
+  'about_developer'                => '',
+  'completed_projects'             => '',
+  'international_awards'           => '',
+  'on_time_delivery'               => '',
+  'video_link'                     => '',
+  'location_map'                   => '',
+  'landmark_name'                  => '',
+  'distance_time'                  => '',
+  'category'                       => '',
+  'roi_potential'                  => '',
+  'capital_growth'                 => '',
+  'occupancy_rate'                 => '',
+  'resale_value'                   => '',
+  'booking_percentage'             => '',
+  'booking_amount'                 => '',
+  'during_construction_percentage' => '',
+  'during_construction_amount'     => '',
+  'handover_percentage'            => '',
+  'handover_amount'                => '',
+  'permit_no'                      => '',
+];
+
+$floorPlanFormData = [
+  [
+    'title' => '',
+    'area'  => '',
+    'price' => '',
+  ],
+];
+
+/**
+ * Ensure the properties_list table exists with the expected structure.
+ */
+function add_property_ensure_table(PDO $pdo): void
+{
+  $pdo->exec(
+    'CREATE TABLE IF NOT EXISTS properties_list (
+      id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+      hero_banner VARCHAR(255) DEFAULT NULL,
+      brochure VARCHAR(255) DEFAULT NULL,
+      gallery_images LONGTEXT NULL,
+      developer_logo VARCHAR(255) DEFAULT NULL,
+      permit_barcode VARCHAR(255) DEFAULT NULL,
+      project_status VARCHAR(255) DEFAULT NULL,
+      property_type VARCHAR(100) DEFAULT NULL,
+      property_title VARCHAR(255) DEFAULT NULL,
+      property_location VARCHAR(255) DEFAULT NULL,
+      starting_price VARCHAR(255) DEFAULT NULL,
+      bedroom VARCHAR(255) DEFAULT NULL,
+      bathroom VARCHAR(255) DEFAULT NULL,
+      parking VARCHAR(255) DEFAULT NULL,
+      total_area VARCHAR(255) DEFAULT NULL,
+      completion_date DATE DEFAULT NULL,
+      about_project LONGTEXT NULL,
+      developer_name VARCHAR(255) DEFAULT NULL,
+      developer_established VARCHAR(255) DEFAULT NULL,
+      about_developer LONGTEXT NULL,
+      completed_projects VARCHAR(255) DEFAULT NULL,
+      international_awards VARCHAR(255) DEFAULT NULL,
+      on_time_delivery VARCHAR(255) DEFAULT NULL,
+      floor_plans LONGTEXT NULL,
+      video_link VARCHAR(255) DEFAULT NULL,
+      location_map VARCHAR(255) DEFAULT NULL,
+      landmark_name VARCHAR(255) DEFAULT NULL,
+      distance_time VARCHAR(255) DEFAULT NULL,
+      category VARCHAR(255) DEFAULT NULL,
+      roi_potential VARCHAR(255) DEFAULT NULL,
+      capital_growth VARCHAR(255) DEFAULT NULL,
+      occupancy_rate VARCHAR(255) DEFAULT NULL,
+      resale_value VARCHAR(255) DEFAULT NULL,
+      booking_percentage VARCHAR(255) DEFAULT NULL,
+      booking_amount VARCHAR(255) DEFAULT NULL,
+      during_construction_percentage VARCHAR(255) DEFAULT NULL,
+      during_construction_amount VARCHAR(255) DEFAULT NULL,
+      handover_percentage VARCHAR(255) DEFAULT NULL,
+      handover_amount VARCHAR(255) DEFAULT NULL,
+      permit_no VARCHAR(255) DEFAULT NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
+  );
+}
+
+/**
+ * Handle a single file upload and return the stored relative path or an error message.
+ *
+ * @return array{0: ?string, 1: ?string}
+ */
+function add_property_handle_upload(?array $file, array $allowedMimeMap, string $uploadDir, string $prefix): array
+{
+  if (!$file || ($file['error'] ?? UPLOAD_ERR_NO_FILE) === UPLOAD_ERR_NO_FILE) {
+    return [null, null];
+  }
+
+  $error = (int)($file['error'] ?? UPLOAD_ERR_OK);
+
+  if ($error !== UPLOAD_ERR_OK) {
+    return [null, 'There was a problem uploading the file.'];
+  }
+
+  $tmpName = (string)($file['tmp_name'] ?? '');
+
+  if ($tmpName === '' || !is_uploaded_file($tmpName)) {
+    return [null, 'Invalid file upload received.'];
+  }
+
+  $finfo = finfo_open(FILEINFO_MIME_TYPE);
+  $mime  = $finfo ? finfo_file($finfo, $tmpName) : null;
+  if ($finfo) {
+    finfo_close($finfo);
+  }
+
+  $extension = null;
+
+  if ($mime && isset($allowedMimeMap[$mime])) {
+    $extension = $allowedMimeMap[$mime];
+  } else {
+    $originalExtension = strtolower((string)pathinfo((string)($file['name'] ?? ''), PATHINFO_EXTENSION));
+    if ($originalExtension !== '' && in_array($originalExtension, array_values($allowedMimeMap), true)) {
+      $extension = $originalExtension;
+    }
+  }
+
+  if (!$extension) {
+    return [null, 'Unsupported file type uploaded.'];
+  }
+
+  if (!is_dir($uploadDir)) {
+    if (!mkdir($uploadDir, 0755, true) && !is_dir($uploadDir)) {
+      return [null, 'Unable to create the upload directory.'];
+    }
+  }
+
+  $filename     = $prefix . bin2hex(random_bytes(16)) . '.' . $extension;
+  $destination  = rtrim($uploadDir, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR . $filename;
+  $relativePath = 'assets/uploads/properties/' . $filename;
+
+  if (!move_uploaded_file($tmpName, $destination)) {
+    return [null, 'Failed to save the uploaded file.'];
+  }
+
+  return [$relativePath, null];
+}
+
+try {
+  if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    csrf_check($_POST['csrf'] ?? '');
+    rl_hit('add-property', 20);
+
+    foreach ($formData as $key => $_) {
+      $formData[$key] = trim((string)($_POST[$key] ?? ''));
+    }
+
+    $titles = $_POST['floor_plan_title'] ?? [];
+    $areas  = $_POST['floor_plan_area'] ?? [];
+    $prices = $_POST['floor_plan_price'] ?? [];
+
+    if (!is_array($titles)) {
+      $titles = [];
+    }
+    if (!is_array($areas)) {
+      $areas = [];
+    }
+    if (!is_array($prices)) {
+      $prices = [];
+    }
+
+    $maxFloorPlans       = max(count($titles), count($areas), count($prices), 1);
+    $floorPlanFormData   = [];
+    $floorPlansForInsert = [];
+
+    $pdo = db();
+    add_property_ensure_table($pdo);
+
+    $uploadDir             = __DIR__ . '/assets/uploads/properties';
+    $uploadedFilesToCleanup = [];
+
+    $imageMimeMap = [
+      'image/jpeg'  => 'jpg',
+      'image/pjpeg' => 'jpg',
+      'image/png'   => 'png',
+      'image/x-png' => 'png',
+      'image/gif'   => 'gif',
+      'image/webp'  => 'webp',
+      'image/svg+xml' => 'svg',
+    ];
+
+    $pdfMimeMap = [
+      'application/pdf' => 'pdf',
+    ];
+
+    [$heroBannerPath, $heroBannerError] = add_property_handle_upload($_FILES['hero_banner'] ?? null, $imageMimeMap, $uploadDir, 'hero_banner_');
+    if ($heroBannerError) {
+      $errors[] = $heroBannerError;
+    } elseif ($heroBannerPath) {
+      $uploadedFilesToCleanup[] = $heroBannerPath;
+    }
+
+    [$brochurePath, $brochureError] = add_property_handle_upload($_FILES['brochure'] ?? null, $pdfMimeMap, $uploadDir, 'brochure_');
+    if ($brochureError) {
+      $errors[] = $brochureError;
+    } elseif ($brochurePath) {
+      $uploadedFilesToCleanup[] = $brochurePath;
+    }
+
+    [$developerLogoPath, $developerLogoError] = add_property_handle_upload($_FILES['developer_logo'] ?? null, $imageMimeMap, $uploadDir, 'developer_logo_');
+    if ($developerLogoError) {
+      $errors[] = $developerLogoError;
+    } elseif ($developerLogoPath) {
+      $uploadedFilesToCleanup[] = $developerLogoPath;
+    }
+
+    [$permitBarcodePath, $permitBarcodeError] = add_property_handle_upload($_FILES['permit_barcode'] ?? null, $imageMimeMap, $uploadDir, 'permit_barcode_');
+    if ($permitBarcodeError) {
+      $errors[] = $permitBarcodeError;
+    } elseif ($permitBarcodePath) {
+      $uploadedFilesToCleanup[] = $permitBarcodePath;
+    }
+
+    $galleryPaths = [];
+    $galleryFiles = $_FILES['gallery_images'] ?? null;
+    if ($galleryFiles && isset($galleryFiles['name']) && is_array($galleryFiles['name'])) {
+      $countGallery = count($galleryFiles['name']);
+      for ($i = 0; $i < $countGallery; $i++) {
+        $file = [
+          'name'     => $galleryFiles['name'][$i] ?? null,
+          'type'     => $galleryFiles['type'][$i] ?? null,
+          'tmp_name' => $galleryFiles['tmp_name'][$i] ?? null,
+          'error'    => $galleryFiles['error'][$i] ?? UPLOAD_ERR_NO_FILE,
+          'size'     => $galleryFiles['size'][$i] ?? 0,
+        ];
+
+        [$path, $error] = add_property_handle_upload($file, $imageMimeMap, $uploadDir, 'gallery_');
+        if ($error) {
+          $errors[] = $error;
+        } elseif ($path) {
+          $galleryPaths[]            = $path;
+          $uploadedFilesToCleanup[] = $path;
+        }
+      }
+    }
+
+    $floorPlanFiles = $_FILES['floor_plan_file'] ?? null;
+
+    for ($i = 0; $i < $maxFloorPlans; $i++) {
+      $title = trim((string)($titles[$i] ?? ''));
+      $area  = trim((string)($areas[$i] ?? ''));
+      $price = trim((string)($prices[$i] ?? ''));
+
+      $floorPlanFormData[] = [
+        'title' => $title,
+        'area'  => $area,
+        'price' => $price,
+      ];
+
+      $fileForIndex = null;
+      if ($floorPlanFiles && isset($floorPlanFiles['name']) && is_array($floorPlanFiles['name']) && array_key_exists($i, $floorPlanFiles['name'])) {
+        $fileForIndex = [
+          'name'     => $floorPlanFiles['name'][$i] ?? null,
+          'type'     => $floorPlanFiles['type'][$i] ?? null,
+          'tmp_name' => $floorPlanFiles['tmp_name'][$i] ?? null,
+          'error'    => $floorPlanFiles['error'][$i] ?? UPLOAD_ERR_NO_FILE,
+          'size'     => $floorPlanFiles['size'][$i] ?? 0,
+        ];
+      }
+
+      $floorPlanPath = null;
+      if ($fileForIndex) {
+        [$floorPlanPath, $floorPlanError] = add_property_handle_upload($fileForIndex, $imageMimeMap + $pdfMimeMap, $uploadDir, 'floor_plan_');
+        if ($floorPlanError) {
+          $errors[] = $floorPlanError;
+        } elseif ($floorPlanPath) {
+          $uploadedFilesToCleanup[] = $floorPlanPath;
+        }
+      }
+
+      if ($title !== '' || $area !== '' || $price !== '' || $floorPlanPath !== null) {
+        $floorPlansForInsert[] = [
+          'title' => $title,
+          'area'  => $area,
+          'price' => $price,
+          'file'  => $floorPlanPath,
+        ];
+      }
+    }
+
+    if (empty($floorPlanFormData)) {
+      $floorPlanFormData[] = [
+        'title' => '',
+        'area'  => '',
+        'price' => '',
+      ];
+    }
+
+    if (empty($errors)) {
+      $completionDate = $formData['completion_date'] !== '' ? $formData['completion_date'] : null;
+
+      $stmt = $pdo->prepare(
+        'INSERT INTO properties_list (
+          hero_banner,
+          brochure,
+          gallery_images,
+          developer_logo,
+          permit_barcode,
+          project_status,
+          property_type,
+          property_title,
+          property_location,
+          starting_price,
+          bedroom,
+          bathroom,
+          parking,
+          total_area,
+          completion_date,
+          about_project,
+          developer_name,
+          developer_established,
+          about_developer,
+          completed_projects,
+          international_awards,
+          on_time_delivery,
+          floor_plans,
+          video_link,
+          location_map,
+          landmark_name,
+          distance_time,
+          category,
+          roi_potential,
+          capital_growth,
+          occupancy_rate,
+          resale_value,
+          booking_percentage,
+          booking_amount,
+          during_construction_percentage,
+          during_construction_amount,
+          handover_percentage,
+          handover_amount,
+          permit_no
+        ) VALUES (
+          :hero_banner,
+          :brochure,
+          :gallery_images,
+          :developer_logo,
+          :permit_barcode,
+          :project_status,
+          :property_type,
+          :property_title,
+          :property_location,
+          :starting_price,
+          :bedroom,
+          :bathroom,
+          :parking,
+          :total_area,
+          :completion_date,
+          :about_project,
+          :developer_name,
+          :developer_established,
+          :about_developer,
+          :completed_projects,
+          :international_awards,
+          :on_time_delivery,
+          :floor_plans,
+          :video_link,
+          :location_map,
+          :landmark_name,
+          :distance_time,
+          :category,
+          :roi_potential,
+          :capital_growth,
+          :occupancy_rate,
+          :resale_value,
+          :booking_percentage,
+          :booking_amount,
+          :during_construction_percentage,
+          :during_construction_amount,
+          :handover_percentage,
+          :handover_amount,
+          :permit_no
+        )'
+      );
+
+      $stmt->execute([
+        ':hero_banner'                   => $heroBannerPath,
+        ':brochure'                      => $brochurePath,
+        ':gallery_images'                => json_encode($galleryPaths, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+        ':developer_logo'                => $developerLogoPath,
+        ':permit_barcode'                => $permitBarcodePath,
+        ':project_status'                => $formData['project_status'],
+        ':property_type'                 => $formData['property_type'],
+        ':property_title'                => $formData['property_title'],
+        ':property_location'             => $formData['property_location'],
+        ':starting_price'                => $formData['starting_price'],
+        ':bedroom'                       => $formData['bedroom'],
+        ':bathroom'                      => $formData['bathroom'],
+        ':parking'                       => $formData['parking'],
+        ':total_area'                    => $formData['total_area'],
+        ':completion_date'               => $completionDate,
+        ':about_project'                 => $formData['about_project'],
+        ':developer_name'                => $formData['developer_name'],
+        ':developer_established'         => $formData['developer_established'],
+        ':about_developer'               => $formData['about_developer'],
+        ':completed_projects'            => $formData['completed_projects'],
+        ':international_awards'          => $formData['international_awards'],
+        ':on_time_delivery'              => $formData['on_time_delivery'],
+        ':floor_plans'                   => json_encode($floorPlansForInsert, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+        ':video_link'                    => $formData['video_link'],
+        ':location_map'                  => $formData['location_map'],
+        ':landmark_name'                 => $formData['landmark_name'],
+        ':distance_time'                 => $formData['distance_time'],
+        ':category'                      => $formData['category'],
+        ':roi_potential'                 => $formData['roi_potential'],
+        ':capital_growth'                => $formData['capital_growth'],
+        ':occupancy_rate'                => $formData['occupancy_rate'],
+        ':resale_value'                  => $formData['resale_value'],
+        ':booking_percentage'            => $formData['booking_percentage'],
+        ':booking_amount'                => $formData['booking_amount'],
+        ':during_construction_percentage'=> $formData['during_construction_percentage'],
+        ':during_construction_amount'    => $formData['during_construction_amount'],
+        ':handover_percentage'           => $formData['handover_percentage'],
+        ':handover_amount'               => $formData['handover_amount'],
+        ':permit_no'                     => $formData['permit_no'],
+      ]);
+
+      $successMessage = 'Your Property Has Been Added Successfully';
+
+      foreach ($formData as $key => $_) {
+        $formData[$key] = '';
+      }
+
+      $floorPlanFormData = [
+        [
+          'title' => '',
+          'area'  => '',
+          'price' => '',
+        ],
+      ];
+
+      $uploadedFilesToCleanup = [];
+    }
+
+    if (!empty($errors) && $uploadedFilesToCleanup) {
+      foreach ($uploadedFilesToCleanup as $relativePath) {
+        $absolute = __DIR__ . '/' . ltrim($relativePath, '/');
+        if (is_file($absolute)) {
+          @unlink($absolute);
+        }
+      }
+    }
+  }
+} catch (Throwable $e) {
+  $errors[] = 'An unexpected error occurred while saving the property. Please try again.';
+  error_log('Failed to add property: ' . $e->getMessage());
+}
+
 $pageTitle = 'Add Property';
 $pageDescription = 'Create a new property listing by sharing project details, media, and investment highlights.';
 
@@ -30,6 +500,24 @@ render_sidebar('add-property');
   </div>
 
   <div class="box">
+    <?php if ($successMessage): ?>
+      <div class="alert alert-success alert-dismissible fade show mb-4" role="alert" data-success-alert data-auto-dismiss="5000">
+        <?= htmlspecialchars($successMessage, ENT_QUOTES, 'UTF-8') ?>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>
+    <?php endif; ?>
+
+    <?php if ($errors): ?>
+      <div class="alert alert-danger mb-4" role="alert">
+        <p class="mb-2 fw-semibold">Please address the following issues:</p>
+        <ul class="mb-0">
+          <?php foreach ($errors as $error): ?>
+            <li><?= htmlspecialchars($error, ENT_QUOTES, 'UTF-8') ?></li>
+          <?php endforeach; ?>
+        </ul>
+      </div>
+    <?php endif; ?>
+
     <form method="post" enctype="multipart/form-data" class="row g-4">
       <input type="hidden" name="csrf" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
 
@@ -140,53 +628,108 @@ render_sidebar('add-property');
           <div class="row g-4">
             <div class="col-md-4">
               <label for="project_status" class="form-label">Project Status</label>
-              <input type="text" class="form-control" id="project_status" name="project_status" placeholder="e.g., Off-plan">
+              <input
+                type="text"
+                class="form-control"
+                id="project_status"
+                name="project_status"
+                placeholder="e.g., Off-plan"
+                value="<?= htmlspecialchars($formData['project_status'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-4">
               <label for="property_type" class="form-label">Property Type</label>
               <select class="form-select form-control" id="property_type" name="property_type">
-                <option value="" selected disabled>Select property type</option>
-                <option value="Apartment">Apartment</option>
-                <option value="Villa">Villa</option>
-                <option value="Townhouse">Townhouse</option>
-                <option value="Penthouse">Penthouse</option>
+                <option value="" disabled <?= $formData['property_type'] === '' ? 'selected' : '' ?>>Select property type</option>
+                <option value="Apartment" <?= $formData['property_type'] === 'Apartment' ? 'selected' : '' ?>>Apartment</option>
+                <option value="Villa" <?= $formData['property_type'] === 'Villa' ? 'selected' : '' ?>>Villa</option>
+                <option value="Townhouse" <?= $formData['property_type'] === 'Townhouse' ? 'selected' : '' ?>>Townhouse</option>
+                <option value="Penthouse" <?= $formData['property_type'] === 'Penthouse' ? 'selected' : '' ?>>Penthouse</option>
               </select>
             </div>
             <div class="col-md-4">
               <label for="property_title" class="form-label">Property Title</label>
-              <input type="text" class="form-control" id="property_title" name="property_title" placeholder="Project name">
+              <input
+                type="text"
+                class="form-control"
+                id="property_title"
+                name="property_title"
+                placeholder="Project name"
+                value="<?= htmlspecialchars($formData['property_title'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-4">
               <label for="property_location" class="form-label">Property Location</label>
-              <input type="text" class="form-control" id="property_location" name="property_location" placeholder="City, Community">
+              <input
+                type="text"
+                class="form-control"
+                id="property_location"
+                name="property_location"
+                placeholder="City, Community"
+                value="<?= htmlspecialchars($formData['property_location'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-4">
               <label for="starting_price" class="form-label">Starting From (Price AED)</label>
-              <input type="text" class="form-control" id="starting_price" name="starting_price" min="0" step="1000" placeholder="AED">
+              <input
+                type="text"
+                class="form-control"
+                id="starting_price"
+                name="starting_price"
+                min="0"
+                step="1000"
+                placeholder="AED"
+                value="<?= htmlspecialchars($formData['starting_price'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-4">
               <label for="bedroom" class="form-label">Bedroom</label>
-              <input type="text" class="form-control" id="bedroom" name="bedroom" placeholder="e.g., 1 - 4">
+              <input
+                type="text"
+                class="form-control"
+                id="bedroom"
+                name="bedroom"
+                placeholder="e.g., 1 - 4"
+                value="<?= htmlspecialchars($formData['bedroom'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-4">
               <label for="bathroom" class="form-label">Bathroom</label>
-              <input type="text" class="form-control" id="bathroom" name="bathroom" placeholder="e.g., 1 - 3">
+              <input
+                type="text"
+                class="form-control"
+                id="bathroom"
+                name="bathroom"
+                placeholder="e.g., 1 - 3"
+                value="<?= htmlspecialchars($formData['bathroom'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-4">
               <label for="parking" class="form-label">Parking</label>
-              <input type="text" class="form-control" id="parking" name="parking" placeholder="e.g., 1 Allocated">
+              <input
+                type="text"
+                class="form-control"
+                id="parking"
+                name="parking"
+                placeholder="e.g., 1 Allocated"
+                value="<?= htmlspecialchars($formData['parking'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-4">
               <label for="total_area" class="form-label">Total Area</label>
-              <input type="text" class="form-control" id="total_area" name="total_area" placeholder="e.g., 1,200 sq.ft">
+              <input
+                type="text"
+                class="form-control"
+                id="total_area"
+                name="total_area"
+                placeholder="e.g., 1,200 sq.ft"
+                value="<?= htmlspecialchars($formData['total_area'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-4">
               <label for="completion_date" class="form-label">Completion Date</label>
-              <input type="date" class="form-control" id="completion_date" name="completion_date">
+              <input
+                type="date"
+                class="form-control"
+                id="completion_date"
+                name="completion_date"
+                value="<?= htmlspecialchars($formData['completion_date'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-12">
               <label for="about_project" class="form-label">About Project (Overview In Rich Text Editor)</label>
-              <textarea class="form-control" id="about_project" name="about_project" rows="6" placeholder="Enter an engaging project overview..."></textarea>
+              <textarea class="form-control" id="about_project" name="about_project" rows="6" placeholder="Enter an engaging project overview..."><?= htmlspecialchars($formData['about_project'], ENT_QUOTES, 'UTF-8') ?></textarea>
             </div>
           </div>
         </section>
@@ -204,27 +747,59 @@ render_sidebar('add-property');
           <div class="row g-4">
             <div class="col-md-6">
               <label for="developer_name" class="form-label">Developer Name</label>
-              <input type="text" class="form-control" id="developer_name" name="developer_name" placeholder="Developer name">
+              <input
+                type="text"
+                class="form-control"
+                id="developer_name"
+                name="developer_name"
+                placeholder="Developer name"
+                value="<?= htmlspecialchars($formData['developer_name'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-6">
               <label for="developer_established" class="form-label">Established</label>
-              <input type="text" class="form-control" id="developer_established" name="developer_established" placeholder="Year established">
+              <input
+                type="text"
+                class="form-control"
+                id="developer_established"
+                name="developer_established"
+                placeholder="Year established"
+                value="<?= htmlspecialchars($formData['developer_established'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-12">
               <label for="about_developer" class="form-label">About Developer</label>
-              <textarea class="form-control" id="about_developer" name="about_developer" rows="4" placeholder="Highlight the developer's experience and vision..."></textarea>
+              <textarea class="form-control" id="about_developer" name="about_developer" rows="4" placeholder="Highlight the developer's experience and vision..."><?= htmlspecialchars($formData['about_developer'], ENT_QUOTES, 'UTF-8') ?></textarea>
             </div>
             <div class="col-md-4">
               <label for="completed_projects" class="form-label">Completed Projects</label>
-              <input type="text" class="form-control" id="completed_projects" name="completed_projects" min="0" step="1" placeholder="Number of projects">
+              <input
+                type="text"
+                class="form-control"
+                id="completed_projects"
+                name="completed_projects"
+                min="0"
+                step="1"
+                placeholder="Number of projects"
+                value="<?= htmlspecialchars($formData['completed_projects'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-4">
               <label for="international_awards" class="form-label">International Awards</label>
-              <input type="text" class="form-control" id="international_awards" name="international_awards" placeholder="List or count awards">
+              <input
+                type="text"
+                class="form-control"
+                id="international_awards"
+                name="international_awards"
+                placeholder="List or count awards"
+                value="<?= htmlspecialchars($formData['international_awards'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-4">
               <label for="on_time_delivery" class="form-label">On-Time Delivery</label>
-              <input type="text" class="form-control" id="on_time_delivery" name="on_time_delivery" placeholder="e.g., 95%">
+              <input
+                type="text"
+                class="form-control"
+                id="on_time_delivery"
+                name="on_time_delivery"
+                placeholder="e.g., 95%"
+                value="<?= htmlspecialchars($formData['on_time_delivery'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
           </div>
         </section>
@@ -243,62 +818,67 @@ render_sidebar('add-property');
             <button type="button" class="btn btn-primary" id="add-floor-plan">Add Floor Plan</button>
           </div>
           <div class="floor-plan-list" data-floor-plan-list>
-            <div class="floor-plan-item border rounded p-3 mb-3" data-floor-plan-index="0">
-              <div class="row g-4 align-items-end">
-                <div class="col-lg-12">
-                  <label for="floor_plan_file_0" class="form-label" data-floor-plan-label="file">
-                    Upload Floor Plan
-                  </label>
-                  <div class="upload-box">
-                    <input
-                      type="file"
-                      class="form-control file-input"
-                      id="floor_plan_file_0"
-                      name="floor_plan_file[]"
-                      accept="image/*,application/pdf"
-                      data-floor-plan-input="file">
-                    <div class="upload-content">
-                      <img src="assets/images/file.png" alt="Upload Icon" width="30px">
-                      <p>Drop files here or click to upload</p>
-                      <p class="upload-file-name text-muted"></p>
+            <?php foreach ($floorPlanFormData as $index => $plan): ?>
+              <div class="floor-plan-item border rounded p-3 mb-3" data-floor-plan-index="<?= (int)$index ?>">
+                <div class="row g-4 align-items-end">
+                  <div class="col-lg-12">
+                    <label for="floor_plan_file_<?= (int)$index ?>" class="form-label" data-floor-plan-label="file">
+                      Upload Floor Plan
+                    </label>
+                    <div class="upload-box">
+                      <input
+                        type="file"
+                        class="form-control file-input"
+                        id="floor_plan_file_<?= (int)$index ?>"
+                        name="floor_plan_file[]"
+                        accept="image/*,application/pdf"
+                        data-floor-plan-input="file">
+                      <div class="upload-content">
+                        <img src="assets/images/file.png" alt="Upload Icon" width="30px">
+                        <p>Drop files here or click to upload</p>
+                        <p class="upload-file-name text-muted"></p>
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div class="col-lg-4 col-md-4">
-                  <label for="floor_plan_title_0" class="form-label" data-floor-plan-label="title">Floor Plan Title Name</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="floor_plan_title_0"
-                    name="floor_plan_title[]"
-                    placeholder="e.g., 2 Bedroom"
-                    data-floor-plan-input="title">
-                </div>
-                <div class="col-lg-4 col-md-4">
-                  <label for="floor_plan_area_0" class="form-label" data-floor-plan-label="area">Total Area</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="floor_plan_area_0"
-                    name="floor_plan_area[]"
-                    placeholder="e.g., 1,200 sq.ft"
-                    data-floor-plan-input="area">
-                </div>
-                <div class="col-lg-4 col-md-4">
-                  <label for="floor_plan_price_0" class="form-label" data-floor-plan-label="price">Price In</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="floor_plan_price_0"
-                    name="floor_plan_price[]"
-                    placeholder="e.g., AED"
-                    data-floor-plan-input="price">
-                </div>
-                <div class="col-lg-1 col-12 text-lg-end">
-                  <button type="button" class="btn btn-outline-danger remove-floor-plan d-none">Delete</button>
+                  <div class="col-lg-4 col-md-4">
+                    <label for="floor_plan_title_<?= (int)$index ?>" class="form-label" data-floor-plan-label="title">Floor Plan Title Name</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="floor_plan_title_<?= (int)$index ?>"
+                      name="floor_plan_title[]"
+                      placeholder="e.g., 2 Bedroom"
+                      data-floor-plan-input="title"
+                      value="<?= htmlspecialchars($plan['title'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                  </div>
+                  <div class="col-lg-4 col-md-4">
+                    <label for="floor_plan_area_<?= (int)$index ?>" class="form-label" data-floor-plan-label="area">Total Area</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="floor_plan_area_<?= (int)$index ?>"
+                      name="floor_plan_area[]"
+                      placeholder="e.g., 1,200 sq.ft"
+                      data-floor-plan-input="area"
+                      value="<?= htmlspecialchars($plan['area'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                  </div>
+                  <div class="col-lg-4 col-md-4">
+                    <label for="floor_plan_price_<?= (int)$index ?>" class="form-label" data-floor-plan-label="price">Price In</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="floor_plan_price_<?= (int)$index ?>"
+                      name="floor_plan_price[]"
+                      placeholder="e.g., AED"
+                      data-floor-plan-input="price"
+                      value="<?= htmlspecialchars($plan['price'] ?? '', ENT_QUOTES, 'UTF-8') ?>">
+                  </div>
+                  <div class="col-lg-1 col-12 text-lg-end">
+                    <button type="button" class="btn btn-outline-danger remove-floor-plan <?= $index === 0 ? 'd-none' : '' ?>">Delete</button>
+                  </div>
                 </div>
               </div>
-            </div>
+            <?php endforeach; ?>
           </div>
           <template id="floor-plan-template">
             <div class="floor-plan-item border rounded p-3 mb-3" data-floor-plan-index="">
@@ -360,11 +940,23 @@ render_sidebar('add-property');
           <div class="row g-4">
             <div class="col-md-6">
               <label for="video_link" class="form-label">Add Video Link</label>
-              <input type="url" class="form-control" id="video_link" name="video_link" placeholder="https://">
+              <input
+                type="url"
+                class="form-control"
+                id="video_link"
+                name="video_link"
+                placeholder="https://"
+                value="<?= htmlspecialchars($formData['video_link'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-6">
               <label for="location_map" class="form-label">Location Map</label>
-              <input type="url" class="form-control" id="location_map" name="location_map" placeholder="Google Maps embed link">
+              <input
+                type="url"
+                class="form-control"
+                id="location_map"
+                name="location_map"
+                placeholder="Google Maps embed link"
+                value="<?= htmlspecialchars($formData['location_map'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
           </div>
         </section>
@@ -382,15 +974,33 @@ render_sidebar('add-property');
           <div class="row g-4">
             <div class="col-md-4">
               <label for="landmark_name" class="form-label">Landmark Name</label>
-              <input type="text" class="form-control" id="landmark_name" name="landmark_name" placeholder="Nearest landmark">
+              <input
+                type="text"
+                class="form-control"
+                id="landmark_name"
+                name="landmark_name"
+                placeholder="Nearest landmark"
+                value="<?= htmlspecialchars($formData['landmark_name'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-4">
               <label for="distance_time" class="form-label">Distance Time</label>
-              <input type="text" class="form-control" id="distance_time" name="distance_time" placeholder="e.g., 10 mins by car">
+              <input
+                type="text"
+                class="form-control"
+                id="distance_time"
+                name="distance_time"
+                placeholder="e.g., 10 mins by car"
+                value="<?= htmlspecialchars($formData['distance_time'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-4">
               <label for="category" class="form-label">Location Category</label>
-              <input type="text" class="form-control" id="category" name="category" placeholder="e.g., Luxury">
+              <input
+                type="text"
+                class="form-control"
+                id="category"
+                name="category"
+                placeholder="e.g., Luxury"
+                value="<?= htmlspecialchars($formData['category'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
           </div>
         </section>
@@ -408,19 +1018,43 @@ render_sidebar('add-property');
           <div class="row g-4">
             <div class="col-md-3">
               <label for="roi_potential" class="form-label">ROI Potential</label>
-              <input type="text" class="form-control" id="roi_potential" name="roi_potential" placeholder="e.g., 8%">
+              <input
+                type="text"
+                class="form-control"
+                id="roi_potential"
+                name="roi_potential"
+                placeholder="e.g., 8%"
+                value="<?= htmlspecialchars($formData['roi_potential'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-3">
               <label for="capital_growth" class="form-label">Capital Growth</label>
-              <input type="text" class="form-control" id="capital_growth" name="capital_growth" placeholder="e.g., 15%">
+              <input
+                type="text"
+                class="form-control"
+                id="capital_growth"
+                name="capital_growth"
+                placeholder="e.g., 15%"
+                value="<?= htmlspecialchars($formData['capital_growth'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-3">
               <label for="occupancy_rate" class="form-label">Occupancy Rate</label>
-              <input type="text" class="form-control" id="occupancy_rate" name="occupancy_rate" placeholder="e.g., 90%">
+              <input
+                type="text"
+                class="form-control"
+                id="occupancy_rate"
+                name="occupancy_rate"
+                placeholder="e.g., 90%"
+                value="<?= htmlspecialchars($formData['occupancy_rate'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-3">
               <label for="resale_value" class="form-label">Resale Value</label>
-              <input type="text" class="form-control" id="resale_value" name="resale_value" placeholder="e.g., High">
+              <input
+                type="text"
+                class="form-control"
+                id="resale_value"
+                name="resale_value"
+                placeholder="e.g., High"
+                value="<?= htmlspecialchars($formData['resale_value'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
           </div>
         </section>
@@ -438,31 +1072,79 @@ render_sidebar('add-property');
           <div class="row g-4">
             <div class="col-md-4">
               <label for="booking_percentage" class="form-label">Booking Percentage</label>
-              <input type="text" class="form-control" id="booking_percentage" name="booking_percentage" placeholder="e.g., 10%">
+              <input
+                type="text"
+                class="form-control"
+                id="booking_percentage"
+                name="booking_percentage"
+                placeholder="e.g., 10%"
+                value="<?= htmlspecialchars($formData['booking_percentage'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-4">
               <label for="booking_amount" class="form-label">Booking Amount</label>
-              <input type="text" class="form-control" id="booking_amount" name="booking_amount" min="0" step="1000" placeholder="AED">
+              <input
+                type="text"
+                class="form-control"
+                id="booking_amount"
+                name="booking_amount"
+                min="0"
+                step="1000"
+                placeholder="AED"
+                value="<?= htmlspecialchars($formData['booking_amount'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-4">
               <label for="during_construction_percentage" class="form-label">During Construction Percentage</label>
-              <input type="text" class="form-control" id="during_construction_percentage" name="during_construction_percentage" placeholder="e.g., 50%">
+              <input
+                type="text"
+                class="form-control"
+                id="during_construction_percentage"
+                name="during_construction_percentage"
+                placeholder="e.g., 50%"
+                value="<?= htmlspecialchars($formData['during_construction_percentage'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-4">
               <label for="during_construction_amount" class="form-label">During Construction Amount</label>
-              <input type="text" class="form-control" id="during_construction_amount" name="during_construction_amount" min="0" step="1000" placeholder="AED">
+              <input
+                type="text"
+                class="form-control"
+                id="during_construction_amount"
+                name="during_construction_amount"
+                min="0"
+                step="1000"
+                placeholder="AED"
+                value="<?= htmlspecialchars($formData['during_construction_amount'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-4">
               <label for="handover_percentage" class="form-label">Handover Percentage</label>
-              <input type="text" class="form-control" id="handover_percentage" name="handover_percentage" placeholder="e.g., 40%">
+              <input
+                type="text"
+                class="form-control"
+                id="handover_percentage"
+                name="handover_percentage"
+                placeholder="e.g., 40%"
+                value="<?= htmlspecialchars($formData['handover_percentage'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-4">
               <label for="handover_amount" class="form-label">Handover Amount</label>
-              <input type="text" class="form-control" id="handover_amount" name="handover_amount" min="0" step="1000" placeholder="AED">
+              <input
+                type="text"
+                class="form-control"
+                id="handover_amount"
+                name="handover_amount"
+                min="0"
+                step="1000"
+                placeholder="AED"
+                value="<?= htmlspecialchars($formData['handover_amount'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-4">
               <label for="permit_no" class="form-label">Permit No</label>
-              <input type="text" class="form-control" id="permit_no" name="permit_no" placeholder="Enter permit number">
+              <input
+                type="text"
+                class="form-control"
+                id="permit_no"
+                name="permit_no"
+                placeholder="Enter permit number"
+                value="<?= htmlspecialchars($formData['permit_no'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
           </div>
         </section>
@@ -481,6 +1163,7 @@ render_sidebar('add-property');
 <script>
   (function() {
     const form = document.querySelector('.box form');
+    const successAlert = document.querySelector('[data-success-alert]');
 
     if (form) {
       const updateFileInputFileName = input => {
@@ -530,6 +1213,12 @@ render_sidebar('add-property');
           });
         }, 0);
       });
+
+      if (successAlert) {
+        window.setTimeout(() => {
+          form.reset();
+        }, 0);
+      }
     }
 
     const floorPlanList = document.querySelector('[data-floor-plan-list]');
@@ -630,6 +1319,25 @@ render_sidebar('add-property');
       .catch(error => {
         console.error('CKEditor initialization failed for About Project field', error);
       });
+
+    if (successAlert) {
+      const dismissAfter = Number(successAlert.getAttribute('data-auto-dismiss') || 5000);
+
+      window.setTimeout(() => {
+        if (typeof window.bootstrap !== 'undefined' && window.bootstrap.Alert) {
+          const alertInstance = window.bootstrap.Alert.getOrCreateInstance(successAlert);
+          alertInstance.close();
+        } else {
+          successAlert.classList.remove('show');
+          successAlert.addEventListener('transitionend', () => successAlert.remove(), { once: true });
+          window.setTimeout(() => {
+            if (successAlert.parentNode) {
+              successAlert.parentNode.removeChild(successAlert);
+            }
+          }, 300);
+        }
+      }, Number.isFinite(dismissAfter) ? dismissAfter : 5000);
+    }
   })();
 </script>
 <?php

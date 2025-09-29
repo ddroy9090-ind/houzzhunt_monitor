@@ -144,6 +144,56 @@ CREATE TABLE `popup_form` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `properties_list`
+--
+
+CREATE TABLE `properties_list` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `hero_banner` varchar(255) DEFAULT NULL,
+  `brochure` varchar(255) DEFAULT NULL,
+  `gallery_images` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `developer_logo` varchar(255) DEFAULT NULL,
+  `permit_barcode` varchar(255) DEFAULT NULL,
+  `project_status` varchar(255) DEFAULT NULL,
+  `property_type` varchar(100) DEFAULT NULL,
+  `property_title` varchar(255) DEFAULT NULL,
+  `property_location` varchar(255) DEFAULT NULL,
+  `starting_price` varchar(255) DEFAULT NULL,
+  `bedroom` varchar(255) DEFAULT NULL,
+  `bathroom` varchar(255) DEFAULT NULL,
+  `parking` varchar(255) DEFAULT NULL,
+  `total_area` varchar(255) DEFAULT NULL,
+  `completion_date` date DEFAULT NULL,
+  `about_project` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `developer_name` varchar(255) DEFAULT NULL,
+  `developer_established` varchar(255) DEFAULT NULL,
+  `about_developer` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `completed_projects` varchar(255) DEFAULT NULL,
+  `international_awards` varchar(255) DEFAULT NULL,
+  `on_time_delivery` varchar(255) DEFAULT NULL,
+  `floor_plans` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `video_link` varchar(255) DEFAULT NULL,
+  `location_map` varchar(255) DEFAULT NULL,
+  `landmark_name` varchar(255) DEFAULT NULL,
+  `distance_time` varchar(255) DEFAULT NULL,
+  `category` varchar(255) DEFAULT NULL,
+  `roi_potential` varchar(255) DEFAULT NULL,
+  `capital_growth` varchar(255) DEFAULT NULL,
+  `occupancy_rate` varchar(255) DEFAULT NULL,
+  `resale_value` varchar(255) DEFAULT NULL,
+  `booking_percentage` varchar(255) DEFAULT NULL,
+  `booking_amount` varchar(255) DEFAULT NULL,
+  `during_construction_percentage` varchar(255) DEFAULT NULL,
+  `during_construction_amount` varchar(255) DEFAULT NULL,
+  `handover_percentage` varchar(255) DEFAULT NULL,
+  `handover_amount` varchar(255) DEFAULT NULL,
+  `permit_no` varchar(255) DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 --
 -- Dumping data for table `popup_form`
 --
@@ -187,6 +237,12 @@ ALTER TABLE `popup_form`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `properties_list`
+--
+ALTER TABLE `properties_list`
+  ADD PRIMARY KEY (`id`);
+
+--
 -- AUTO_INCREMENT for dumped tables
 --
 
@@ -219,6 +275,12 @@ ALTER TABLE `page_access_logs`
 --
 ALTER TABLE `popup_form`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- AUTO_INCREMENT for table `properties_list`
+--
+ALTER TABLE `properties_list`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
