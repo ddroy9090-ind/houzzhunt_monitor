@@ -67,6 +67,14 @@ $floorPlanFormData = [
   ],
 ];
 
+$locationAccessibilityFormData = [
+  [
+    'landmark_name' => '',
+    'distance_time' => '',
+    'category'      => '',
+  ],
+];
+
 /**
  * Ensure the properties_list table exists with the expected structure.
  */
@@ -103,6 +111,7 @@ function add_property_ensure_table(PDO $pdo): void
       landmark_name VARCHAR(255) DEFAULT NULL,
       distance_time VARCHAR(255) DEFAULT NULL,
       category VARCHAR(255) DEFAULT NULL,
+      location_accessibility LONGTEXT NULL,
       roi_potential VARCHAR(255) DEFAULT NULL,
       capital_growth VARCHAR(255) DEFAULT NULL,
       occupancy_rate VARCHAR(255) DEFAULT NULL,
@@ -117,6 +126,16 @@ function add_property_ensure_table(PDO $pdo): void
       created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci'
   );
+
+  try {
+    $columnCheck = $pdo->query("SHOW COLUMNS FROM properties_list LIKE 'location_accessibility'");
+
+    if ($columnCheck instanceof PDOStatement && $columnCheck->rowCount() === 0) {
+      $pdo->exec("ALTER TABLE properties_list ADD location_accessibility LONGTEXT NULL AFTER category");
+    }
+  } catch (Throwable $e) {
+    error_log('Failed to ensure location_accessibility column: ' . $e->getMessage());
+  }
 }
 
 /**
@@ -192,6 +211,9 @@ try {
     $titles = $_POST['floor_plan_title'] ?? [];
     $areas  = $_POST['floor_plan_area'] ?? [];
     $prices = $_POST['floor_plan_price'] ?? [];
+    $locationLandmarks = $_POST['location_landmark'] ?? [];
+    $locationDistances = $_POST['location_distance'] ?? [];
+    $locationCategories = $_POST['location_category'] ?? [];
 
     if (!is_array($titles)) {
       $titles = [];
@@ -202,10 +224,22 @@ try {
     if (!is_array($prices)) {
       $prices = [];
     }
+    if (!is_array($locationLandmarks)) {
+      $locationLandmarks = [];
+    }
+    if (!is_array($locationDistances)) {
+      $locationDistances = [];
+    }
+    if (!is_array($locationCategories)) {
+      $locationCategories = [];
+    }
 
     $maxFloorPlans       = max(count($titles), count($areas), count($prices), 1);
     $floorPlanFormData   = [];
     $floorPlansForInsert = [];
+    $maxLocations                 = max(count($locationLandmarks), count($locationDistances), count($locationCategories), 1);
+    $locationAccessibilityFormData = [];
+    $locationAccessibilityForInsert = [];
 
     $pdo = db();
     add_property_ensure_table($pdo);
@@ -330,6 +364,43 @@ try {
       ];
     }
 
+    for ($i = 0; $i < $maxLocations; $i++) {
+      $landmark = trim((string)($locationLandmarks[$i] ?? ''));
+      $distance = trim((string)($locationDistances[$i] ?? ''));
+      $category = trim((string)($locationCategories[$i] ?? ''));
+
+      $locationAccessibilityFormData[] = [
+        'landmark_name' => $landmark,
+        'distance_time' => $distance,
+        'category'      => $category,
+      ];
+
+      if ($landmark !== '' || $distance !== '' || $category !== '') {
+        $locationAccessibilityForInsert[] = [
+          'landmark_name' => $landmark,
+          'distance_time' => $distance,
+          'category'      => $category,
+        ];
+      }
+    }
+
+    if (empty($locationAccessibilityFormData)) {
+      $locationAccessibilityFormData[] = [
+        'landmark_name' => '',
+        'distance_time' => '',
+        'category'      => '',
+      ];
+    }
+
+    $firstLocationAccessibility = $locationAccessibilityFormData[0];
+    $formData['landmark_name']   = $firstLocationAccessibility['landmark_name'] ?? '';
+    $formData['distance_time']   = $firstLocationAccessibility['distance_time'] ?? '';
+    $formData['category']        = $firstLocationAccessibility['category'] ?? '';
+
+    $locationAccessibilityJson = $locationAccessibilityForInsert
+      ? json_encode($locationAccessibilityForInsert, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+      : null;
+
     if (empty($errors)) {
       $completionDate = $formData['completion_date'] !== '' ? $formData['completion_date'] : null;
 
@@ -363,6 +434,7 @@ try {
           landmark_name,
           distance_time,
           category,
+          location_accessibility,
           roi_potential,
           capital_growth,
           occupancy_rate,
@@ -403,6 +475,7 @@ try {
           :landmark_name,
           :distance_time,
           :category,
+          :location_accessibility,
           :roi_potential,
           :capital_growth,
           :occupancy_rate,
@@ -446,6 +519,7 @@ try {
         ':landmark_name'                 => $formData['landmark_name'],
         ':distance_time'                 => $formData['distance_time'],
         ':category'                      => $formData['category'],
+        ':location_accessibility'        => $locationAccessibilityJson,
         ':roi_potential'                 => $formData['roi_potential'],
         ':capital_growth'                => $formData['capital_growth'],
         ':occupancy_rate'                => $formData['occupancy_rate'],
@@ -966,40 +1040,91 @@ render_sidebar('add-property');
               <img src="assets/images/icons/location.png" alt="Location pin icon" class="section-title-icon">
               <span>Location &amp; Accessibility</span>
             </h4>
-            <p class="section-subtitle">Highlight key landmarks and travel times.</p>
           </div>
-          <div class="row g-4">
-            <div class="col-md-4">
-              <label for="landmark_name" class="form-label">Landmark Name</label>
-              <input
-                type="text"
-                class="form-control"
-                id="landmark_name"
-                name="landmark_name"
-                placeholder="Nearest landmark"
-                value="<?= htmlspecialchars($formData['landmark_name'], ENT_QUOTES, 'UTF-8') ?>">
-            </div>
-            <div class="col-md-4">
-              <label for="distance_time" class="form-label">Distance Time</label>
-              <input
-                type="text"
-                class="form-control"
-                id="distance_time"
-                name="distance_time"
-                placeholder="e.g., 10 mins by car"
-                value="<?= htmlspecialchars($formData['distance_time'], ENT_QUOTES, 'UTF-8') ?>">
-            </div>
-            <div class="col-md-4">
-              <label for="category" class="form-label">Location Category</label>
-              <input
-                type="text"
-                class="form-control"
-                id="category"
-                name="category"
-                placeholder="e.g., Luxury"
-                value="<?= htmlspecialchars($formData['category'], ENT_QUOTES, 'UTF-8') ?>">
-            </div>
+          <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-3">
+            <p class="section-subtitle mb-0">Highlight key landmarks and travel times.</p>
+            <button type="button" class="btn btn-primary" id="add-location-accessibility">Add Location</button>
           </div>
+          <div class="location-accessibility-list" data-location-list>
+            <?php foreach ($locationAccessibilityFormData as $index => $location): ?>
+              <div class="location-accessibility-item border rounded p-3 mb-3" data-location-index="<?= (int)$index ?>">
+                <div class="row g-4 align-items-end">
+                  <div class="col-md-4">
+                    <label for="location_landmark_<?= (int)$index ?>" class="form-label" data-location-label="landmark">Landmark Name</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="location_landmark_<?= (int)$index ?>"
+                      name="location_landmark[]"
+                      placeholder="Nearest landmark"
+                      value="<?= htmlspecialchars($location['landmark_name'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                      data-location-input="landmark">
+                  </div>
+                  <div class="col-md-4">
+                    <label for="location_distance_<?= (int)$index ?>" class="form-label" data-location-label="distance">Distance Time</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="location_distance_<?= (int)$index ?>"
+                      name="location_distance[]"
+                      placeholder="e.g., 10 mins by car"
+                      value="<?= htmlspecialchars($location['distance_time'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                      data-location-input="distance">
+                  </div>
+                  <div class="col-md-3">
+                    <label for="location_category_<?= (int)$index ?>" class="form-label" data-location-label="category">Location Category</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="location_category_<?= (int)$index ?>"
+                      name="location_category[]"
+                      placeholder="e.g., Luxury"
+                      value="<?= htmlspecialchars($location['category'] ?? '', ENT_QUOTES, 'UTF-8') ?>"
+                      data-location-input="category">
+                  </div>
+                  <div class="col-md-1 text-md-end">
+                    <button type="button" class="btn btn-outline-danger remove-location <?= $index === 0 ? 'd-none' : '' ?>">Delete</button>
+                  </div>
+                </div>
+              </div>
+            <?php endforeach; ?>
+          </div>
+          <template id="location-accessibility-template">
+            <div class="location-accessibility-item border rounded p-3 mb-3" data-location-index="">
+              <div class="row g-4 align-items-end">
+                <div class="col-md-4">
+                  <label class="form-label" data-location-label="landmark">Landmark Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="location_landmark[]"
+                    placeholder="Nearest landmark"
+                    data-location-input="landmark">
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label" data-location-label="distance">Distance Time</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="location_distance[]"
+                    placeholder="e.g., 10 mins by car"
+                    data-location-input="distance">
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label" data-location-label="category">Location Category</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="location_category[]"
+                    placeholder="e.g., Luxury"
+                    data-location-input="category">
+                </div>
+                <div class="col-md-1 text-md-end">
+                  <button type="button" class="btn btn-outline-danger remove-location">Delete</button>
+                </div>
+              </div>
+            </div>
+          </template>
         </section>
       </div>
 
@@ -1287,6 +1412,76 @@ render_sidebar('add-property');
       });
 
       renumberFloorPlans();
+    }
+
+    const locationList = document.querySelector('[data-location-list]');
+    const locationTemplate = document.getElementById('location-accessibility-template');
+    const addLocationButton = document.getElementById('add-location-accessibility');
+
+    const renumberLocations = () => {
+      if (!locationList) {
+        return;
+      }
+
+      const items = locationList.querySelectorAll('.location-accessibility-item');
+
+      items.forEach((item, index) => {
+        item.dataset.locationIndex = String(index);
+
+        const labels = item.querySelectorAll('[data-location-label]');
+        labels.forEach(label => {
+          const field = label.getAttribute('data-location-label');
+
+          if (field) {
+            label.setAttribute('for', `location_${field}_${index}`);
+          }
+        });
+
+        const inputs = item.querySelectorAll('[data-location-input]');
+        inputs.forEach(input => {
+          const field = input.getAttribute('data-location-input');
+
+          if (field) {
+            input.id = `location_${field}_${index}`;
+          }
+        });
+      });
+
+      const deleteButtons = locationList.querySelectorAll('.remove-location');
+      deleteButtons.forEach((button, index) => {
+        button.classList.toggle('d-none', index === 0);
+      });
+    };
+
+    if (locationList && locationTemplate && addLocationButton) {
+      addLocationButton.addEventListener('click', () => {
+        const clone = locationTemplate.content.cloneNode(true);
+        locationList.appendChild(clone);
+        renumberLocations();
+      });
+
+      locationList.addEventListener('click', event => {
+        const target = event.target.closest('.remove-location');
+
+        if (!target) {
+          return;
+        }
+
+        const items = locationList.querySelectorAll('.location-accessibility-item');
+
+        if (items.length <= 1) {
+          return;
+        }
+
+        const item = target.closest('.location-accessibility-item');
+
+        if (item) {
+          item.remove();
+          renumberLocations();
+        }
+      });
+
+      renumberLocations();
     }
 
     const textarea = document.getElementById('about_project');
