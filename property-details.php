@@ -1,3 +1,222 @@
+<?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/includes/config.php';
+
+$propertyId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+
+if ($propertyId <= 0) {
+    http_response_code(404);
+    echo 'Property not found.';
+    exit;
+}
+
+try {
+    $pdo = hh_db();
+    $stmt = $pdo->prepare('SELECT * FROM properties_list WHERE id = :id LIMIT 1');
+    $stmt->execute([':id' => $propertyId]);
+    $property = $stmt->fetch();
+} catch (Throwable $e) {
+    $property = false;
+}
+
+if (!$property) {
+    http_response_code(404);
+    echo 'Property not found.';
+    exit;
+}
+
+$decodeList = static function (?string $json): array {
+    if (!$json) {
+        return [];
+    }
+
+    try {
+        $decoded = json_decode($json, true, flags: JSON_THROW_ON_ERROR);
+    } catch (Throwable $e) {
+        return [];
+    }
+
+    if (!is_array($decoded)) {
+        return [];
+    }
+
+    return array_values(array_filter(
+        $decoded,
+        static fn($value): bool => is_string($value) && $value !== '' || (is_array($value) && !empty(array_filter($value, static fn($v) => $v !== '' && $v !== null)))
+    ));
+};
+
+$heroBanner = is_string($property['hero_banner'] ?? '') && $property['hero_banner'] !== ''
+    ? $property['hero_banner']
+    : null;
+
+$galleryImages = array_values(array_filter(
+    array_map(
+        static fn($path): ?string => is_string($path) && $path !== '' ? $path : null,
+        $decodeList($property['gallery_images'] ?? null)
+    )
+));
+
+if (!$galleryImages && $heroBanner) {
+    $galleryImages[] = $heroBanner;
+}
+
+$primaryImage = $heroBanner ?? ($galleryImages[0] ?? 'assets/images/offplan/breez-by-danube.webp');
+
+if (!$galleryImages) {
+    $galleryImages[] = $primaryImage;
+}
+
+$galleryCount = count($galleryImages);
+
+$floorPlansRaw = $decodeList($property['floor_plans'] ?? null);
+$floorPlans = [];
+foreach ($floorPlansRaw as $plan) {
+    if (!is_array($plan)) {
+        continue;
+    }
+
+    $floorPlans[] = [
+        'title' => isset($plan['title']) && is_string($plan['title']) ? trim($plan['title']) : '',
+        'area'  => isset($plan['area']) && is_string($plan['area']) ? trim($plan['area']) : '',
+        'price' => isset($plan['price']) && is_string($plan['price']) ? trim($plan['price']) : '',
+        'file'  => isset($plan['file']) && is_string($plan['file']) ? trim($plan['file']) : '',
+    ];
+}
+
+$locationAccessRaw = $decodeList($property['location_accessibility'] ?? null);
+$locationAccess = [];
+foreach ($locationAccessRaw as $item) {
+    if (!is_array($item)) {
+        continue;
+    }
+
+    $landmark = isset($item['landmark_name']) && is_string($item['landmark_name']) ? trim($item['landmark_name']) : '';
+    $distance = isset($item['distance_time']) && is_string($item['distance_time']) ? trim($item['distance_time']) : '';
+    $category = isset($item['category']) && is_string($item['category']) ? trim($item['category']) : '';
+
+    if ($landmark === '' && $distance === '' && $category === '') {
+        continue;
+    }
+
+    $locationAccess[] = [
+        'landmark' => $landmark,
+        'distance' => $distance,
+        'category' => $category,
+    ];
+}
+
+if (!$locationAccess) {
+    $landmark = trim((string)($property['landmark_name'] ?? ''));
+    $distance = trim((string)($property['distance_time'] ?? ''));
+    $category = trim((string)($property['category'] ?? ''));
+
+    if ($landmark !== '' || $distance !== '' || $category !== '') {
+        $locationAccess[] = [
+            'landmark' => $landmark,
+            'distance' => $distance,
+            'category' => $category,
+        ];
+    }
+}
+
+$completionDate = null;
+if (!empty($property['completion_date'])) {
+    try {
+        $completionDate = (new DateTime((string)$property['completion_date']))->format('F Y');
+    } catch (Throwable $e) {
+        $completionDate = trim((string)$property['completion_date']);
+    }
+}
+
+$startingPrice = trim((string)($property['starting_price'] ?? ''));
+$startingPriceDisplay = $startingPrice;
+if ($startingPriceDisplay !== '' && stripos($startingPriceDisplay, 'aed') === false) {
+    $startingPriceDisplay = 'AED ' . $startingPriceDisplay;
+}
+$startingPriceCurrency = '';
+$startingPriceValue = '';
+if ($startingPriceDisplay !== '') {
+    if (stripos($startingPriceDisplay, 'aed') === 0) {
+        $startingPriceCurrency = 'AED';
+        $startingPriceValue = trim(substr($startingPriceDisplay, 3));
+    } else {
+        $startingPriceValue = $startingPriceDisplay;
+    }
+}
+
+$developerLogo = is_string($property['developer_logo'] ?? '') && $property['developer_logo'] !== ''
+    ? $property['developer_logo']
+    : null;
+
+$permitBarcode = is_string($property['permit_barcode'] ?? '') && $property['permit_barcode'] !== ''
+    ? $property['permit_barcode']
+    : null;
+
+$videoLink = trim((string)($property['video_link'] ?? ''));
+$locationMap = trim((string)($property['location_map'] ?? ''));
+$brochure = trim((string)($property['brochure'] ?? ''));
+
+$featureItems = array_values(array_filter([
+    $property['project_status'] ?? null,
+    $property['property_type'] ? 'Property Type: ' . $property['property_type'] : null,
+    $property['bedroom'] ? 'Bedrooms: ' . $property['bedroom'] : null,
+    $property['bathroom'] ? 'Bathrooms: ' . $property['bathroom'] : null,
+    $property['parking'] ? 'Parking: ' . $property['parking'] : null,
+    $property['total_area'] ? 'Total Area: ' . $property['total_area'] : null,
+    $completionDate ? 'Completion: ' . $completionDate : null,
+]));
+
+$aboutProjectParagraphs = array_values(array_filter(array_map(
+    static fn(string $paragraph): string => trim($paragraph),
+    preg_split('/\r\n|\r|\n/', (string)($property['about_project'] ?? ''), flags: PREG_SPLIT_NO_EMPTY) ?: []
+)));
+
+$aboutDeveloperParagraphs = array_values(array_filter(array_map(
+    static fn(string $paragraph): string => trim($paragraph),
+    preg_split('/\r\n|\r|\n/', (string)($property['about_developer'] ?? ''), flags: PREG_SPLIT_NO_EMPTY) ?: []
+)));
+
+$specItems = [];
+if (!empty($property['bedroom'])) {
+    $specItems[] = ['icon' => 'assets/icons/bed.png', 'label' => trim((string)$property['bedroom']), 'suffix' => ' Bedrooms'];
+}
+if (!empty($property['bathroom'])) {
+    $specItems[] = ['icon' => 'assets/icons/bathroom.png', 'label' => trim((string)$property['bathroom']), 'suffix' => ' Bathrooms'];
+}
+if (!empty($property['parking'])) {
+    $specItems[] = ['icon' => 'assets/icons/parking.png', 'label' => trim((string)$property['parking']), 'suffix' => ' Parking'];
+}
+if (!empty($property['total_area'])) {
+    $specItems[] = ['icon' => 'assets/icons/area.png', 'label' => trim((string)$property['total_area']), 'suffix' => ''];
+}
+if ($completionDate) {
+    $specItems[] = ['icon' => 'assets/icons/calendar.png', 'label' => $completionDate, 'suffix' => ' Completion'];
+}
+
+$investmentHighlights = array_filter([
+    ['label' => 'ROI Potential', 'value' => $property['roi_potential'] ?? null, 'note' => ''],
+    ['label' => 'Capital Growth', 'value' => $property['capital_growth'] ?? null, 'note' => ''],
+    ['label' => 'Occupancy Rate', 'value' => $property['occupancy_rate'] ?? null, 'note' => ''],
+    ['label' => 'Resale Value', 'value' => $property['resale_value'] ?? null, 'note' => ''],
+], static fn($item) => isset($item['value']) && trim((string)$item['value']) !== '');
+
+$paymentSchedule = array_filter([
+    ['title' => 'Booking Amount', 'percentage' => $property['booking_percentage'] ?? null, 'amount' => $property['booking_amount'] ?? null],
+    ['title' => 'During Construction', 'percentage' => $property['during_construction_percentage'] ?? null, 'amount' => $property['during_construction_amount'] ?? null],
+    ['title' => 'On Handover', 'percentage' => $property['handover_percentage'] ?? null, 'amount' => $property['handover_amount'] ?? null],
+], static fn($item) => (isset($item['percentage']) && trim((string)$item['percentage']) !== '') || (isset($item['amount']) && trim((string)$item['amount']) !== ''));
+
+$titleText = trim((string)($property['property_title'] ?? 'Property Details'));
+
+$developerStats = array_values(array_filter([
+    ['label' => 'Established', 'value' => $property['developer_established'] ?? null],
+    ['label' => 'Completed Projects', 'value' => $property['completed_projects'] ?? null],
+    ['label' => 'International Awards', 'value' => $property['international_awards'] ?? null],
+    ['label' => 'On-Time Delivery', 'value' => $property['on_time_delivery'] ?? null],
+], static fn($stat) => isset($stat['value']) && trim((string)$stat['value']) !== ''));
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -5,7 +224,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="assets/images/logo/favicon.svg" type="image/x-icon">
-    <title>Breez by Danube</title>
+    <title><?= htmlspecialchars($titleText, ENT_QUOTES, 'UTF-8') ?></title>
     <link rel="stylesheet" href="assets/vendors/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/country-select-js@2.0.1/build/css/countrySelect.min.css">
@@ -18,7 +237,7 @@
 
 
     <!-- parent: .hh-property-hero -->
-    <div class="hh-property-hero">
+    <div class="hh-property-hero" style="background-image: url('<?= htmlspecialchars($primaryImage, ENT_QUOTES, 'UTF-8') ?>');">
         <!-- Top bar fixed at top of hero -->
         <div class="hh-property-hero-top">
             <a href="offplan-properties.php" class="hh-property-hero-back">← Back to Listings</a>
@@ -33,28 +252,51 @@
                 <div class="col-12">
                     <!-- Info block -->
                     <div class="hh-property-hero-info">
-                        <div class="hh-property-hero-tags">
-                            <span class="green">New Launch</span>
-                            <span>Apartment</span>
-                        </div>
-                        <h1>Unparalleled Seafront Luxury Living in Dubai Maritime City</h1>
-                        <div class="hh-property-hero-loc"><img src="assets/icons/location.png" alt="" width="16">Dubai
-                            Maritime City, UAE</div>
-                        <div class="hh-property-hero-price"><span class="AED">AED</span> 1.3M <span>Starting from</span>
-                        </div>
-                        <ul class="hh-property-hero-specs">
-                            <li><img src="assets/icons/bed.png" alt="" width="16"> 5 Bedrooms</li>
-                            <li><img src="assets/icons/bathroom.png" alt="" width="16"> 4 Bathrooms</li>
-                            <li><img src="assets/icons/parking.png" alt="" width="16"> 2 Parking</li>
-                            <li><img src="assets/icons/area.png" alt="" width="16"> 2,100 sq ft</li>
-                            <li><img src="assets/icons/calendar.png" alt="" width="16"> Q1 2029 Completion</li>
-                        </ul>
+                        <?php if (!empty($property['project_status']) || !empty($property['property_type'])): ?>
+                            <div class="hh-property-hero-tags">
+                                <?php if (!empty($property['project_status'])): ?>
+                                    <span class="green"><?= htmlspecialchars($property['project_status'], ENT_QUOTES, 'UTF-8') ?></span>
+                                <?php endif; ?>
+                                <?php if (!empty($property['property_type'])): ?>
+                                    <span><?= htmlspecialchars($property['property_type'], ENT_QUOTES, 'UTF-8') ?></span>
+                                <?php endif; ?>
+                            </div>
+                        <?php endif; ?>
+                        <h1><?= htmlspecialchars($titleText, ENT_QUOTES, 'UTF-8') ?></h1>
+                        <?php if (!empty($property['property_location'])): ?>
+                            <div class="hh-property-hero-loc"><img src="assets/icons/location.png" alt="" width="16"><?= htmlspecialchars($property['property_location'], ENT_QUOTES, 'UTF-8') ?></div>
+                        <?php endif; ?>
+                        <?php if ($startingPriceValue !== ''): ?>
+                            <div class="hh-property-hero-price">
+                                <?php if ($startingPriceCurrency !== ''): ?>
+                                    <span class="AED"><?= htmlspecialchars($startingPriceCurrency, ENT_QUOTES, 'UTF-8') ?></span>
+                                    <?= htmlspecialchars($startingPriceValue, ENT_QUOTES, 'UTF-8') ?>
+                                <?php else: ?>
+                                    <?= htmlspecialchars($startingPriceValue, ENT_QUOTES, 'UTF-8') ?>
+                                <?php endif; ?>
+                                <span>Starting from</span>
+                            </div>
+                        <?php endif; ?>
+                        <?php if ($specItems): ?>
+                            <ul class="hh-property-hero-specs">
+                                <?php foreach ($specItems as $spec): ?>
+                                    <li>
+                                        <img src="<?= htmlspecialchars($spec['icon'], ENT_QUOTES, 'UTF-8') ?>" alt="" width="16">
+                                        <?= htmlspecialchars(trim($spec['label'] . ' ' . $spec['suffix']), ENT_QUOTES, 'UTF-8') ?>
+                                    </li>
+                                <?php endforeach; ?>
+                            </ul>
+                        <?php endif; ?>
                     </div>
 
                     <!-- Bottom CTA buttons -->
                     <div class="hh-property-hero-ctas">
                         <button type="button" class="cta-solid" onclick="openPopup()">Enquire Now</button>
-                        <button type="button" class="cta-outline" onclick="Brochurepopup()">Download Brochure</button>
+                        <?php if ($brochure !== ''): ?>
+                            <button type="button" class="cta-outline" onclick="window.open('<?= htmlspecialchars($brochure, ENT_QUOTES, 'UTF-8') ?>','_blank')">Download Brochure</button>
+                        <?php else: ?>
+                            <button type="button" class="cta-outline" onclick="Brochurepopup()">Download Brochure</button>
+                        <?php endif; ?>
                     </div>
 
                 </div>
@@ -69,24 +311,26 @@
             <!-- Header -->
             <div class="row">
                 <div class="col-12">
-                    <div class="hh-gallery-01-head">
-                        <h3>Property Gallery</h3>
-                        <div class="hh-gallery-01-head-actions">
-                            <button type="button" class="ghost" data-action="view-all">
-                                <svg width="18" height="18" viewBox="0 0 24 24">
-                                    <path d="M4 5h7v6H4zM13 5h7v6h-7zM4 13h7v6H4zM13 13h7v6h-7z" fill="currentColor" />
-                                </svg>
-                                View All (5)
-                            </button>
-                            <button type="button" class="solid" data-action="video">
-                                <svg width="18" height="18" viewBox="0 0 24 24">
-                                    <path d="M4 5h11a2 2 0 0 1 2 2v1.5l3-2v11l-3-2V17a2 2 0 0 1-2 2H4z"
-                                        fill="currentColor" />
-                                </svg>
-                                Video Tour
-                            </button>
+                        <div class="hh-gallery-01-head">
+                            <h3>Property Gallery</h3>
+                            <div class="hh-gallery-01-head-actions">
+                                <button type="button" class="ghost" data-action="view-all">
+                                    <svg width="18" height="18" viewBox="0 0 24 24">
+                                        <path d="M4 5h7v6H4zM13 5h7v6h-7zM4 13h7v6H4zM13 13h7v6h-7z" fill="currentColor" />
+                                    </svg>
+                                    View All (<?= $galleryCount ?>)
+                                </button>
+                                <?php if ($videoLink !== ''): ?>
+                                    <button type="button" class="solid" data-action="video" data-video="<?= htmlspecialchars($videoLink, ENT_QUOTES, 'UTF-8') ?>">
+                                        <svg width="18" height="18" viewBox="0 0 24 24">
+                                            <path d="M4 5h11a2 2 0 0 1 2 2v1.5l3-2v11l-3-2V17a2 2 0 0 1-2 2H4z"
+                                                fill="currentColor" />
+                                        </svg>
+                                        Video Tour
+                                    </button>
+                                <?php endif; ?>
+                            </div>
                         </div>
-                    </div>
                 </div>
             </div>
 
@@ -99,22 +343,17 @@
                         <!-- Main swiper -->
                         <div class="swiper hh-gallery-01-main">
                             <div class="swiper-wrapper">
-                                <!-- slides -->
-                                <div class="swiper-slide">
-                                    <img src="assets/images/offplan/breez-by-danube.webp" alt="Image 1">
-                                </div>
-                                <div class="swiper-slide">
-                                    <img src="assets/images/offplan/1.webp" alt="Image 2">
-                                </div>
-                                <div class="swiper-slide">
-                                    <img src="assets/images/offplan/2.webp" alt="Image 3">
-                                </div>
-                                <div class="swiper-slide">
-                                    <img src="assets/images/offplan/3.webp" alt="Image 4">
-                                </div>
-                                <div class="swiper-slide">
-                                    <img src="assets/images/offplan/4.webp" alt="Image 5">
-                                </div>
+                                <?php if ($galleryImages): ?>
+                                    <?php foreach ($galleryImages as $image): ?>
+                                        <div class="swiper-slide">
+                                            <img src="<?= htmlspecialchars($image, ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($titleText, ENT_QUOTES, 'UTF-8') ?>">
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <div class="swiper-slide">
+                                        <img src="assets/images/offplan/breez-by-danube.webp" alt="Placeholder image">
+                                    </div>
+                                <?php endif; ?>
                             </div>
 
                             <!-- overlay controls -->
@@ -127,19 +366,20 @@
                                         fill="currentColor" />
                                 </svg>
                             </button>
-                            <div class="fraction"><span>1</span> of <span>5</span></div>
-                            <div class="progress"><i style="width:20%"></i></div>
+                            <div class="fraction"><span><?= $galleryCount > 0 ? 1 : 0 ?></span> of <span><?= $galleryCount ?></span></div>
+                            <div class="progress"><i style="width: <?= $galleryCount > 0 ? 100 / max($galleryCount, 1) : 0 ?>%"></i></div>
                         </div>
 
                         <!-- Thumbs swiper -->
                         <div class="swiper hh-gallery-01-thumbs">
                             <div class="swiper-wrapper">
-                                <div class="swiper-slide"><img src="assets/images/offplan/breez-by-danube.webp" alt="">
-                                </div>
-                                <div class="swiper-slide"><img src="assets/images/offplan/1.webp" alt=""></div>
-                                <div class="swiper-slide"><img src="assets/images/offplan/2.webp" alt=""></div>
-                                <div class="swiper-slide"><img src="assets/images/offplan/3.webp" alt=""></div>
-                                <div class="swiper-slide"><img src="assets/images/offplan/4.webp" alt=""></div>
+                                <?php if ($galleryImages): ?>
+                                    <?php foreach ($galleryImages as $image): ?>
+                                        <div class="swiper-slide"><img src="<?= htmlspecialchars($image, ENT_QUOTES, 'UTF-8') ?>" alt=""></div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <div class="swiper-slide"><img src="assets/images/offplan/breez-by-danube.webp" alt=""></div>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -186,10 +426,17 @@
                                 <img src="assets/icons/video-call.png" alt="" width="20">
                                 3D Virtual Tour
                             </button>
-                            <button type="button" onclick="Brochurepopup()">
-                                <img src="assets/icons/brochure-download.png" alt="" width="20">
-                                Download Brochure
-                            </button>
+                            <?php if ($brochure !== ''): ?>
+                                <button type="button" onclick="window.open('<?= htmlspecialchars($brochure, ENT_QUOTES, 'UTF-8') ?>','_blank')">
+                                    <img src="assets/icons/brochure-download.png" alt="" width="20">
+                                    Download Brochure
+                                </button>
+                            <?php else: ?>
+                                <button type="button" onclick="Brochurepopup()">
+                                    <img src="assets/icons/brochure-download.png" alt="" width="20">
+                                    Download Brochure
+                                </button>
+                            <?php endif; ?>
                             <button type="button" onclick="openPopup()">
                                 <img src="assets/icons/floorplan.png" alt="" width="20">
                                 View Floor Plans
@@ -258,31 +505,14 @@
                                     <div class="col-lg-12 p-0">
                                         <div class="project-overview">
                                             <div class="project-header">
-                                                <h3>Breez by Danube</h3>
-                                                <h6>At Dubai Maritime City</h6>
+                                                <h3><?= htmlspecialchars($titleText, ENT_QUOTES, 'UTF-8') ?></h3>
+                                                <?php if (!empty($property['property_location'])): ?>
+                                                    <h6><?= htmlspecialchars($property['property_location'], ENT_QUOTES, 'UTF-8') ?></h6>
+                                                <?php endif; ?>
                                             </div>
-                                            <p>Discover Danube Breez, where seafront elegance meets the dynamic energy
-                                                of Dubai Maritime City. This isn’t just a residence it’s a lifestyle
-                                                upgrade. Every element of Breez is designed to offer comfort,
-                                                sophistication, and effortless living, from panoramic ocean views to a
-                                                location that keeps the city’s vibrant opportunities within easy reach.
-                                                Here, the sea isn’t just scenery; it’s part of your daily experience,
-                                                creating a tranquil backdrop to a life of modern luxury.
-                                            </p>
-                                            <p>Homes at Breez range from chic studios to expansive four-bedroom villas,
-                                                each thoughtfully designed to maximize space, natural light, and
-                                                comfort. Large windows frame breathtaking vistas, while smart layouts
-                                                ensure every corner of your home is functional and inviting. The design
-                                                is meant not only to impress but to provide a sanctuary where you can
-                                                relax, entertain, and enjoy life at your own pace.</p>
-                                            <p>The lifestyle extends far beyond the interiors, with over 40 resort-style
-                                                amenities at your disposal. Lounge by the infinity pool, enjoy family
-                                                movie nights under the stars at the outdoor cinema, or perfect your
-                                                swing at the mini-golf course—all without leaving home. Backed by the
-                                                trusted Danube Properties and flexible payment plans, Breez offers a
-                                                seamless path to luxury living. It’s not just a property; it’s a
-                                                permanent vacation and a smart investment in a life of ease and
-                                                indulgence.</p>
+                                            <?php foreach ($aboutProjectParagraphs as $paragraph): ?>
+                                                <p><?= htmlspecialchars($paragraph, ENT_QUOTES, 'UTF-8') ?></p>
+                                            <?php endforeach; ?>
                                         </div>
 
                                     </div>
@@ -297,18 +527,15 @@
                             <div class="hh-amenities-01">
                                 <div class="container-fluid">
                                     <h3>Key Features & Amenities</h3>
-                                    <ul class="amenities-list">
-                                        <li><img src="assets/icons/tick.png" alt="✓"> Cinema</li>
-                                        <li><img src="assets/icons/tick.png" alt="✓"> Club</li>
-                                        <li><img src="assets/icons/tick.png" alt="✓"> Spa & Sauna</li>
-                                        <li><img src="assets/icons/tick.png" alt="✓"> Gym</li>
-                                        <li><img src="assets/icons/tick.png" alt="✓"> Hammock BBQ</li>
-                                        <li><img src="assets/icons/tick.png" alt="✓"> Kids Daycare</li>
-                                        <li><img src="assets/icons/tick.png" alt="✓"> Kids Splash Pool</li>
-                                        <li><img src="assets/icons/tick.png" alt="✓"> Pool</li>
-                                        <li><img src="assets/icons/tick.png" alt="✓"> Swing</li>
-                                        <li><img src="assets/icons/tick.png" alt="✓"> View Deck</li>
-                                    </ul>
+                                    <?php if ($featureItems): ?>
+                                        <ul class="amenities-list">
+                                            <?php foreach ($featureItems as $item): ?>
+                                                <li><img src="assets/icons/tick.png" alt="✓"> <?= htmlspecialchars($item, ENT_QUOTES, 'UTF-8') ?></li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    <?php else: ?>
+                                        <p class="mb-0">Feature details will be available soon.</p>
+                                    <?php endif; ?>
                                 </div>
 
                             </div>
@@ -318,98 +545,50 @@
                         <div id="hh-tab-floor" class="tab-pane fade" role="tabpanel" aria-labelledby="hh-tab-floor-btn">
                             <div class="hh-floorplans-01">
                                 <div class="container-fluid">
-                                    <div class="row">
-                                        <div class="col-12">
-                                            <h3>Interactive Floor Plans</h3>
-                                            <p>Click on rooms to view details</p>
-                                        </div>
-                                    </div>
-
-                                    <div class="row">
-                                        <!-- Left: plan canvas -->
-                                        <div class="col-12 col-lg-8">
-                                            <div class="fp-canvas tab-content">
-                                                <!-- Tab 1 -->
-                                                <div id="fp-tab-ground" class="fp-pane tab-pane fade show active" role="tabpanel">
-                                                    <img src="assets/images/offplan/studio.png" alt="">
-                                                </div>
-                                                <!-- Tab 2 -->
-                                                <div id="fp-tab-first" class="fp-pane tab-pane fade" role="tabpanel">
-                                                    <img src="assets/images/offplan/1-br.png" alt="">
-                                                </div>
-                                                <!-- Tab 3 -->
-                                                <div id="fp-tab-second" class="fp-pane tab-pane fade" role="tabpanel">
-                                                    <img src="assets/images/offplan/2-br.png" alt="">
-                                                </div>
-                                                <!-- Tab 4 -->
-                                                <div id="fp-tab-third" class="fp-pane tab-pane fade" role="tabpanel">
-                                                    <img src="assets/images/offplan/3-br.png" alt="">
+                                    <?php if ($floorPlans): ?>
+                                        <div class="row">
+                                            <div class="col-12 col-lg-7">
+                                                <div class="fp-canvas">
+                                                    <?php foreach ($floorPlans as $index => $plan): ?>
+                                                        <?php $paneId = 'fp-tab-' . $index; ?>
+                                                        <div class="fp-pane<?= $index === 0 ? ' active' : '' ?>" id="<?= htmlspecialchars($paneId, ENT_QUOTES, 'UTF-8') ?>">
+                                                            <?php if (!empty($plan['file'])): ?>
+                                                                <img src="<?= htmlspecialchars($plan['file'], ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars(($plan['title'] ?: 'Floor Plan') . ' layout', ENT_QUOTES, 'UTF-8') ?>">
+                                                            <?php else: ?>
+                                                                <div class="fp-placeholder">Floor plan preview not available.</div>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    <?php endforeach; ?>
                                                 </div>
                                             </div>
+                                            <div class="col-12 col-lg-5">
+                                                <aside class="fp-aside">
+                                                    <?php foreach ($floorPlans as $index => $plan): ?>
+                                                        <?php $targetId = '#fp-tab-' . $index; ?>
+                                                        <button type="button" class="fp-box<?= $index === 0 ? ' active' : '' ?>" data-bs-toggle="tab" data-bs-target="<?= htmlspecialchars($targetId, ENT_QUOTES, 'UTF-8') ?>">
+                                                            <div class="fp-box-head">
+                                                                <img src="assets/icons/floorplan.png" alt="">
+                                                                <div><strong><?= htmlspecialchars($plan['title'] ?: ('Floor Plan ' . ($index + 1)), ENT_QUOTES, 'UTF-8') ?></strong></div>
+                                                            </div>
+                                                            <ul class="fp-meta">
+                                                                <?php if (!empty($plan['area'])): ?>
+                                                                    <li><em>Total Area</em><b><?= htmlspecialchars($plan['area'], ENT_QUOTES, 'UTF-8') ?></b></li>
+                                                                <?php endif; ?>
+                                                                <?php if (!empty($property['bedroom'])): ?>
+                                                                    <li><em>Bedrooms</em><b><?= htmlspecialchars($property['bedroom'], ENT_QUOTES, 'UTF-8') ?></b></li>
+                                                                <?php endif; ?>
+                                                                <?php if (!empty($plan['price'])): ?>
+                                                                    <li><em>Price</em><b><?= htmlspecialchars($plan['price'], ENT_QUOTES, 'UTF-8') ?></b></li>
+                                                                <?php endif; ?>
+                                                            </ul>
+                                                        </button>
+                                                    <?php endforeach; ?>
+                                                </aside>
+                                            </div>
                                         </div>
-
-                                        <!-- Right: vertical tabs -->
-                                        <div class="col-12 col-lg-4">
-                                            <aside class="fp-aside nav flex-column" role="tablist" aria-orientation="vertical">
-                                                <!-- Button 1 -->
-                                                <button id="fp-btn-ground" type="button" class="fp-box active"
-                                                    data-bs-toggle="tab" data-bs-target="#fp-tab-ground" role="tab" aria-selected="true">
-                                                    <div class="fp-box-head">
-                                                        <img src="assets/icons/floorplan.png" alt="">
-                                                        <div><strong>Studio</strong></div>
-                                                    </div>
-                                                    <ul class="fp-meta">
-                                                        <li><em>Total Area</em><b>1,600 sq ft</b></li>
-                                                        <li><em>Bedrooms</em><b>0</b></li>
-                                                        <li><em>Total Rooms</em><b>1</b></li>
-                                                    </ul>
-                                                </button>
-
-                                                <!-- Button 2 -->
-                                                <button id="fp-btn-first" type="button" class="fp-box"
-                                                    data-bs-toggle="tab" data-bs-target="#fp-tab-first" role="tab" aria-selected="false">
-                                                    <div class="fp-box-head">
-                                                        <img src="assets/icons/floorplan.png" alt="">
-                                                        <div><strong>1 Bedroom</strong></div>
-                                                    </div>
-                                                    <ul class="fp-meta">
-                                                        <li><em>Total Area</em><b>1,450 sq ft</b></li>
-                                                        <li><em>Bedrooms</em><b>1</b></li>
-                                                        <li><em>Total Rooms</em><b>3</b></li>
-                                                    </ul>
-                                                </button>
-
-                                                <!-- Button 3 -->
-                                                <button id="fp-btn-second" type="button" class="fp-box"
-                                                    data-bs-toggle="tab" data-bs-target="#fp-tab-second" role="tab" aria-selected="false">
-                                                    <div class="fp-box-head">
-                                                        <img src="assets/icons/floorplan.png" alt="">
-                                                        <div><strong>2 Bedroom</strong></div>
-                                                    </div>
-                                                    <ul class="fp-meta">
-                                                        <li><em>Total Area</em><b>2,800 sq ft</b></li>
-                                                        <li><em>Bedrooms</em><b>2</b></li>
-                                                        <li><em>Total Rooms</em><b>5</b></li>
-                                                    </ul>
-                                                </button>
-
-                                                <!-- Button 4 -->
-                                                <button id="fp-btn-third" type="button" class="fp-box"
-                                                    data-bs-toggle="tab" data-bs-target="#fp-tab-third" role="tab" aria-selected="false">
-                                                    <div class="fp-box-head">
-                                                        <img src="assets/icons/floorplan.png" alt="">
-                                                        <div><strong>3 Bedroom</strong></div>
-                                                    </div>
-                                                    <ul class="fp-meta">
-                                                        <li><em>Total Area</em><b>3,200 sq ft</b></li>
-                                                        <li><em>Bedrooms</em><b>3</b></li>
-                                                        <li><em>Total Rooms</em><b>7</b></li>
-                                                    </ul>
-                                                </button>
-                                            </aside>
-                                        </div>
-                                    </div>
-
+                                    <?php else: ?>
+                                        <p class="mb-0">Floor plans will be shared soon.</p>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -430,76 +609,36 @@
                                                         <img src="assets/flaticons/residential.png" width="25" alt="">
                                                     </div>
                                                     <div class="dev-title">
-                                                        <strong>Danube Properties</strong>
-                                                        <div class="dev-rating">
-                                                            <svg width="14" height="14" viewBox="0 0 24 24">
-                                                                <path
-                                                                    d="M12 17.3l-6.2 3.3 1.2-6.9L2 8.9l7-1 3-6 3 6 7 1-5 4.8 1.2 6.9z"
-                                                                    fill="#fff" />
-                                                            </svg>
-                                                            4.9 Developer Rating
-                                                        </div>
+                                                        <strong><?= htmlspecialchars($property['developer_name'] ?: 'Developer', ENT_QUOTES, 'UTF-8') ?></strong>
                                                     </div>
                                                 </div>
                                                 <div class="dev-body">
 
                                                     <div class="row justify-content-start align-items-center">
-                                                        <!-- <div class="col-lg-5">
-                                                            <div class="developer-profile">
-                                                                <img class="img-fluid" src="assets/images/offplan/DANUBE-Logo.png" alt="">
-                                                            </div>
-                                                        </div> -->
                                                         <div class="col-lg-12">
-                                                            <div class="developer-profile-logo">
-                                                                <img class="img-fluid" src="assets/images/offplan/DANUBE-Logo.png" alt="">
-                                                            </div>
-                                                            <p>Danube Properties is widely recognized as one of the most
-                                                                reliable and respected real estate developers in the
-                                                                UAE. Over
-                                                                the years, the company has built a strong reputation for
-                                                                delivering residential and commercial projects that
-                                                                combine
-                                                                quality, affordability, and modern design. As the real
-                                                                estate
-                                                                arm of the Danube Group, the brand reflects the same
-                                                                values of
-                                                                trust, innovation, and excellence that have made the
-                                                                group a
-                                                                household name across the region. With a commitment to
-                                                                providing
-                                                                homes that cater to both investors and end-users, Danube
-                                                                Properties has successfully bridged the gap between
-                                                                luxury
-                                                                living and affordability.</p>
+                                                            <?php if ($developerLogo): ?>
+                                                                <div class="developer-profile-logo">
+                                                                    <img class="img-fluid" src="<?= htmlspecialchars($developerLogo, ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($property['developer_name'] ?: 'Developer logo', ENT_QUOTES, 'UTF-8') ?>">
+                                                                </div>
+                                                            <?php endif; ?>
+                                                            <?php foreach ($aboutDeveloperParagraphs as $paragraph): ?>
+                                                                <p><?= htmlspecialchars($paragraph, ENT_QUOTES, 'UTF-8') ?></p>
+                                                            <?php endforeach; ?>
                                                         </div>
                                                     </div>
 
-                                                    <div class="row dev-stats">
-                                                        <div class="col-6 col-lg-3">
-                                                            <div class="stat">
-                                                                <strong>1985</strong>
-                                                                <span>Established</span>
-                                                            </div>
+                                                    <?php if ($developerStats): ?>
+                                                        <div class="row dev-stats">
+                                                            <?php foreach ($developerStats as $stat): ?>
+                                                                <div class="col-6 col-lg-3">
+                                                                    <div class="stat">
+                                                                        <strong><?= htmlspecialchars($stat['value'], ENT_QUOTES, 'UTF-8') ?></strong>
+                                                                        <span><?= htmlspecialchars($stat['label'], ENT_QUOTES, 'UTF-8') ?></span>
+                                                                    </div>
+                                                                </div>
+                                                            <?php endforeach; ?>
                                                         </div>
-                                                        <div class="col-6 col-lg-3">
-                                                            <div class="stat">
-                                                                <strong>187</strong>
-                                                                <span>Completed Projects</span>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-6 col-lg-3">
-                                                            <div class="stat">
-                                                                <strong>🏆</strong>
-                                                                <span>International Awards</span>
-                                                            </div>
-                                                        </div>
-                                                        <div class="col-6 col-lg-3">
-                                                            <div class="stat">
-                                                                <strong>98%</strong>
-                                                                <span>On-Time Delivery</span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                    <?php endif; ?>
                                                 </div>
                                             </section>
                                         </div>
@@ -530,6 +669,8 @@
                             </div>
 
                             <form>
+                                <input type="hidden" name="property_id" value="<?= (int)$propertyId ?>">
+                                <input type="hidden" name="property_title" value="<?= htmlspecialchars($titleText, ENT_QUOTES, 'UTF-8') ?>">
                                 <label>
                                     <span class="field-head">
                                         <img src="assets/icons/local-user.png" alt="" class="ico">
@@ -614,28 +755,21 @@
                             <h4>Investment Highlights</h4>
                         </header>
 
-                        <div class="hi-grid">
-                            <div>
-                                <strong>8–12%</strong>
-                                <span>ROI Potential</span>
-                                <em>Annual rental yield</em>
+                        <?php if ($investmentHighlights): ?>
+                            <div class="hi-grid">
+                                <?php foreach ($investmentHighlights as $highlight): ?>
+                                    <div>
+                                        <strong><?= htmlspecialchars((string)$highlight['value'], ENT_QUOTES, 'UTF-8') ?></strong>
+                                        <span><?= htmlspecialchars($highlight['label'], ENT_QUOTES, 'UTF-8') ?></span>
+                                        <?php if (!empty($highlight['note'])): ?>
+                                            <em><?= htmlspecialchars($highlight['note'], ENT_QUOTES, 'UTF-8') ?></em>
+                                        <?php endif; ?>
+                                    </div>
+                                <?php endforeach; ?>
                             </div>
-                            <div>
-                                <strong>+15%</strong>
-                                <span>Capital Growth</span>
-                                <em>Expected 3-year growth</em>
-                            </div>
-                            <div>
-                                <strong>95%</strong>
-                                <span>Occupancy Rate</span>
-                                <em>Marina average</em>
-                            </div>
-                            <div>
-                                <strong>High</strong>
-                                <span>Resale Value</span>
-                                <em>Prime location advantage</em>
-                            </div>
-                        </div>
+                        <?php else: ?>
+                            <p class="mb-0">Investment highlights will be shared soon.</p>
+                        <?php endif; ?>
                     </section>
 
                     <!-- Flexible Payment Plan -->
@@ -645,44 +779,34 @@
                             <h4>Flexible Payment Plan</h4>
                         </header>
 
-                        <div class="plan-list">
-                            <!-- item -->
-                            <div class="plan-item">
-                                <div class="pct">10%</div>
-                                <div class="txt">
-                                    <strong>Down Payment</strong>
-                                    <span>Secure your unit</span>
-                                </div>
-                                <div class="amt">
-                                    <b>AED 1,300,000</b>
-                                    <em>10% of total</em>
-                                </div>
+                        <?php if ($paymentSchedule): ?>
+                            <div class="plan-list">
+                                <?php foreach ($paymentSchedule as $item): ?>
+                                    <?php
+                                        $percentageText = trim((string)($item['percentage'] ?? ''));
+                                        $amountText = trim((string)($item['amount'] ?? ''));
+                                    ?>
+                                    <div class="plan-item">
+                                        <?php if ($percentageText !== ''): ?>
+                                            <div class="pct"><?= htmlspecialchars($percentageText, ENT_QUOTES, 'UTF-8') ?></div>
+                                        <?php endif; ?>
+                                        <div class="txt">
+                                            <strong><?= htmlspecialchars($item['title'], ENT_QUOTES, 'UTF-8') ?></strong>
+                                        </div>
+                                        <div class="amt">
+                                            <?php if ($amountText !== ''): ?>
+                                                <b><?= htmlspecialchars($amountText, ENT_QUOTES, 'UTF-8') ?></b>
+                                            <?php endif; ?>
+                                            <?php if ($percentageText !== ''): ?>
+                                                <em><?= htmlspecialchars($percentageText, ENT_QUOTES, 'UTF-8') ?></em>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
                             </div>
-
-                            <div class="plan-item">
-                                <div class="pct">70%</div>
-                                <div class="txt">
-                                    <strong>During Construction</strong>
-                                    <span>Flexible payment options</span>
-                                </div>
-                                <div class="amt">
-                                    <b>AED 1,300,000</b>
-                                    <em>70% of total</em>
-                                </div>
-                            </div>
-
-                            <div class="plan-item">
-                                <div class="pct">20%</div>
-                                <div class="txt">
-                                    <strong>On Handover</strong>
-                                    <span>Upon completion</span>
-                                </div>
-                                <div class="amt">
-                                    <b>AED 1,300,000</b>
-                                    <em>20% of total</em>
-                                </div>
-                            </div>
-                        </div>
+                        <?php else: ?>
+                            <p class="mb-0">Payment plan details will be updated shortly.</p>
+                        <?php endif; ?>
                     </section>
 
                 </div>
@@ -780,6 +904,9 @@
                             <img src="assets/icons/location.png" alt="" />
                             <h3>Prime Location &amp; Connectivity</h3>
                         </div>
+                        <?php if (!empty($property['property_location'])): ?>
+                            <p class="mb-0">Located at <?= htmlspecialchars($property['property_location'], ENT_QUOTES, 'UTF-8') ?>.</p>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -792,7 +919,15 @@
                         <!-- Map card -->
                         <div class="col-12 col-md-6">
                             <div class="hh-location-01-map">
-                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14432.090492336873!2d55.26420855!3d25.2698244!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3e5f4384740a5241%3A0xe6d78cfd14c6ada3!2sDubai%20Maritime%20City%20-%20Dubai%20-%20United%20Arab%20Emirates!5e0!3m2!1sen!2sin!4v1758894120139!5m2!1sen!2sin" width="100%" height="290" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                <?php if ($locationMap !== ''): ?>
+                                    <?php if (stripos($locationMap, '<iframe') !== false): ?>
+                                        <?= $locationMap ?>
+                                    <?php else: ?>
+                                        <iframe src="<?= htmlspecialchars($locationMap, ENT_QUOTES, 'UTF-8') ?>" width="100%" height="290" style="border:0;" allowfullscreen loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                                    <?php endif; ?>
+                                <?php else: ?>
+                                    <div class="map-placeholder">Location map coming soon.</div>
+                                <?php endif; ?>
                             </div>
                         </div>
 
@@ -800,89 +935,28 @@
                         <div class="col-12 col-md-6">
                             <div class="hh-location-01-landmarks">
 
-                                <!-- item -->
-                                <button type="button">
-                                    <div class="left">
-                                        <img class="dot" src="assets/icons/dot-green.png" alt="" />
-                                        <div>
-                                            <b>Port Rashid Boat Station</b>
-                                        </div>
-                                    </div>
-                                    <div class="right">
-                                        <a href="#">2 Mins</a>
-                                        <em>Shopping</em>
-                                    </div>
-                                </button>
-
-                                <button type="button">
-                                    <div class="left">
-                                        <img class="dot" src="assets/icons/dot-green.png" alt="" />
-                                        <div>
-                                            <b>Dubai Cruise Terminal 2</b>
-                                        </div>
-                                    </div>
-                                    <div class="right">
-                                        <a href="#">3 Mins</a>
-                                        <em>Shopping</em>
-                                    </div>
-                                </button>
-
-                                <button type="button">
-                                    <div class="left">
-                                        <img class="dot" src="assets/icons/dot-green.png" alt="" />
-                                        <div>
-                                            <b>Gold Souk & Jumeirah Beach</b>
-                                        </div>
-                                    </div>
-                                    <div class="right">
-                                        <a href="#">8 Mins</a>
-                                        <em>Shopping</em>
-                                    </div>
-                                </button>
-
-                                <button type="button">
-                                    <div class="left">
-                                        <img class="dot" src="assets/icons/dot-green.png" alt="" />
-                                        <div>
-                                            <b>Dubai World Trade Centre</b>
-                                        </div>
-                                    </div>
-                                    <div class="right">
-                                        <a href="#">8 Mins</a>
-                                        <em>Shopping</em>
-                                    </div>
-                                </button>
-
-                                <button type="button">
-                                    <div class="left">
-                                        <img class="dot" src="assets/icons/dot-green.png" alt="" />
-                                        <div>
-                                            <b>Burj Khalifa</b>
-                                        </div>
-                                    </div>
-                                    <div class="right">
-                                        <a href="#">10 Mins</a>
-                                        <em>Shopping</em>
-                                        
-                                    </div>
-                                </button>
-
-                                <button type="button">
-                                    <div class="left">
-                                        <img class="dot" src="assets/icons/dot-green.png" alt="" />
-                                        <div>
-                                            <b>Dubai International Airport</b>
-                                        </div>
-                                    </div>
-                                    <div class="right">
-                                        <a href="#">15 Mins</a>
-                                        <em>Shopping</em>
-                                        
-                                    </div>
-                                </button>
-
-
-
+                                <?php if ($locationAccess): ?>
+                                    <?php foreach ($locationAccess as $item): ?>
+                                        <button type="button">
+                                            <div class="left">
+                                                <img class="dot" src="assets/icons/dot-green.png" alt="" />
+                                                <div>
+                                                    <b><?= htmlspecialchars($item['landmark'], ENT_QUOTES, 'UTF-8') ?></b>
+                                                </div>
+                                            </div>
+                                            <div class="right">
+                                                <?php if ($item['distance'] !== ''): ?>
+                                                    <span><?= htmlspecialchars($item['distance'], ENT_QUOTES, 'UTF-8') ?></span>
+                                                <?php endif; ?>
+                                                <?php if ($item['category'] !== ''): ?>
+                                                    <em><?= htmlspecialchars($item['category'], ENT_QUOTES, 'UTF-8') ?></em>
+                                                <?php endif; ?>
+                                            </div>
+                                        </button>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <p class="mb-0">Connectivity details will be available soon.</p>
+                                <?php endif; ?>
                             </div>
                         </div>
                     </div>
@@ -899,11 +973,15 @@
                             </div>
 
                             <div class="qr-row">
-                                <img class="qr" src="assets/images/offplan/danube-permit-QR.png" alt="Permit QR" />
+                                <?php if ($permitBarcode): ?>
+                                    <img class="qr" src="<?= htmlspecialchars($permitBarcode, ENT_QUOTES, 'UTF-8') ?>" alt="Permit QR" />
+                                <?php endif; ?>
                                 <div class="permit-box">
-                                    <span>Listing Number.</span>
-                                    <b>0662770883</b>
-                                    <em>End Date: 25/12/2025</em>
+                                    <span>Permit Number</span>
+                                    <b><?= htmlspecialchars($property['permit_no'] ?: 'Available on request', ENT_QUOTES, 'UTF-8') ?></b>
+                                    <?php if ($completionDate): ?>
+                                        <em>Completion: <?= htmlspecialchars($completionDate, ENT_QUOTES, 'UTF-8') ?></em>
+                                    <?php endif; ?>
                                 </div>
                             </div>
                         </div>
@@ -962,6 +1040,8 @@
                 <div class="col-12">
 
                     <form class="reg-card" action="#" method="post" novalidate>
+                        <input type="hidden" name="property_id" value="<?= (int)$propertyId ?>">
+                        <input type="hidden" name="property_title" value="<?= htmlspecialchars($titleText, ENT_QUOTES, 'UTF-8') ?>">
                         <div class="reg-head">
                             <h3>Register your interest</h3>
                             <p>Fill form below and our agent will contact you shortly.</p>
@@ -1156,6 +1236,8 @@
                     Unlock expert advice, exclusive listings & investment insights.
                 </p>
                 <form method="POST" class="appointment-form" action="danuber">
+                    <input type="hidden" name="property_id" value="<?= (int)$propertyId ?>">
+                    <input type="hidden" name="property_title" value="<?= htmlspecialchars($titleText, ENT_QUOTES, 'UTF-8') ?>">
                     <div class="form-group">
                         <label for="full_name">Enter Name</label>
                         <input type="text" name="name" id="full_name" class="form-control" required>
@@ -1202,6 +1284,8 @@
                     Get your brochure instantly. Enter your details below to access the download.
                 </p>
                 <form method="POST" class="appointment-form" action="download-brochure">
+                    <input type="hidden" name="property_id" value="<?= (int)$propertyId ?>">
+                    <input type="hidden" name="property_title" value="<?= htmlspecialchars($titleText, ENT_QUOTES, 'UTF-8') ?>">
                     <div class="form-group">
                         <label for="brochure_name">Full Name</label>
                         <input type="text" name="brochure_name" id="brochure_name" class="form-control" required>
@@ -1290,8 +1374,14 @@
             main.emit('slideChange');
 
             // custom nav
-            document.querySelector('.hh-gallery-01 .nav.prev').addEventListener('click', () => main.slidePrev());
-            document.querySelector('.hh-gallery-01 .nav.next').addEventListener('click', () => main.slideNext());
+            const prevBtn = document.querySelector('.hh-gallery-01 .nav.prev');
+            if (prevBtn) {
+                prevBtn.addEventListener('click', () => main.slidePrev());
+            }
+            const nextBtn = document.querySelector('.hh-gallery-01 .nav.next');
+            if (nextBtn) {
+                nextBtn.addEventListener('click', () => main.slideNext());
+            }
 
             // Lightbox
             const lb = document.querySelector('.hh-gallery-01 .hh-gallery-01-lightbox');
@@ -1327,8 +1417,20 @@
                 img.style.cursor = 'zoom-in';
                 img.addEventListener('click', () => openLB(i));
             });
-            document.querySelector('.hh-gallery-01 [data-action="view-all"]').addEventListener('click', () => openLB(main.realIndex));
-            document.querySelector('.hh-gallery-01 .fullscreen').addEventListener('click', () => openLB(main.realIndex));
+            const viewAllBtn = document.querySelector('.hh-gallery-01 [data-action="view-all"]');
+            if (viewAllBtn) {
+                viewAllBtn.addEventListener('click', () => openLB(main.realIndex));
+            }
+            const fullscreenBtn = document.querySelector('.hh-gallery-01 .fullscreen');
+            if (fullscreenBtn) {
+                fullscreenBtn.addEventListener('click', () => openLB(main.realIndex));
+            }
+            const videoBtn = document.querySelector('.hh-gallery-01 [data-action="video"]');
+            if (videoBtn && videoBtn.dataset.video) {
+                videoBtn.addEventListener('click', () => {
+                    window.open(videoBtn.dataset.video, '_blank');
+                });
+            }
 
             // lb controls
             lb.querySelector('.lb-close').addEventListener('click', closeLB);
@@ -1353,6 +1455,10 @@
             const section = document.querySelector('.hh-floorplans-01');
             if (!section) return;
             const canvas = section.querySelector('.fp-canvas');
+            const buttons = section.querySelectorAll('.fp-aside [data-bs-toggle="tab"]');
+            if (!canvas || buttons.length === 0) {
+                return;
+            }
 
             function showPane(targetSel) {
                 canvas.querySelectorAll('.fp-pane').forEach(p => p.classList.remove('active'));
@@ -1360,16 +1466,19 @@
                 if (pane) pane.classList.add('active');
             }
 
-            // Default ground floor
-            showPane('#fp-tab-ground');
+            const defaultTarget = buttons[0].getAttribute('data-bs-target');
+            if (defaultTarget) {
+                showPane(defaultTarget);
+            }
 
-            // Bind vertical buttons
-            section.querySelectorAll('.fp-aside [data-bs-toggle="tab"]').forEach(btn => {
+            buttons.forEach(btn => {
                 btn.addEventListener('click', function() {
                     section.querySelectorAll('.fp-box').forEach(b => b.classList.remove('active'));
                     this.classList.add('active');
                     const targetSel = this.getAttribute('data-bs-target');
-                    showPane(targetSel);
+                    if (targetSel) {
+                        showPane(targetSel);
+                    }
                 });
             });
         })();
