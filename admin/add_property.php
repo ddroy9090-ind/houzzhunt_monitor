@@ -234,6 +234,115 @@ render_sidebar('add-property');
         <section class="form-section">
           <div class="section-header">
             <h4 class="section-title">
+              <img src="assets/icons/floorplan.png" alt="Floor plan icon" class="section-title-icon">
+              <span>Floor Plans</span>
+            </h4>
+            <p class="section-subtitle">Upload floor plans with their key details.</p>
+          </div>
+          <div class="d-flex justify-content-end mb-3">
+            <button type="button" class="btn btn-outline-secondary" id="add-floor-plan">Add Floor Plan</button>
+          </div>
+          <div class="floor-plan-list" data-floor-plan-list>
+            <div class="floor-plan-item border rounded p-3 mb-3" data-floor-plan-index="0">
+              <div class="row g-4 align-items-end">
+                <div class="col-lg-3 col-md-6">
+                  <label for="floor_plan_file_0" class="form-label" data-floor-plan-label="file">Upload Floor Plan</label>
+                  <input
+                    type="file"
+                    class="form-control"
+                    id="floor_plan_file_0"
+                    name="floor_plan_file[]"
+                    accept="image/*,application/pdf"
+                    data-floor-plan-input="file">
+                </div>
+                <div class="col-lg-3 col-md-6">
+                  <label for="floor_plan_title_0" class="form-label" data-floor-plan-label="title">Floor Plan Title Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="floor_plan_title_0"
+                    name="floor_plan_title[]"
+                    placeholder="e.g., 2 Bedroom"
+                    data-floor-plan-input="title">
+                </div>
+                <div class="col-lg-3 col-md-6">
+                  <label for="floor_plan_area_0" class="form-label" data-floor-plan-label="area">Total Area</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="floor_plan_area_0"
+                    name="floor_plan_area[]"
+                    placeholder="e.g., 1,200 sq.ft"
+                    data-floor-plan-input="area">
+                </div>
+                <div class="col-lg-2 col-md-6">
+                  <label for="floor_plan_price_0" class="form-label" data-floor-plan-label="price">Price In</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="floor_plan_price_0"
+                    name="floor_plan_price[]"
+                    placeholder="e.g., AED"
+                    data-floor-plan-input="price">
+                </div>
+                <div class="col-lg-1 col-12 text-lg-end">
+                  <button type="button" class="btn btn-outline-danger remove-floor-plan d-none">Delete</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <template id="floor-plan-template">
+            <div class="floor-plan-item border rounded p-3 mb-3" data-floor-plan-index="">
+              <div class="row g-4 align-items-end">
+                <div class="col-lg-3 col-md-6">
+                  <label class="form-label" data-floor-plan-label="file">Upload Floor Plan</label>
+                  <input
+                    type="file"
+                    class="form-control"
+                    name="floor_plan_file[]"
+                    accept="image/*,application/pdf"
+                    data-floor-plan-input="file">
+                </div>
+                <div class="col-lg-3 col-md-6">
+                  <label class="form-label" data-floor-plan-label="title">Floor Plan Title Name</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="floor_plan_title[]"
+                    placeholder="e.g., 2 Bedroom"
+                    data-floor-plan-input="title">
+                </div>
+                <div class="col-lg-3 col-md-6">
+                  <label class="form-label" data-floor-plan-label="area">Total Area</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="floor_plan_area[]"
+                    placeholder="e.g., 1,200 sq.ft"
+                    data-floor-plan-input="area">
+                </div>
+                <div class="col-lg-2 col-md-6">
+                  <label class="form-label" data-floor-plan-label="price">Price In</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="floor_plan_price[]"
+                    placeholder="e.g., AED"
+                    data-floor-plan-input="price">
+                </div>
+                <div class="col-lg-1 col-12 text-lg-end">
+                  <button type="button" class="btn btn-outline-danger remove-floor-plan">Delete</button>
+                </div>
+              </div>
+            </div>
+          </template>
+        </section>
+      </div>
+
+      <div class="col-12">
+        <section class="form-section">
+          <div class="section-header">
+            <h4 class="section-title">
               <img src="assets/images/icons/video-call.png" alt="Video and links icon" class="section-title-icon">
               <span>Media &amp; Links</span>
             </h4>
@@ -365,9 +474,7 @@ render_sidebar('add-property');
     const form = document.querySelector('.box form');
 
     if (form) {
-      const uploadInputs = form.querySelectorAll('.file-input');
-
-      uploadInputs.forEach(input => {
+      const updateFileInputFileName = input => {
         const uploadBox = input.closest('.upload-box');
         const fileNameOutput = uploadBox ? uploadBox.querySelector('.upload-file-name') : null;
 
@@ -375,28 +482,114 @@ render_sidebar('add-property');
           return;
         }
 
-        const updateFileName = () => {
-          const { files } = input;
+        const { files } = input;
 
-          if (!files || files.length === 0) {
-            fileNameOutput.textContent = '';
-            return;
+        if (!files || files.length === 0) {
+          fileNameOutput.textContent = '';
+          return;
+        }
+
+        const names = Array.from(files)
+          .map(file => file.name)
+          .join(', ');
+        fileNameOutput.textContent = names;
+      };
+
+      const uploadInputs = form.querySelectorAll('.file-input');
+
+      uploadInputs.forEach(input => {
+        input.addEventListener('change', () => updateFileInputFileName(input));
+      });
+
+      form.addEventListener('change', event => {
+        const target = event.target;
+
+        if (!target.classList || !target.classList.contains('file-input')) {
+          return;
+        }
+
+        updateFileInputFileName(target);
+      });
+
+      form.addEventListener('reset', () => {
+        window.setTimeout(() => {
+          const fileNameOutputs = form.querySelectorAll('.upload-file-name');
+          fileNameOutputs.forEach(output => {
+            output.textContent = '';
+          });
+        }, 0);
+      });
+    }
+
+    const floorPlanList = document.querySelector('[data-floor-plan-list]');
+    const floorPlanTemplate = document.getElementById('floor-plan-template');
+    const addFloorPlanButton = document.getElementById('add-floor-plan');
+
+    const renumberFloorPlans = () => {
+      if (!floorPlanList) {
+        return;
+      }
+
+      const items = floorPlanList.querySelectorAll('.floor-plan-item');
+
+      items.forEach((item, index) => {
+        item.dataset.floorPlanIndex = String(index);
+
+        const labels = item.querySelectorAll('[data-floor-plan-label]');
+        labels.forEach(label => {
+          const field = label.getAttribute('data-floor-plan-label');
+
+          if (field) {
+            label.setAttribute('for', `floor_plan_${field}_${index}`);
           }
+        });
 
-          const names = Array.from(files)
-            .map(file => file.name)
-            .join(', ');
-          fileNameOutput.textContent = names;
-        };
+        const inputs = item.querySelectorAll('[data-floor-plan-input]');
+        inputs.forEach(input => {
+          const field = input.getAttribute('data-floor-plan-input');
 
-        input.addEventListener('change', updateFileName);
-
-        form.addEventListener('reset', () => {
-          window.setTimeout(() => {
-            fileNameOutput.textContent = '';
-          }, 0);
+          if (field) {
+            input.id = `floor_plan_${field}_${index}`;
+            input.name = `floor_plan_${field}[]`;
+          }
         });
       });
+
+      const deleteButtons = floorPlanList.querySelectorAll('.remove-floor-plan');
+      deleteButtons.forEach((button, index) => {
+        button.classList.toggle('d-none', index === 0);
+      });
+    };
+
+    if (floorPlanList && floorPlanTemplate && addFloorPlanButton) {
+      addFloorPlanButton.addEventListener('click', () => {
+        const clone = floorPlanTemplate.content.cloneNode(true);
+        floorPlanList.appendChild(clone);
+        renumberFloorPlans();
+      });
+
+      floorPlanList.addEventListener('click', event => {
+        const target = event.target.closest('.remove-floor-plan');
+
+        if (!target) {
+          return;
+        }
+
+        const items = floorPlanList.querySelectorAll('.floor-plan-item');
+
+        if (items.length <= 1) {
+          return;
+        }
+
+        const item = target.closest('.floor-plan-item');
+
+        if (item) {
+          item.remove();
+          renumberFloorPlans();
+        }
+      });
+
+      renumberFloorPlans();
     }
 
     const textarea = document.getElementById('about_project');
