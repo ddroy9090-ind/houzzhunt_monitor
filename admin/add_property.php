@@ -68,6 +68,7 @@ $floorPlanFormData = [
     'title' => '',
     'area'  => '',
     'price' => '',
+    'file'  => '',
   ],
 ];
 
@@ -274,10 +275,189 @@ function add_property_handle_upload(?array $file, array $allowedMimeMap, string 
   return [$relativePath, null];
 }
 
+$pdo = db();
+add_property_ensure_table($pdo);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $requestedEditId = (int)($_POST['property_id'] ?? 0);
+} else {
+  $requestedEditId = (int)($_GET['edit'] ?? 0);
+}
+
+$isEditing       = $requestedEditId > 0;
+$editingProperty = null;
+
+if ($isEditing) {
+  try {
+    $stmt = $pdo->prepare('SELECT * FROM properties_list WHERE id = :id');
+    $stmt->bindValue(':id', $requestedEditId, PDO::PARAM_INT);
+    $stmt->execute();
+    $editingProperty = $stmt->fetch(PDO::FETCH_ASSOC) ?: null;
+  } catch (Throwable $e) {
+    error_log('Failed to fetch property for editing: ' . $e->getMessage());
+    $editingProperty = null;
+  }
+
+  if ($editingProperty === null) {
+    $_SESSION['property_error'] = 'The selected property could not be found.';
+    header('Location: all_properties.php');
+    exit;
+  }
+}
+
+$existingFiles = [
+  'hero_banner'    => $editingProperty['hero_banner'] ?? '',
+  'brochure'       => $editingProperty['brochure'] ?? '',
+  'developer_logo' => $editingProperty['developer_logo'] ?? '',
+  'permit_barcode' => $editingProperty['permit_barcode'] ?? '',
+];
+
+$existingGalleryPaths          = [];
+$existingFloorPlans            = [];
+$existingLocationAccessibility = [];
+$existingAmenitiesLabels       = [];
+
+if ($editingProperty !== null) {
+  $galleryJson = $editingProperty['gallery_images'] ?? null;
+  if (is_string($galleryJson) && $galleryJson !== '') {
+    $decodedGallery = json_decode($galleryJson, true);
+    if (is_array($decodedGallery)) {
+      foreach ($decodedGallery as $path) {
+        if (is_string($path) && $path !== '') {
+          $existingGalleryPaths[] = $path;
+        }
+      }
+    }
+  }
+
+  $floorPlansJson = $editingProperty['floor_plans'] ?? null;
+  if (is_string($floorPlansJson) && $floorPlansJson !== '') {
+    $decodedPlans = json_decode($floorPlansJson, true);
+    if (is_array($decodedPlans)) {
+      foreach ($decodedPlans as $plan) {
+        if (!is_array($plan)) {
+          continue;
+        }
+
+        $existingFloorPlans[] = [
+          'title' => (string)($plan['title'] ?? ''),
+          'area'  => (string)($plan['area'] ?? ''),
+          'price' => (string)($plan['price'] ?? ''),
+          'file'  => is_string($plan['file'] ?? null) ? (string)$plan['file'] : '',
+        ];
+      }
+    }
+  }
+
+  $locationJson = $editingProperty['location_accessibility'] ?? null;
+  if (is_string($locationJson) && $locationJson !== '') {
+    $decodedLocations = json_decode($locationJson, true);
+    if (is_array($decodedLocations)) {
+      foreach ($decodedLocations as $location) {
+        if (!is_array($location)) {
+          continue;
+        }
+
+        $existingLocationAccessibility[] = [
+          'landmark_name' => (string)($location['landmark_name'] ?? ''),
+          'distance_time' => (string)($location['distance_time'] ?? ''),
+          'category'      => (string)($location['category'] ?? ''),
+        ];
+      }
+    }
+  }
+
+  $amenitiesJson = $editingProperty['amenities'] ?? null;
+  if (is_string($amenitiesJson) && $amenitiesJson !== '') {
+    $decodedAmenities = json_decode($amenitiesJson, true);
+    if (is_array($decodedAmenities)) {
+      foreach ($decodedAmenities as $amenityLabel) {
+        if (is_string($amenityLabel) && $amenityLabel !== '') {
+          $existingAmenitiesLabels[] = $amenityLabel;
+        }
+      }
+    }
+  }
+}
+
+if ($existingFloorPlans === []) {
+  $existingFloorPlans[] = [
+    'title' => '',
+    'area'  => '',
+    'price' => '',
+    'file'  => '',
+  ];
+}
+
+if ($existingLocationAccessibility === []) {
+  if ($editingProperty !== null) {
+    $existingLocationAccessibility[] = [
+      'landmark_name' => (string)($editingProperty['landmark_name'] ?? ''),
+      'distance_time' => (string)($editingProperty['distance_time'] ?? ''),
+      'category'      => (string)($editingProperty['category'] ?? ''),
+    ];
+  }
+
+  if ($existingLocationAccessibility === []) {
+    $existingLocationAccessibility[] = [
+      'landmark_name' => '',
+      'distance_time' => '',
+      'category'      => '',
+    ];
+  }
+}
+
+if ($editingProperty !== null && $_SERVER['REQUEST_METHOD'] !== 'POST') {
+  foreach ($formData as $key => $_) {
+    if ($key === 'completion_date') {
+      $value = $editingProperty[$key] ?? null;
+      if ($value) {
+        try {
+          $formData[$key] = (new DateTimeImmutable((string)$value))->format('Y-m-d');
+        } catch (Throwable $e) {
+          $formData[$key] = (string)$value;
+        }
+      } else {
+        $formData[$key] = '';
+      }
+    } else {
+      $formData[$key] = (string)($editingProperty[$key] ?? '');
+    }
+  }
+
+  $floorPlanFormData = $existingFloorPlans;
+  $locationAccessibilityFormData = $existingLocationAccessibility;
+
+  $firstLocation = $locationAccessibilityFormData[0] ?? [
+    'landmark_name' => '',
+    'distance_time' => '',
+    'category'      => '',
+  ];
+
+  $formData['landmark_name'] = $firstLocation['landmark_name'] ?? '';
+  $formData['distance_time'] = $firstLocation['distance_time'] ?? '';
+  $formData['category']      = $firstLocation['category'] ?? '';
+
+  $selectedAmenityKeys = [];
+  foreach ($amenitiesOptions as $amenityKey => $amenityLabel) {
+    if (in_array($amenityLabel, $existingAmenitiesLabels, true)) {
+      $selectedAmenityKeys[] = $amenityKey;
+    }
+  }
+  $selectedAmenities = $existingAmenitiesLabels;
+}
+
+$filesToDeleteAfterSuccess = [];
+
 try {
   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     csrf_check($_POST['csrf'] ?? '');
-    rl_hit('add-property', 20);
+
+    if ($isEditing) {
+      rl_hit('update-property', 30);
+    } else {
+      rl_hit('add-property', 20);
+    }
 
     foreach ($formData as $key => $_) {
       $formData[$key] = trim((string)($_POST[$key] ?? ''));
@@ -288,6 +468,9 @@ try {
       $amenitiesInput = [];
     }
 
+    $selectedAmenityKeys = [];
+    $selectedAmenities   = [];
+
     foreach ($amenitiesOptions as $amenityKey => $amenityLabel) {
       if (in_array($amenityKey, $amenitiesInput, true)) {
         $selectedAmenityKeys[] = $amenityKey;
@@ -295,11 +478,12 @@ try {
       }
     }
 
-    $titles = $_POST['floor_plan_title'] ?? [];
-    $areas  = $_POST['floor_plan_area'] ?? [];
-    $prices = $_POST['floor_plan_price'] ?? [];
-    $locationLandmarks = $_POST['location_landmark'] ?? [];
-    $locationDistances = $_POST['location_distance'] ?? [];
+    $titles             = $_POST['floor_plan_title'] ?? [];
+    $areas              = $_POST['floor_plan_area'] ?? [];
+    $prices             = $_POST['floor_plan_price'] ?? [];
+    $existingFloorFiles = $_POST['existing_floor_plan_files'] ?? [];
+    $locationLandmarks  = $_POST['location_landmark'] ?? [];
+    $locationDistances  = $_POST['location_distance'] ?? [];
     $locationCategories = $_POST['location_category'] ?? [];
 
     if (!is_array($titles)) {
@@ -311,6 +495,9 @@ try {
     if (!is_array($prices)) {
       $prices = [];
     }
+    if (!is_array($existingFloorFiles)) {
+      $existingFloorFiles = [];
+    }
     if (!is_array($locationLandmarks)) {
       $locationLandmarks = [];
     }
@@ -321,26 +508,25 @@ try {
       $locationCategories = [];
     }
 
-    $maxFloorPlans       = max(count($titles), count($areas), count($prices), 1);
+    $maxFloorPlans = max(count($titles), count($areas), count($prices), count($existingFloorFiles), 1);
     $floorPlanFormData   = [];
     $floorPlansForInsert = [];
-    $maxLocations                 = max(count($locationLandmarks), count($locationDistances), count($locationCategories), 1);
-    $locationAccessibilityFormData = [];
+
+    $maxLocations = max(count($locationLandmarks), count($locationDistances), count($locationCategories), 1);
+    $locationAccessibilityFormData   = [];
     $locationAccessibilityForInsert = [];
 
-    $pdo = db();
-    add_property_ensure_table($pdo);
-
-    $uploadDir             = __DIR__ . '/assets/uploads/properties';
+    $uploadDir              = __DIR__ . '/assets/uploads/properties';
     $uploadedFilesToCleanup = [];
+    $filesToDeleteAfterSuccess = [];
 
     $imageMimeMap = [
-      'image/jpeg'  => 'jpg',
-      'image/pjpeg' => 'jpg',
-      'image/png'   => 'png',
-      'image/x-png' => 'png',
-      'image/gif'   => 'gif',
-      'image/webp'  => 'webp',
+      'image/jpeg'    => 'jpg',
+      'image/pjpeg'   => 'jpg',
+      'image/png'     => 'png',
+      'image/x-png'   => 'png',
+      'image/gif'     => 'gif',
+      'image/webp'    => 'webp',
       'image/svg+xml' => 'svg',
     ];
 
@@ -348,32 +534,53 @@ try {
       'application/pdf' => 'pdf',
     ];
 
-    [$heroBannerPath, $heroBannerError] = add_property_handle_upload($_FILES['hero_banner'] ?? null, $imageMimeMap, $uploadDir, 'hero_banner_');
+    $heroBannerPath    = $existingFiles['hero_banner'] ?? '';
+    $brochurePath      = $existingFiles['brochure'] ?? '';
+    $developerLogoPath = $existingFiles['developer_logo'] ?? '';
+    $permitBarcodePath = $existingFiles['permit_barcode'] ?? '';
+
+    [$newHeroBannerPath, $heroBannerError] = add_property_handle_upload($_FILES['hero_banner'] ?? null, $imageMimeMap, $uploadDir, 'hero_banner_');
     if ($heroBannerError) {
       $errors[] = $heroBannerError;
-    } elseif ($heroBannerPath) {
-      $uploadedFilesToCleanup[] = $heroBannerPath;
+    } elseif ($newHeroBannerPath) {
+      $heroBannerPath = $newHeroBannerPath;
+      $uploadedFilesToCleanup[] = $newHeroBannerPath;
+      if ($isEditing && ($existingFiles['hero_banner'] ?? '') !== '' && $existingFiles['hero_banner'] !== $heroBannerPath) {
+        $filesToDeleteAfterSuccess[] = $existingFiles['hero_banner'];
+      }
     }
 
-    [$brochurePath, $brochureError] = add_property_handle_upload($_FILES['brochure'] ?? null, $pdfMimeMap, $uploadDir, 'brochure_');
+    [$newBrochurePath, $brochureError] = add_property_handle_upload($_FILES['brochure'] ?? null, $pdfMimeMap, $uploadDir, 'brochure_');
     if ($brochureError) {
       $errors[] = $brochureError;
-    } elseif ($brochurePath) {
-      $uploadedFilesToCleanup[] = $brochurePath;
+    } elseif ($newBrochurePath) {
+      $brochurePath = $newBrochurePath;
+      $uploadedFilesToCleanup[] = $newBrochurePath;
+      if ($isEditing && ($existingFiles['brochure'] ?? '') !== '' && $existingFiles['brochure'] !== $brochurePath) {
+        $filesToDeleteAfterSuccess[] = $existingFiles['brochure'];
+      }
     }
 
-    [$developerLogoPath, $developerLogoError] = add_property_handle_upload($_FILES['developer_logo'] ?? null, $imageMimeMap, $uploadDir, 'developer_logo_');
+    [$newDeveloperLogoPath, $developerLogoError] = add_property_handle_upload($_FILES['developer_logo'] ?? null, $imageMimeMap, $uploadDir, 'developer_logo_');
     if ($developerLogoError) {
       $errors[] = $developerLogoError;
-    } elseif ($developerLogoPath) {
-      $uploadedFilesToCleanup[] = $developerLogoPath;
+    } elseif ($newDeveloperLogoPath) {
+      $developerLogoPath = $newDeveloperLogoPath;
+      $uploadedFilesToCleanup[] = $newDeveloperLogoPath;
+      if ($isEditing && ($existingFiles['developer_logo'] ?? '') !== '' && $existingFiles['developer_logo'] !== $developerLogoPath) {
+        $filesToDeleteAfterSuccess[] = $existingFiles['developer_logo'];
+      }
     }
 
-    [$permitBarcodePath, $permitBarcodeError] = add_property_handle_upload($_FILES['permit_barcode'] ?? null, $imageMimeMap, $uploadDir, 'permit_barcode_');
+    [$newPermitBarcodePath, $permitBarcodeError] = add_property_handle_upload($_FILES['permit_barcode'] ?? null, $imageMimeMap, $uploadDir, 'permit_barcode_');
     if ($permitBarcodeError) {
       $errors[] = $permitBarcodeError;
-    } elseif ($permitBarcodePath) {
-      $uploadedFilesToCleanup[] = $permitBarcodePath;
+    } elseif ($newPermitBarcodePath) {
+      $permitBarcodePath = $newPermitBarcodePath;
+      $uploadedFilesToCleanup[] = $newPermitBarcodePath;
+      if ($isEditing && ($existingFiles['permit_barcode'] ?? '') !== '' && $existingFiles['permit_barcode'] !== $permitBarcodePath) {
+        $filesToDeleteAfterSuccess[] = $existingFiles['permit_barcode'];
+      }
     }
 
     $galleryPaths = [];
@@ -399,6 +606,16 @@ try {
       }
     }
 
+    if ($galleryPaths === []) {
+      $galleryPaths = $existingGalleryPaths;
+    } elseif ($isEditing) {
+      foreach ($existingGalleryPaths as $existingGalleryPath) {
+        if (!in_array($existingGalleryPath, $galleryPaths, true)) {
+          $filesToDeleteAfterSuccess[] = $existingGalleryPath;
+        }
+      }
+    }
+
     $floorPlanFiles = $_FILES['floor_plan_file'] ?? null;
 
     for ($i = 0; $i < $maxFloorPlans; $i++) {
@@ -406,11 +623,8 @@ try {
       $area  = trim((string)($areas[$i] ?? ''));
       $price = trim((string)($prices[$i] ?? ''));
 
-      $floorPlanFormData[] = [
-        'title' => $title,
-        'area'  => $area,
-        'price' => $price,
-      ];
+      $previousFile = trim((string)($existingFloorFiles[$i] ?? ''));
+      $floorPlanPath = $previousFile !== '' ? $previousFile : null;
 
       $fileForIndex = null;
       if ($floorPlanFiles && isset($floorPlanFiles['name']) && is_array($floorPlanFiles['name']) && array_key_exists($i, $floorPlanFiles['name'])) {
@@ -423,15 +637,25 @@ try {
         ];
       }
 
-      $floorPlanPath = null;
       if ($fileForIndex) {
-        [$floorPlanPath, $floorPlanError] = add_property_handle_upload($fileForIndex, $imageMimeMap + $pdfMimeMap, $uploadDir, 'floor_plan_');
+        [$uploadedFloorPlanPath, $floorPlanError] = add_property_handle_upload($fileForIndex, $imageMimeMap + $pdfMimeMap, $uploadDir, 'floor_plan_');
         if ($floorPlanError) {
           $errors[] = $floorPlanError;
-        } elseif ($floorPlanPath) {
-          $uploadedFilesToCleanup[] = $floorPlanPath;
+        } elseif ($uploadedFloorPlanPath) {
+          $floorPlanPath = $uploadedFloorPlanPath;
+          $uploadedFilesToCleanup[] = $uploadedFloorPlanPath;
+          if ($isEditing && $previousFile !== '' && $previousFile !== $uploadedFloorPlanPath) {
+            $filesToDeleteAfterSuccess[] = $previousFile;
+          }
         }
       }
+
+      $floorPlanFormData[] = [
+        'title' => $title,
+        'area'  => $area,
+        'price' => $price,
+        'file'  => $previousFile,
+      ];
 
       if ($title !== '' || $area !== '' || $price !== '' || $floorPlanPath !== null) {
         $floorPlansForInsert[] = [
@@ -443,13 +667,25 @@ try {
       }
     }
 
-    if (empty($floorPlanFormData)) {
-      $floorPlanFormData[] = [
-        'title' => '',
-        'area'  => '',
-        'price' => '',
-      ];
+    if ($isEditing) {
+      $finalFloorPlanFiles = [];
+      foreach ($floorPlansForInsert as $plan) {
+        $file = $plan['file'] ?? null;
+        if (is_string($file) && $file !== '') {
+          $finalFloorPlanFiles[] = $file;
+        }
+      }
+
+      foreach ($existingFloorPlans as $plan) {
+        $file = $plan['file'] ?? '';
+        if ($file !== '' && !in_array($file, $finalFloorPlanFiles, true)) {
+          $filesToDeleteAfterSuccess[] = $file;
+        }
+      }
     }
+
+    $locationAccessibilityFormData = [];
+    $locationAccessibilityForInsert = [];
 
     for ($i = 0; $i < $maxLocations; $i++) {
       $landmark = trim((string)($locationLandmarks[$i] ?? ''));
@@ -480,9 +716,9 @@ try {
     }
 
     $firstLocationAccessibility = $locationAccessibilityFormData[0];
-    $formData['landmark_name']   = $firstLocationAccessibility['landmark_name'] ?? '';
-    $formData['distance_time']   = $firstLocationAccessibility['distance_time'] ?? '';
-    $formData['category']        = $firstLocationAccessibility['category'] ?? '';
+    $formData['landmark_name'] = $firstLocationAccessibility['landmark_name'] ?? '';
+    $formData['distance_time'] = $firstLocationAccessibility['distance_time'] ?? '';
+    $formData['category']      = $firstLocationAccessibility['category'] ?? '';
 
     $locationAccessibilityJson = $locationAccessibilityForInsert
       ? json_encode($locationAccessibilityForInsert, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
@@ -492,158 +728,127 @@ try {
       ? json_encode($selectedAmenities, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
       : null;
 
+    $heroBannerPath    = $heroBannerPath !== '' ? $heroBannerPath : null;
+    $brochurePath      = $brochurePath !== '' ? $brochurePath : null;
+    $developerLogoPath = $developerLogoPath !== '' ? $developerLogoPath : null;
+    $permitBarcodePath = $permitBarcodePath !== '' ? $permitBarcodePath : null;
+
+    $completionDate = $formData['completion_date'] !== '' ? $formData['completion_date'] : null;
+
+    $propertyData = [
+      'hero_banner'                   => $heroBannerPath,
+      'brochure'                      => $brochurePath,
+      'gallery_images'                => json_encode($galleryPaths, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+      'developer_logo'                => $developerLogoPath,
+      'permit_barcode'                => $permitBarcodePath,
+      'project_status'                => $formData['project_status'],
+      'property_type'                 => $formData['property_type'],
+      'project_name'                  => $formData['project_name'],
+      'property_title'                => $formData['property_title'],
+      'meta_title'                    => $formData['meta_title'],
+      'meta_keywords'                 => $formData['meta_keywords'],
+      'meta_description'              => $formData['meta_description'],
+      'property_location'             => $formData['property_location'],
+      'starting_price'                => $formData['starting_price'],
+      'bedroom'                       => $formData['bedroom'],
+      'bathroom'                      => $formData['bathroom'],
+      'parking'                       => $formData['parking'],
+      'total_area'                    => $formData['total_area'],
+      'completion_date'               => $completionDate,
+      'about_project'                 => $formData['about_project'],
+      'developer_name'                => $formData['developer_name'],
+      'developer_established'         => $formData['developer_established'],
+      'about_developer'               => $formData['about_developer'],
+      'completed_projects'            => $formData['completed_projects'],
+      'international_awards'          => $formData['international_awards'],
+      'on_time_delivery'              => $formData['on_time_delivery'],
+      'floor_plans'                   => json_encode($floorPlansForInsert, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+      'amenities'                     => $amenitiesJson,
+      'video_link'                    => $formData['video_link'],
+      'location_map'                  => $formData['location_map'],
+      'landmark_name'                 => $formData['landmark_name'],
+      'distance_time'                 => $formData['distance_time'],
+      'category'                      => $formData['category'],
+      'location_accessibility'        => $locationAccessibilityJson,
+      'roi_potential'                 => $formData['roi_potential'],
+      'capital_growth'                => $formData['capital_growth'],
+      'occupancy_rate'                => $formData['occupancy_rate'],
+      'resale_value'                  => $formData['resale_value'],
+      'booking_percentage'            => $formData['booking_percentage'],
+      'booking_amount'                => $formData['booking_amount'],
+      'during_construction_percentage'=> $formData['during_construction_percentage'],
+      'during_construction_amount'    => $formData['during_construction_amount'],
+      'handover_percentage'           => $formData['handover_percentage'],
+      'handover_amount'               => $formData['handover_amount'],
+      'permit_no'                     => $formData['permit_no'],
+    ];
+
     if (empty($errors)) {
-      $completionDate = $formData['completion_date'] !== '' ? $formData['completion_date'] : null;
+      try {
+        if ($isEditing) {
+          $setParts = [];
+          foreach (array_keys($propertyData) as $column) {
+            $setParts[] = $column . ' = :' . $column;
+          }
 
-      $stmt = $pdo->prepare(
-        'INSERT INTO properties_list (
-          hero_banner,
-          brochure,
-          gallery_images,
-          developer_logo,
-          permit_barcode,
-          project_status,
-          property_type,
-          project_name,
-          property_title,
-          meta_title,
-          meta_keywords,
-          meta_description,
-          property_location,
-          starting_price,
-          bedroom,
-          bathroom,
-          parking,
-          total_area,
-          completion_date,
-          about_project,
-          developer_name,
-          developer_established,
-          about_developer,
-          completed_projects,
-          international_awards,
-          on_time_delivery,
-          floor_plans,
-          amenities,
-          video_link,
-          location_map,
-          landmark_name,
-          distance_time,
-          category,
-          location_accessibility,
-          roi_potential,
-          capital_growth,
-          occupancy_rate,
-          resale_value,
-          booking_percentage,
-          booking_amount,
-          during_construction_percentage,
-          during_construction_amount,
-          handover_percentage,
-          handover_amount,
-          permit_no
-        ) VALUES (
-          :hero_banner,
-          :brochure,
-          :gallery_images,
-          :developer_logo,
-          :permit_barcode,
-          :project_status,
-          :property_type,
-          :project_name,
-          :property_title,
-          :meta_title,
-          :meta_keywords,
-          :meta_description,
-          :property_location,
-          :starting_price,
-          :bedroom,
-          :bathroom,
-          :parking,
-          :total_area,
-          :completion_date,
-          :about_project,
-          :developer_name,
-          :developer_established,
-          :about_developer,
-          :completed_projects,
-          :international_awards,
-          :on_time_delivery,
-          :floor_plans,
-          :amenities,
-          :video_link,
-          :location_map,
-          :landmark_name,
-          :distance_time,
-          :category,
-          :location_accessibility,
-          :roi_potential,
-          :capital_growth,
-          :occupancy_rate,
-          :resale_value,
-          :booking_percentage,
-          :booking_amount,
-          :during_construction_percentage,
-          :during_construction_amount,
-          :handover_percentage,
-          :handover_amount,
-          :permit_no
-        )'
-      );
+          $sql = 'UPDATE properties_list SET ' . implode(', ', $setParts) . ' WHERE id = :id';
+          $stmt = $pdo->prepare($sql);
+          foreach ($propertyData as $column => $value) {
+            $param = ':' . $column;
+            if ($value === null) {
+              $stmt->bindValue($param, null, PDO::PARAM_NULL);
+            } else {
+              $stmt->bindValue($param, $value);
+            }
+          }
+          $stmt->bindValue(':id', $requestedEditId, PDO::PARAM_INT);
+          $stmt->execute();
 
-      $stmt->execute([
-        ':hero_banner'                   => $heroBannerPath,
-        ':brochure'                      => $brochurePath,
-        ':gallery_images'                => json_encode($galleryPaths, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-        ':developer_logo'                => $developerLogoPath,
-        ':permit_barcode'                => $permitBarcodePath,
-        ':project_status'                => $formData['project_status'],
-        ':property_type'                 => $formData['property_type'],
-        ':project_name'                  => $formData['project_name'],
-        ':property_title'                => $formData['property_title'],
-        ':meta_title'                    => $formData['meta_title'],
-        ':meta_keywords'                 => $formData['meta_keywords'],
-        ':meta_description'              => $formData['meta_description'],
-        ':property_location'             => $formData['property_location'],
-        ':starting_price'                => $formData['starting_price'],
-        ':bedroom'                       => $formData['bedroom'],
-        ':bathroom'                      => $formData['bathroom'],
-        ':parking'                       => $formData['parking'],
-        ':total_area'                    => $formData['total_area'],
-        ':completion_date'               => $completionDate,
-        ':about_project'                 => $formData['about_project'],
-        ':developer_name'                => $formData['developer_name'],
-        ':developer_established'         => $formData['developer_established'],
-        ':about_developer'               => $formData['about_developer'],
-        ':completed_projects'            => $formData['completed_projects'],
-        ':international_awards'          => $formData['international_awards'],
-        ':on_time_delivery'              => $formData['on_time_delivery'],
-        ':floor_plans'                   => json_encode($floorPlansForInsert, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
-        ':amenities'                     => $amenitiesJson,
-        ':video_link'                    => $formData['video_link'],
-        ':location_map'                  => $formData['location_map'],
-        ':landmark_name'                 => $formData['landmark_name'],
-        ':distance_time'                 => $formData['distance_time'],
-        ':category'                      => $formData['category'],
-        ':location_accessibility'        => $locationAccessibilityJson,
-        ':roi_potential'                 => $formData['roi_potential'],
-        ':capital_growth'                => $formData['capital_growth'],
-        ':occupancy_rate'                => $formData['occupancy_rate'],
-        ':resale_value'                  => $formData['resale_value'],
-        ':booking_percentage'            => $formData['booking_percentage'],
-        ':booking_amount'                => $formData['booking_amount'],
-        ':during_construction_percentage'=> $formData['during_construction_percentage'],
-        ':during_construction_amount'    => $formData['during_construction_amount'],
-        ':handover_percentage'           => $formData['handover_percentage'],
-        ':handover_amount'               => $formData['handover_amount'],
-        ':permit_no'                     => $formData['permit_no'],
-      ]);
+          $uploadedFilesToCleanup = [];
+          if ($filesToDeleteAfterSuccess) {
+            foreach (array_unique($filesToDeleteAfterSuccess) as $relativePath) {
+              if (!is_string($relativePath) || $relativePath === '') {
+                continue;
+              }
 
-      $_SESSION['add_property_success'] = 'Your Property Has Been Added Successfully';
-      $uploadedFilesToCleanup = [];
+              $absolute = __DIR__ . '/' . ltrim($relativePath, '/');
+              if (is_file($absolute)) {
+                @unlink($absolute);
+              }
+            }
+          }
 
-      header('Location: add_property.php');
-      exit;
+          $_SESSION['property_success'] = 'Your Property Details has been Updated.';
+          header('Location: all_properties.php');
+          exit;
+        }
+
+        $columns = array_keys($propertyData);
+        $placeholders = [];
+        foreach ($columns as $column) {
+          $placeholders[] = ':' . $column;
+        }
+
+        $sql = 'INSERT INTO properties_list (' . implode(', ', $columns) . ') VALUES (' . implode(', ', $placeholders) . ')';
+        $stmt = $pdo->prepare($sql);
+        foreach ($propertyData as $column => $value) {
+          $param = ':' . $column;
+          if ($value === null) {
+            $stmt->bindValue($param, null, PDO::PARAM_NULL);
+          } else {
+            $stmt->bindValue($param, $value);
+          }
+        }
+        $stmt->execute();
+
+        $_SESSION['add_property_success'] = 'Your Property Has Been Added Successfully';
+        $uploadedFilesToCleanup = [];
+        header('Location: add_property.php');
+        exit;
+      } catch (Throwable $e) {
+        $errors[] = 'An unexpected error occurred while saving the property. Please try again.';
+        error_log('Failed to save property: ' . $e->getMessage());
+      }
     }
 
     if (!empty($errors) && $uploadedFilesToCleanup) {
@@ -660,8 +865,10 @@ try {
   error_log('Failed to add property: ' . $e->getMessage());
 }
 
-$pageTitle = 'Add Property';
-$pageDescription = 'Create a new property listing by sharing project details, media, and investment highlights.';
+$pageTitle = $isEditing ? 'Edit Property' : 'Add Property';
+$pageDescription = $isEditing
+  ? 'Update an existing property listing by refining project details, media, and investment highlights.'
+  : 'Create a new property listing by sharing project details, media, and investment highlights.';
 
 render_head($pageTitle);
 echo '<div class="container-fluid layout">';
@@ -697,6 +904,9 @@ render_sidebar('add-property');
 
     <form method="post" enctype="multipart/form-data" class="row g-4">
       <input type="hidden" name="csrf" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
+      <?php if ($isEditing): ?>
+        <input type="hidden" name="property_id" value="<?= htmlspecialchars((string)$requestedEditId, ENT_QUOTES, 'UTF-8') ?>">
+      <?php endif; ?>
 
       <div class="col-12">
         <section class="form-section">
@@ -723,6 +933,14 @@ render_sidebar('add-property');
                   <p class="upload-file-name text-muted"></p>
                 </div>
               </div>
+              <?php if ($isEditing && ($existingFiles['hero_banner'] ?? '') !== ''): ?>
+                <p class="form-text mt-2">
+                  Current:
+                  <a href="<?= htmlspecialchars($existingFiles['hero_banner'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener">
+                    <?= htmlspecialchars(basename((string)$existingFiles['hero_banner']), ENT_QUOTES, 'UTF-8') ?>
+                  </a>
+                </p>
+              <?php endif; ?>
             </div>
             <div class="col-lg-4">
               <label for="brochure" class="form-label">Upload Brochure</label>
@@ -739,6 +957,14 @@ render_sidebar('add-property');
                   <p class="upload-file-name text-muted"></p>
                 </div>
               </div>
+              <?php if ($isEditing && ($existingFiles['brochure'] ?? '') !== ''): ?>
+                <p class="form-text mt-2">
+                  Current:
+                  <a href="<?= htmlspecialchars($existingFiles['brochure'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener">
+                    <?= htmlspecialchars(basename((string)$existingFiles['brochure']), ENT_QUOTES, 'UTF-8') ?>
+                  </a>
+                </p>
+              <?php endif; ?>
             </div>
             <div class="col-lg-4">
               <label for="gallery_images" class="form-label">Upload Gallery Images (Multiple)</label>
@@ -756,6 +982,20 @@ render_sidebar('add-property');
                   <p class="upload-file-name text-muted"></p>
                 </div>
               </div>
+              <?php if ($isEditing && $existingGalleryPaths !== []): ?>
+                <div class="mt-2">
+                  <p class="form-text mb-1">Current gallery images:</p>
+                  <ul class="mb-0 ps-3 small">
+                    <?php foreach ($existingGalleryPaths as $galleryPath): ?>
+                      <li>
+                        <a href="<?= htmlspecialchars($galleryPath, ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener">
+                          <?= htmlspecialchars(basename((string)$galleryPath), ENT_QUOTES, 'UTF-8') ?>
+                        </a>
+                      </li>
+                    <?php endforeach; ?>
+                  </ul>
+                </div>
+              <?php endif; ?>
             </div>
             <div class="col-lg-4">
               <label for="developer_logo" class="form-label">Upload Developer Logo</label>
@@ -772,6 +1012,14 @@ render_sidebar('add-property');
                   <p class="upload-file-name text-muted"></p>
                 </div>
               </div>
+              <?php if ($isEditing && ($existingFiles['developer_logo'] ?? '') !== ''): ?>
+                <p class="form-text mt-2">
+                  Current:
+                  <a href="<?= htmlspecialchars($existingFiles['developer_logo'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener">
+                    <?= htmlspecialchars(basename((string)$existingFiles['developer_logo']), ENT_QUOTES, 'UTF-8') ?>
+                  </a>
+                </p>
+              <?php endif; ?>
             </div>
             <div class="col-lg-8">
               <label for="permit_barcode" class="form-label">Upload Permit Barcode</label>
@@ -788,6 +1036,14 @@ render_sidebar('add-property');
                   <p class="upload-file-name text-muted"></p>
                 </div>
               </div>
+              <?php if ($isEditing && ($existingFiles['permit_barcode'] ?? '') !== ''): ?>
+                <p class="form-text mt-2">
+                  Current:
+                  <a href="<?= htmlspecialchars($existingFiles['permit_barcode'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener">
+                    <?= htmlspecialchars(basename((string)$existingFiles['permit_barcode']), ENT_QUOTES, 'UTF-8') ?>
+                  </a>
+                </p>
+              <?php endif; ?>
             </div>
       </div>
     </section>
@@ -1098,6 +1354,15 @@ render_sidebar('add-property');
                         <p class="upload-file-name text-muted"></p>
                       </div>
                     </div>
+                    <input type="hidden" name="existing_floor_plan_files[]" value="<?= htmlspecialchars((string)($plan['file'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                    <?php if (($plan['file'] ?? '') !== ''): ?>
+                      <p class="form-text mt-2">
+                        Current:
+                        <a href="<?= htmlspecialchars((string)$plan['file'], ENT_QUOTES, 'UTF-8') ?>" target="_blank" rel="noopener">
+                          <?= htmlspecialchars(basename((string)$plan['file']), ENT_QUOTES, 'UTF-8') ?>
+                        </a>
+                      </p>
+                    <?php endif; ?>
                   </div>
                   <div class="col-lg-4 col-md-4">
                     <label for="floor_plan_title_<?= (int)$index ?>" class="form-label" data-floor-plan-label="title">Floor Plan Title Name</label>
@@ -1150,6 +1415,7 @@ render_sidebar('add-property');
                     name="floor_plan_file[]"
                     accept="image/*,application/pdf"
                     data-floor-plan-input="file">
+                  <input type="hidden" name="existing_floor_plan_files[]" value="">
                 </div>
                 <div class="col-lg-3 col-md-6">
                   <label class="form-label" data-floor-plan-label="title">Floor Plan Title Name</label>
@@ -1462,8 +1728,12 @@ render_sidebar('add-property');
 
       <div class="col-12">
         <div class="d-flex justify-content-end gap-2">
-          <button type="reset" class="btn btn-outline-secondary">Reset</button>
-          <button type="submit" class="btn btn-primary">Save Property</button>
+          <?php if ($isEditing): ?>
+            <a href="all_properties.php" class="btn btn-outline-secondary">Cancel</a>
+          <?php else: ?>
+            <button type="reset" class="btn btn-outline-secondary">Reset</button>
+          <?php endif; ?>
+          <button type="submit" class="btn btn-primary"><?= $isEditing ? 'Update Property' : 'Save Property' ?></button>
         </div>
       </div>
     </form>
@@ -1678,6 +1948,8 @@ render_sidebar('add-property');
       return;
     }
 
+    const initialEditorData = textarea.value;
+
     ClassicEditor
       .create(textarea)
       .then(editor => {
@@ -1691,8 +1963,8 @@ render_sidebar('add-property');
           });
 
           form.addEventListener('reset', () => {
-            editor.setData('');
-            textarea.value = '';
+            editor.setData(initialEditorData);
+            textarea.value = initialEditorData;
           });
         }
       })
