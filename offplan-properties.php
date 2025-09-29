@@ -15,7 +15,8 @@ $propertyCount = count($offplanProperties);
 $updatedLabel = date('F j, Y');
 
 $uploadsBasePath = 'admin/assets/uploads/properties/';
-$normalizeImagePath = static function (?string $path) use ($uploadsBasePath): ?string {
+$legacyUploadsPrefix = 'assets/uploads/properties/';
+$normalizeImagePath = static function (?string $path) use ($uploadsBasePath, $legacyUploadsPrefix): ?string {
     if (!is_string($path)) {
         return null;
     }
@@ -30,8 +31,13 @@ $normalizeImagePath = static function (?string $path) use ($uploadsBasePath): ?s
     }
 
     $path = ltrim($path, '/');
+
     if (str_starts_with($path, $uploadsBasePath)) {
         return $path;
+    }
+
+    if (str_starts_with($path, $legacyUploadsPrefix)) {
+        return $uploadsBasePath . substr($path, strlen($legacyUploadsPrefix));
     }
 
     return $uploadsBasePath . $path;
