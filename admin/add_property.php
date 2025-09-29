@@ -26,6 +26,7 @@ if (isset($_SESSION['add_property_success'])) {
 $formData = [
   'project_status'                 => '',
   'property_type'                  => '',
+  'project_name'                   => '',
   'property_title'                 => '',
   'property_location'              => '',
   'starting_price'                 => '',
@@ -75,6 +76,22 @@ $locationAccessibilityFormData = [
   ],
 ];
 
+$amenitiesOptions = [
+  'infinity_pool'            => 'Infinity Pool',
+  'fully_equipped_gym'       => 'Fully Equipped Gym',
+  'landscaped_gardens'       => 'Landscaped Gardens',
+  'kids_play_area'           => "Kids' Play Area",
+  'bbq_area'                 => 'BBQ & Picnic Area',
+  'concierge_services'       => 'Concierge Services',
+  'twenty_four_security'     => '24/7 Security',
+  'retail_outlets'           => 'Retail & Dining Outlets',
+  'covered_parking'          => 'Covered Parking',
+  'smart_home_technology'    => 'Smart Home Technology',
+];
+
+$selectedAmenityKeys = [];
+$selectedAmenities     = [];
+
 /**
  * Ensure the properties_list table exists with the expected structure.
  */
@@ -90,6 +107,7 @@ function add_property_ensure_table(PDO $pdo): void
       permit_barcode VARCHAR(255) DEFAULT NULL,
       project_status VARCHAR(255) DEFAULT NULL,
       property_type VARCHAR(100) DEFAULT NULL,
+      project_name VARCHAR(255) DEFAULT NULL,
       property_title VARCHAR(255) DEFAULT NULL,
       property_location VARCHAR(255) DEFAULT NULL,
       starting_price VARCHAR(255) DEFAULT NULL,
@@ -106,6 +124,7 @@ function add_property_ensure_table(PDO $pdo): void
       international_awards VARCHAR(255) DEFAULT NULL,
       on_time_delivery VARCHAR(255) DEFAULT NULL,
       floor_plans LONGTEXT NULL,
+      amenities LONGTEXT NULL,
       video_link VARCHAR(255) DEFAULT NULL,
       location_map VARCHAR(255) DEFAULT NULL,
       landmark_name VARCHAR(255) DEFAULT NULL,
@@ -135,6 +154,26 @@ function add_property_ensure_table(PDO $pdo): void
     }
   } catch (Throwable $e) {
     error_log('Failed to ensure location_accessibility column: ' . $e->getMessage());
+  }
+
+  try {
+    $columnCheck = $pdo->query("SHOW COLUMNS FROM properties_list LIKE 'project_name'");
+
+    if ($columnCheck instanceof PDOStatement && $columnCheck->rowCount() === 0) {
+      $pdo->exec("ALTER TABLE properties_list ADD project_name VARCHAR(255) NULL AFTER property_type");
+    }
+  } catch (Throwable $e) {
+    error_log('Failed to ensure project_name column: ' . $e->getMessage());
+  }
+
+  try {
+    $columnCheck = $pdo->query("SHOW COLUMNS FROM properties_list LIKE 'amenities'");
+
+    if ($columnCheck instanceof PDOStatement && $columnCheck->rowCount() === 0) {
+      $pdo->exec("ALTER TABLE properties_list ADD amenities LONGTEXT NULL AFTER floor_plans");
+    }
+  } catch (Throwable $e) {
+    error_log('Failed to ensure amenities column: ' . $e->getMessage());
   }
 }
 
@@ -206,6 +245,18 @@ try {
 
     foreach ($formData as $key => $_) {
       $formData[$key] = trim((string)($_POST[$key] ?? ''));
+    }
+
+    $amenitiesInput = $_POST['amenities'] ?? [];
+    if (!is_array($amenitiesInput)) {
+      $amenitiesInput = [];
+    }
+
+    foreach ($amenitiesOptions as $amenityKey => $amenityLabel) {
+      if (in_array($amenityKey, $amenitiesInput, true)) {
+        $selectedAmenityKeys[] = $amenityKey;
+        $selectedAmenities[]   = $amenityLabel;
+      }
     }
 
     $titles = $_POST['floor_plan_title'] ?? [];
@@ -401,6 +452,10 @@ try {
       ? json_encode($locationAccessibilityForInsert, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
       : null;
 
+    $amenitiesJson = $selectedAmenities
+      ? json_encode($selectedAmenities, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+      : null;
+
     if (empty($errors)) {
       $completionDate = $formData['completion_date'] !== '' ? $formData['completion_date'] : null;
 
@@ -413,6 +468,7 @@ try {
           permit_barcode,
           project_status,
           property_type,
+          project_name,
           property_title,
           property_location,
           starting_price,
@@ -429,6 +485,7 @@ try {
           international_awards,
           on_time_delivery,
           floor_plans,
+          amenities,
           video_link,
           location_map,
           landmark_name,
@@ -454,6 +511,7 @@ try {
           :permit_barcode,
           :project_status,
           :property_type,
+          :project_name,
           :property_title,
           :property_location,
           :starting_price,
@@ -470,6 +528,7 @@ try {
           :international_awards,
           :on_time_delivery,
           :floor_plans,
+          :amenities,
           :video_link,
           :location_map,
           :landmark_name,
@@ -498,6 +557,7 @@ try {
         ':permit_barcode'                => $permitBarcodePath,
         ':project_status'                => $formData['project_status'],
         ':property_type'                 => $formData['property_type'],
+        ':project_name'                  => $formData['project_name'],
         ':property_title'                => $formData['property_title'],
         ':property_location'             => $formData['property_location'],
         ':starting_price'                => $formData['starting_price'],
@@ -514,6 +574,7 @@ try {
         ':international_awards'          => $formData['international_awards'],
         ':on_time_delivery'              => $formData['on_time_delivery'],
         ':floor_plans'                   => json_encode($floorPlansForInsert, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+        ':amenities'                     => $amenitiesJson,
         ':video_link'                    => $formData['video_link'],
         ':location_map'                  => $formData['location_map'],
         ':landmark_name'                 => $formData['landmark_name'],
@@ -728,6 +789,16 @@ render_sidebar('add-property');
                 value="<?= htmlspecialchars($formData['property_title'], ENT_QUOTES, 'UTF-8') ?>">
             </div>
             <div class="col-md-4">
+              <label for="project_name" class="form-label">Project Name</label>
+              <input
+                type="text"
+                class="form-control"
+                id="project_name"
+                name="project_name"
+                placeholder="e.g., Bluewaters Residences"
+                value="<?= htmlspecialchars($formData['project_name'], ENT_QUOTES, 'UTF-8') ?>">
+            </div>
+            <div class="col-md-4">
               <label for="property_location" class="form-label">Property Location</label>
               <input
                 type="text"
@@ -802,6 +873,36 @@ render_sidebar('add-property');
               <label for="about_project" class="form-label">About Project (Overview In Rich Text Editor)</label>
               <textarea class="form-control" id="about_project" name="about_project" rows="6" placeholder="Enter an engaging project overview..."><?= htmlspecialchars($formData['about_project'], ENT_QUOTES, 'UTF-8') ?></textarea>
             </div>
+          </div>
+        </section>
+      </div>
+
+      <div class="col-12">
+        <section class="form-section">
+          <div class="section-header">
+            <h4 class="section-title">
+              <img src="assets/images/icons/community.svg" alt="Amenities icon" class="section-title-icon">
+              <span>Key Features &amp; Amenities</span>
+            </h4>
+            <p class="section-subtitle">Select the standout amenities that define this project.</p>
+          </div>
+          <div class="row g-3">
+            <?php foreach ($amenitiesOptions as $amenityKey => $amenityLabel): ?>
+              <div class="col-sm-6 col-lg-4">
+                <div class="form-check">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="amenity_<?= htmlspecialchars($amenityKey, ENT_QUOTES, 'UTF-8') ?>"
+                    name="amenities[]"
+                    value="<?= htmlspecialchars($amenityKey, ENT_QUOTES, 'UTF-8') ?>"
+                    <?= in_array($amenityKey, $selectedAmenityKeys, true) ? 'checked' : '' ?>>
+                  <label class="form-check-label" for="amenity_<?= htmlspecialchars($amenityKey, ENT_QUOTES, 'UTF-8') ?>">
+                    <?= htmlspecialchars($amenityLabel, ENT_QUOTES, 'UTF-8') ?>
+                  </label>
+                </div>
+              </div>
+            <?php endforeach; ?>
           </div>
         </section>
       </div>
