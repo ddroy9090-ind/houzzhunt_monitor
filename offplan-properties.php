@@ -5,7 +5,7 @@ require_once __DIR__ . '/includes/config.php';
 
 try {
     $pdo = hh_db();
-    $stmt = $pdo->query('SELECT id, hero_banner, gallery_images, project_status, property_type, property_title, property_location, starting_price, bedroom, bathroom, total_area, created_at FROM properties_list ORDER BY created_at DESC');
+    $stmt = $pdo->query('SELECT id, hero_banner, gallery_images, project_status, property_type, project_name, property_location, starting_price, bedroom, bathroom, total_area, created_at FROM properties_list ORDER BY created_at DESC');
     $offplanProperties = $stmt->fetchAll();
 } catch (Throwable $e) {
     $offplanProperties = [];
@@ -274,6 +274,7 @@ include 'includes/navbar.php';
                         }
 
                         $primaryImage = $heroBanner !== '' ? $heroBanner : ($galleryImages[0] ?? 'assets/images/offplan/breez-by-danube.webp');
+                        $projectName = trim((string)($property['project_name'] ?? ''));
 
                         $specs = [];
                         if (!empty($property['bedroom'])) {
@@ -303,7 +304,7 @@ include 'includes/navbar.php';
                         <a href="property-details.php?id=<?= (int)($property['id'] ?? 0) ?>" class="property-link">
                             <article>
                                 <div class="hh-properties-01-img">
-                                    <img src="<?= htmlspecialchars($primaryImage, ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($property['property_title'] ?: 'Property', ENT_QUOTES, 'UTF-8') ?>">
+                                    <img src="<?= htmlspecialchars($primaryImage, ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($projectName !== '' ? $projectName : 'Project', ENT_QUOTES, 'UTF-8') ?>">
                                     <div class="hh-properties-01-tags">
                                         <?php if (!empty($property['project_status'])): ?>
                                             <span class="green"><?= htmlspecialchars($property['project_status'], ENT_QUOTES, 'UTF-8') ?></span>
@@ -315,7 +316,7 @@ include 'includes/navbar.php';
                                     <button type="button" class="hh-properties-01-fav" aria-label="Save">♥</button>
                                 </div>
                                 <div class="hh-properties-01-body">
-                                    <h3><?= htmlspecialchars($property['property_title'] ?: 'Untitled Property', ENT_QUOTES, 'UTF-8') ?></h3>
+                                    <h3><?= htmlspecialchars($projectName !== '' ? $projectName : 'Untitled Project', ENT_QUOTES, 'UTF-8') ?></h3>
                                     <?php if (!empty($property['property_location'])): ?>
                                         <p><img src="assets/icons/location.png" width="16" alt=""> <?= htmlspecialchars($property['property_location'], ENT_QUOTES, 'UTF-8') ?></p>
                                     <?php endif; ?>
