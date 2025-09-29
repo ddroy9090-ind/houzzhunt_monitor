@@ -234,16 +234,16 @@ include 'includes/navbar.php';
                         <div class="hh-properties-01-img">
                             <img src="assets/images/offplan/breez-by-danube.webp" alt="">
                             <div class="hh-properties-01-tags">
-                                <span class="green">New Launch</span>
-                                <span>Apartment</span>
+                                <span class="green">Project Status</span>
+                                <span>Property Type</span>
                             </div>
                             <button type="button" class="hh-properties-01-fav" aria-label="Save">
                                 ♥
                             </button>
                         </div>
                         <div class="hh-properties-01-body">
-                            <h3>Breez by Danube</h3>
-                            <p><img src="assets/icons/location.png" width="16" alt=""> Dubai Maritime City, UAE</p>
+                            <h3>Property Title</h3>
+                            <p><img src="assets/icons/location.png" width="16" alt=""> Property Location</p>
                             <ul>
                                 <li><img src="assets/icons/bed.png" width="16" alt=""> 3 Beds</li>
                                 <li><img src="assets/icons/bathroom.png" width="16" alt=""> 4 Baths</li>
