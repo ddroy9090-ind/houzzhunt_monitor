@@ -16,6 +16,13 @@ if (!is_authenticated()) {
 $errors = [];
 $successMessage = null;
 
+if (isset($_SESSION['add_property_success'])) {
+  $successMessage = is_string($_SESSION['add_property_success'])
+    ? $_SESSION['add_property_success']
+    : null;
+  unset($_SESSION['add_property_success']);
+}
+
 $formData = [
   'project_status'                 => '',
   'property_type'                  => '',
@@ -452,21 +459,11 @@ try {
         ':permit_no'                     => $formData['permit_no'],
       ]);
 
-      $successMessage = 'Your Property Has Been Added Successfully';
-
-      foreach ($formData as $key => $_) {
-        $formData[$key] = '';
-      }
-
-      $floorPlanFormData = [
-        [
-          'title' => '',
-          'area'  => '',
-          'price' => '',
-        ],
-      ];
-
+      $_SESSION['add_property_success'] = 'Your Property Has Been Added Successfully';
       $uploadedFilesToCleanup = [];
+
+      header('Location: add_property.php');
+      exit;
     }
 
     if (!empty($errors) && $uploadedFilesToCleanup) {
