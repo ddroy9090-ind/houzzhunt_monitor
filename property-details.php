@@ -323,7 +323,7 @@ $developerStats = array_values(array_filter([
                         <?php endif; ?>
                         <h1><?= htmlspecialchars($titleText, ENT_QUOTES, 'UTF-8') ?></h1>
                         <?php if (!empty($property['project_name'])): ?>
-                            <p class="text-white fw-semibold mb-2">Project Name: <?= htmlspecialchars($property['project_name'], ENT_QUOTES, 'UTF-8') ?></p>
+                            <p class="text-white fw-semibold mb-2 d-none">Project Name: <?= htmlspecialchars($property['project_name'], ENT_QUOTES, 'UTF-8') ?></p>
                         <?php endif; ?>
                         <?php if (!empty($property['property_location'])): ?>
                             <div class="hh-property-hero-loc"><img src="assets/icons/location.png" alt="" width="16"><?= htmlspecialchars($property['property_location'], ENT_QUOTES, 'UTF-8') ?></div>
