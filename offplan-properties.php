@@ -1,4 +1,18 @@
 <?php
+declare(strict_types=1);
+
+require_once __DIR__ . '/includes/config.php';
+
+try {
+    $pdo = hh_db();
+    $stmt = $pdo->query('SELECT id, hero_banner, gallery_images, project_status, property_type, property_title, property_location, starting_price, bedroom, bathroom, total_area, created_at FROM properties_list ORDER BY created_at DESC');
+    $offplanProperties = $stmt->fetchAll();
+} catch (Throwable $e) {
+    $offplanProperties = [];
+}
+
+$propertyCount = count($offplanProperties);
+$updatedLabel = date('F j, Y');
 
 $title = 'Dubai Off-Plan Properties for Sale | High ROI Deals';
 
@@ -185,7 +199,7 @@ include 'includes/navbar.php';
                 <div class="hh-properties-01-head">
                     <div>
                         <h2>Investment Opportunities</h2>
-                        <p>Showing 1 premium properties • Updated today</p>
+                        <p>Showing <?= htmlspecialchars((string)$propertyCount, ENT_QUOTES, 'UTF-8') ?> <?= $propertyCount === 1 ? 'property' : 'properties' ?> • Updated <?= htmlspecialchars($updatedLabel, ENT_QUOTES, 'UTF-8') ?></p>
                     </div>
                     <div>
                         <label>
@@ -227,44 +241,98 @@ include 'includes/navbar.php';
 
         <!-- Cards -->
         <div class="row hh-properties-01-grid">
+            <?php if ($offplanProperties): ?>
+                <?php foreach ($offplanProperties as $property): ?>
+                    <?php
+                        $heroBanner = trim((string)($property['hero_banner'] ?? ''));
+                        $galleryImages = [];
+                        if (!empty($property['gallery_images'])) {
+                            $decodedGallery = json_decode((string)$property['gallery_images'], true);
+                            if (is_array($decodedGallery)) {
+                                foreach ($decodedGallery as $imagePath) {
+                                    if (is_string($imagePath) && $imagePath !== '') {
+                                        $galleryImages[] = $imagePath;
+                                    }
+                                }
+                            }
+                        }
 
-            <div class="col-12 col-md-6 col-lg-4">
-                <a href="property-details.php" class="property-link">
-                    <article>
-                        <div class="hh-properties-01-img">
-                            <img src="assets/images/offplan/breez-by-danube.webp" alt="">
-                            <div class="hh-properties-01-tags">
-                                <span class="green">Project Status</span>
-                                <span>Property Type</span>
-                            </div>
-                            <button type="button" class="hh-properties-01-fav" aria-label="Save">
-                                ♥
-                            </button>
-                        </div>
-                        <div class="hh-properties-01-body">
-                            <h3>Property Title</h3>
-                            <p><img src="assets/icons/location.png" width="16" alt=""> Property Location</p>
-                            <ul>
-                                <li><img src="assets/icons/bed.png" width="16" alt=""> 3 Beds</li>
-                                <li><img src="assets/icons/bathroom.png" width="16" alt=""> 4 Baths</li>
-                                <li><img src="assets/icons/area.png" width="16" alt=""> 2,450 sq ft</li>
-                            </ul>
-                            <div class="hh-properties-01-foot">
-                                <strong><span>AED</span> 1,300,000</strong>
-                                <span class="details-link">View Details</span>
-                            </div>
-                        </div>
-                    </article>
-                </a>
-            </div>
+                        $primaryImage = $heroBanner !== '' ? $heroBanner : ($galleryImages[0] ?? 'assets/images/offplan/breez-by-danube.webp');
 
+                        $specs = [];
+                        if (!empty($property['bedroom'])) {
+                            $specs[] = ['icon' => 'assets/icons/bed.png', 'text' => trim((string)$property['bedroom']) . ' Beds'];
+                        }
+                        if (!empty($property['bathroom'])) {
+                            $specs[] = ['icon' => 'assets/icons/bathroom.png', 'text' => trim((string)$property['bathroom']) . ' Baths'];
+                        }
+                        if (!empty($property['total_area'])) {
+                            $specs[] = ['icon' => 'assets/icons/area.png', 'text' => trim((string)$property['total_area'])];
+                        }
 
-            <!-- <div class="col-lg-12">
-                <div class="text-center">
-                    <a href="#" class="hh-btn-load">Load more properties</a>
+                        $priceCurrency = '';
+                        $priceValue = '';
+                        $rawPrice = trim((string)($property['starting_price'] ?? ''));
+                        if ($rawPrice !== '') {
+                            $priceDisplay = stripos($rawPrice, 'aed') === false ? 'AED ' . $rawPrice : $rawPrice;
+                            if (stripos($priceDisplay, 'aed') === 0) {
+                                $priceCurrency = 'AED';
+                                $priceValue = trim(substr($priceDisplay, 3));
+                            } else {
+                                $priceValue = $priceDisplay;
+                            }
+                        }
+                    ?>
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <a href="property-details.php?id=<?= (int)($property['id'] ?? 0) ?>" class="property-link">
+                            <article>
+                                <div class="hh-properties-01-img">
+                                    <img src="<?= htmlspecialchars($primaryImage, ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($property['property_title'] ?: 'Property', ENT_QUOTES, 'UTF-8') ?>">
+                                    <div class="hh-properties-01-tags">
+                                        <?php if (!empty($property['project_status'])): ?>
+                                            <span class="green"><?= htmlspecialchars($property['project_status'], ENT_QUOTES, 'UTF-8') ?></span>
+                                        <?php endif; ?>
+                                        <?php if (!empty($property['property_type'])): ?>
+                                            <span><?= htmlspecialchars($property['property_type'], ENT_QUOTES, 'UTF-8') ?></span>
+                                        <?php endif; ?>
+                                    </div>
+                                    <button type="button" class="hh-properties-01-fav" aria-label="Save">♥</button>
+                                </div>
+                                <div class="hh-properties-01-body">
+                                    <h3><?= htmlspecialchars($property['property_title'] ?: 'Untitled Property', ENT_QUOTES, 'UTF-8') ?></h3>
+                                    <?php if (!empty($property['property_location'])): ?>
+                                        <p><img src="assets/icons/location.png" width="16" alt=""> <?= htmlspecialchars($property['property_location'], ENT_QUOTES, 'UTF-8') ?></p>
+                                    <?php endif; ?>
+                                    <?php if ($specs): ?>
+                                        <ul>
+                                            <?php foreach ($specs as $spec): ?>
+                                                <li><img src="<?= htmlspecialchars($spec['icon'], ENT_QUOTES, 'UTF-8') ?>" width="16" alt=""> <?= htmlspecialchars($spec['text'], ENT_QUOTES, 'UTF-8') ?></li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    <?php endif; ?>
+                                    <div class="hh-properties-01-foot">
+                                        <?php if ($priceValue !== ''): ?>
+                                            <strong>
+                                                <?php if ($priceCurrency !== ''): ?>
+                                                    <span><?= htmlspecialchars($priceCurrency, ENT_QUOTES, 'UTF-8') ?></span>
+                                                <?php endif; ?>
+                                                <?= htmlspecialchars($priceValue, ENT_QUOTES, 'UTF-8') ?>
+                                            </strong>
+                                        <?php else: ?>
+                                            <strong>Price on request</strong>
+                                        <?php endif; ?>
+                                        <span class="details-link">View Details</span>
+                                    </div>
+                                </div>
+                            </article>
+                        </a>
+                    </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="col-12">
+                    <p class="mb-0">No off-plan properties available right now. Please check back soon.</p>
                 </div>
-            </div> -->
-
+            <?php endif; ?>
         </div>
 
     </div>
