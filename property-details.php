@@ -199,6 +199,21 @@ $featureItems = array_values(array_filter([
     $completionDate ? 'Completion: ' . $completionDate : null,
 ]));
 
+if (!empty($property['project_name'])) {
+    array_unshift($featureItems, 'Project Name: ' . trim((string)$property['project_name']));
+}
+
+$amenitiesList = [];
+$amenitiesRaw = $decodeList($property['amenities'] ?? null);
+foreach ($amenitiesRaw as $amenity) {
+    if (is_string($amenity)) {
+        $amenity = trim($amenity);
+        if ($amenity !== '') {
+            $amenitiesList[] = $amenity;
+        }
+    }
+}
+
 $aboutProjectParagraphs = array_values(array_filter(array_map(
     static fn(string $paragraph): string => trim($paragraph),
     preg_split('/\r\n|\r|\n/', (string)($property['about_project'] ?? ''), flags: PREG_SPLIT_NO_EMPTY) ?: []
@@ -294,6 +309,9 @@ $developerStats = array_values(array_filter([
                             </div>
                         <?php endif; ?>
                         <h1><?= htmlspecialchars($titleText, ENT_QUOTES, 'UTF-8') ?></h1>
+                        <?php if (!empty($property['project_name'])): ?>
+                            <p class="text-white fw-semibold mb-2">Project Name: <?= htmlspecialchars($property['project_name'], ENT_QUOTES, 'UTF-8') ?></p>
+                        <?php endif; ?>
                         <?php if (!empty($property['property_location'])): ?>
                             <div class="hh-property-hero-loc"><img src="assets/icons/location.png" alt="" width="16"><?= htmlspecialchars($property['property_location'], ENT_QUOTES, 'UTF-8') ?></div>
                         <?php endif; ?>
@@ -558,7 +576,13 @@ $developerStats = array_values(array_filter([
                             <div class="hh-amenities-01">
                                 <div class="container-fluid">
                                     <h3>Key Features & Amenities</h3>
-                                    <?php if ($featureItems): ?>
+                                    <?php if ($amenitiesList): ?>
+                                        <ul class="amenities-list">
+                                            <?php foreach ($amenitiesList as $amenity): ?>
+                                                <li><img src="assets/icons/tick.png" alt="✓"> <?= htmlspecialchars($amenity, ENT_QUOTES, 'UTF-8') ?></li>
+                                            <?php endforeach; ?>
+                                        </ul>
+                                    <?php elseif ($featureItems): ?>
                                         <ul class="amenities-list">
                                             <?php foreach ($featureItems as $item): ?>
                                                 <li><img src="assets/icons/tick.png" alt="✓"> <?= htmlspecialchars($item, ENT_QUOTES, 'UTF-8') ?></li>
