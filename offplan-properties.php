@@ -482,6 +482,7 @@ include 'includes/navbar.php';
     .hh-pagination {
         margin-top: 40px;
         text-align: center;
+        position: inherit;
     }
 
     .hh-pagination ul {
@@ -502,19 +503,19 @@ include 'includes/navbar.php';
         padding: 8px 14px;
         border: 1px solid #d0d4dc;
         border-radius: 999px;
-        color: #1a2434;
+        color: #004a44;
         text-decoration: none;
         font-size: 14px;
         transition: all 0.2s ease-in-out;
     }
 
     .hh-pagination a:hover {
-        background-color: #1a2434;
+        background-color: #004a44;
         color: #fff;
     }
 
     .hh-pagination li.active span {
-        background-color: #1a2434;
+        background-color: #004a44;
         color: #fff;
         cursor: default;
     }
