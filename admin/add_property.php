@@ -797,7 +797,7 @@ render_sidebar('add-property');
     <section class="form-section">
       <div class="section-header">
         <h4 class="section-title">
-          <img src="assets/icons/globe.png" alt="SEO settings icon" class="section-title-icon">
+          <img src="../assets/icons/seo.png" alt="SEO settings icon" class="section-title-icon">
           <span>SEO Meta Information</span>
         </h4>
         <p class="section-subtitle">Provide meta tags to optimise the property details page for search engines.</p>
