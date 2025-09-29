@@ -69,21 +69,7 @@ include 'includes/common-header.php';
 include 'includes/navbar.php';
 ?>
 
-<!-- page header start -->
-<!-- <div class="page-header-section PropertiesList" style="background-image: url(assets/images/banner/offplan-banner.webp);">
-    <div class="container">
-        <div class="row">
-            <div class="col-lg-12">
-                <div class="page-header-heading animate fadeInLeft wow">
-                    <h2>Exclusive Off-Plan Properties</h2>
-                    <p class="lead">Discover handpicked off-plan projects across Dubai's most prestigious locations. Exclusive prices, flexible payment plans, and prime investment opportunities.</p>
-                </div>
-            </div>
-        </div>
 
-    </div>
-</div> -->
-<!-- page header start -->
 
 <!-- parent: .hh-hero-01 -->
 <div class="hh-hero-01" style="background-image: url(assets/images/banner/offplan-banner.webp);">

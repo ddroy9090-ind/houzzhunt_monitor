@@ -960,7 +960,7 @@ $developerStats = array_values(array_filter([
                             <h3>Prime Location &amp; Connectivity</h3>
                         </div>
                         <?php if (!empty($property['property_location'])): ?>
-                            <p class="mb-0">Located at <?= htmlspecialchars($property['property_location'], ENT_QUOTES, 'UTF-8') ?>.</p>
+                            <p class="locationP">Located at <?= htmlspecialchars($property['property_location'], ENT_QUOTES, 'UTF-8') ?>.</p>
                         <?php endif; ?>
                     </div>
                 </div>
