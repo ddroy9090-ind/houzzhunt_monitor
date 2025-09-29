@@ -3,15 +3,63 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/includes/config.php';
 
+$itemsPerPage = 6;
+$currentPage = (int)filter_input(
+    INPUT_GET,
+    'page',
+    FILTER_VALIDATE_INT,
+    [
+        'options' => [
+            'default' => 1,
+            'min_range' => 1,
+        ],
+    ]
+);
+
+$offplanProperties = [];
+$propertyCount = 0;
+$totalPages = 1;
+$offset = 0;
+
 try {
     $pdo = hh_db();
-    $stmt = $pdo->query('SELECT id, hero_banner, gallery_images, project_status, property_type, project_name, property_location, starting_price, bedroom, bathroom, total_area, created_at FROM properties_list ORDER BY created_at DESC');
-    $offplanProperties = $stmt->fetchAll();
+
+    $countStmt = $pdo->query('SELECT COUNT(*) FROM properties_list');
+    $propertyCount = (int)($countStmt->fetchColumn() ?: 0);
+
+    if ($propertyCount > 0) {
+        $totalPages = (int)ceil($propertyCount / $itemsPerPage);
+        if ($currentPage > $totalPages) {
+            $currentPage = $totalPages;
+        }
+
+        $offset = ($currentPage - 1) * $itemsPerPage;
+
+        $stmt = $pdo->prepare(
+            'SELECT id, hero_banner, gallery_images, project_status, property_type, project_name, property_location, starting_price, bedroom, bathroom, total_area, created_at
+            FROM properties_list
+            ORDER BY created_at DESC
+            LIMIT :limit OFFSET :offset'
+        );
+        $stmt->bindValue(':limit', $itemsPerPage, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+        $offplanProperties = $stmt->fetchAll();
+    } else {
+        $currentPage = 1;
+        $totalPages = 1;
+    }
 } catch (Throwable $e) {
     $offplanProperties = [];
+    $propertyCount = 0;
+    $totalPages = 1;
+    $currentPage = 1;
+    $offset = 0;
 }
 
-$propertyCount = count($offplanProperties);
+$pageStart = $propertyCount > 0 ? $offset + 1 : 0;
+$pageEnd = $propertyCount > 0 ? min($offset + count($offplanProperties), $propertyCount) : 0;
+$propertyLabel = $propertyCount === 1 ? 'property' : 'properties';
 $updatedLabel = date('F j, Y');
 
 $uploadsBasePath = 'admin/assets/uploads/properties/';
@@ -214,7 +262,13 @@ include 'includes/navbar.php';
                 <div class="hh-properties-01-head">
                     <div>
                         <h2>Investment Opportunities</h2>
-                        <p>Showing <?= htmlspecialchars((string)$propertyCount, ENT_QUOTES, 'UTF-8') ?> <?= $propertyCount === 1 ? 'property' : 'properties' ?> • Updated <?= htmlspecialchars($updatedLabel, ENT_QUOTES, 'UTF-8') ?></p>
+                        <p>
+                            <?php if ($propertyCount > 0): ?>
+                                Showing <?= htmlspecialchars((string)$pageStart, ENT_QUOTES, 'UTF-8') ?>–<?= htmlspecialchars((string)$pageEnd, ENT_QUOTES, 'UTF-8') ?> of <?= htmlspecialchars((string)$propertyCount, ENT_QUOTES, 'UTF-8') ?> <?= htmlspecialchars($propertyLabel, ENT_QUOTES, 'UTF-8') ?> • Updated <?= htmlspecialchars($updatedLabel, ENT_QUOTES, 'UTF-8') ?>
+                            <?php else: ?>
+                                Showing 0 <?= htmlspecialchars($propertyLabel, ENT_QUOTES, 'UTF-8') ?> • Updated <?= htmlspecialchars($updatedLabel, ENT_QUOTES, 'UTF-8') ?>
+                            <?php endif; ?>
+                        </p>
                     </div>
                     <div>
                         <label>
@@ -352,6 +406,38 @@ include 'includes/navbar.php';
             <?php endif; ?>
         </div>
 
+        <?php if ($totalPages > 1): ?>
+            <nav class="hh-pagination" aria-label="Off-plan properties pagination">
+                <ul>
+                    <li class="prev<?= $currentPage <= 1 ? ' disabled' : '' ?>">
+                        <?php if ($currentPage > 1): ?>
+                            <a href="?page=<?= (int)($currentPage - 1) ?>">Previous</a>
+                        <?php else: ?>
+                            <span>Previous</span>
+                        <?php endif; ?>
+                    </li>
+
+                    <?php for ($page = 1; $page <= $totalPages; $page++): ?>
+                        <li class="<?= $page === $currentPage ? 'active' : '' ?>">
+                            <?php if ($page === $currentPage): ?>
+                                <span><?= (int)$page ?></span>
+                            <?php else: ?>
+                                <a href="?page=<?= (int)$page ?>"><?= (int)$page ?></a>
+                            <?php endif; ?>
+                        </li>
+                    <?php endfor; ?>
+
+                    <li class="next<?= $currentPage >= $totalPages ? ' disabled' : '' ?>">
+                        <?php if ($currentPage < $totalPages): ?>
+                            <a href="?page=<?= (int)($currentPage + 1) ?>">Next</a>
+                        <?php else: ?>
+                            <span>Next</span>
+                        <?php endif; ?>
+                    </li>
+                </ul>
+            </nav>
+        <?php endif; ?>
+
     </div>
 </div>
 
@@ -390,6 +476,51 @@ include 'includes/navbar.php';
 
     .hh-properties-01-grid.list-view .hh-properties-01-body {
         flex: 1;
+    }
+
+    .hh-pagination {
+        margin-top: 40px;
+        text-align: center;
+    }
+
+    .hh-pagination ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+        display: inline-flex;
+        gap: 8px;
+    }
+
+    .hh-pagination li {
+        display: inline-flex;
+    }
+
+    .hh-pagination a,
+    .hh-pagination span {
+        display: inline-block;
+        padding: 8px 14px;
+        border: 1px solid #d0d4dc;
+        border-radius: 999px;
+        color: #1a2434;
+        text-decoration: none;
+        font-size: 14px;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .hh-pagination a:hover {
+        background-color: #1a2434;
+        color: #fff;
+    }
+
+    .hh-pagination li.active span {
+        background-color: #1a2434;
+        color: #fff;
+        cursor: default;
+    }
+
+    .hh-pagination li.disabled span {
+        opacity: 0.5;
+        cursor: not-allowed;
     }
 </style>
 
