@@ -47,13 +47,36 @@ $decodeList = static function (?string $json): array {
     ));
 };
 
+$uploadsBasePath = 'admin/assets/uploads/properties/';
+$normalizeImagePath = static function (?string $path) use ($uploadsBasePath): ?string {
+    if (!is_string($path)) {
+        return null;
+    }
+
+    $path = trim(str_replace('\\', '/', $path));
+    if ($path === '') {
+        return null;
+    }
+
+    if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://') || str_starts_with($path, '//')) {
+        return $path;
+    }
+
+    $path = ltrim($path, '/');
+    if (str_starts_with($path, $uploadsBasePath)) {
+        return $path;
+    }
+
+    return $uploadsBasePath . $path;
+};
+
 $heroBanner = is_string($property['hero_banner'] ?? '') && $property['hero_banner'] !== ''
-    ? $property['hero_banner']
+    ? $normalizeImagePath($property['hero_banner'])
     : null;
 
 $galleryImages = array_values(array_filter(
     array_map(
-        static fn($path): ?string => is_string($path) && $path !== '' ? $path : null,
+        fn($path): ?string => $normalizeImagePath(is_string($path) ? $path : null),
         $decodeList($property['gallery_images'] ?? null)
     )
 ));
@@ -81,7 +104,9 @@ foreach ($floorPlansRaw as $plan) {
         'title' => isset($plan['title']) && is_string($plan['title']) ? trim($plan['title']) : '',
         'area'  => isset($plan['area']) && is_string($plan['area']) ? trim($plan['area']) : '',
         'price' => isset($plan['price']) && is_string($plan['price']) ? trim($plan['price']) : '',
-        'file'  => isset($plan['file']) && is_string($plan['file']) ? trim($plan['file']) : '',
+        'file'  => isset($plan['file']) && is_string($plan['file'])
+            ? ($normalizeImagePath($plan['file']) ?? trim($plan['file']))
+            : '',
     ];
 }
 
@@ -147,11 +172,11 @@ if ($startingPriceDisplay !== '') {
 }
 
 $developerLogo = is_string($property['developer_logo'] ?? '') && $property['developer_logo'] !== ''
-    ? $property['developer_logo']
+    ? $normalizeImagePath($property['developer_logo'])
     : null;
 
 $permitBarcode = is_string($property['permit_barcode'] ?? '') && $property['permit_barcode'] !== ''
-    ? $property['permit_barcode']
+    ? $normalizeImagePath($property['permit_barcode'])
     : null;
 
 $videoLink = trim((string)($property['video_link'] ?? ''));

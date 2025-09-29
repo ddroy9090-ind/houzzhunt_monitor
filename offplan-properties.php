@@ -14,6 +14,29 @@ try {
 $propertyCount = count($offplanProperties);
 $updatedLabel = date('F j, Y');
 
+$uploadsBasePath = 'admin/assets/uploads/properties/';
+$normalizeImagePath = static function (?string $path) use ($uploadsBasePath): ?string {
+    if (!is_string($path)) {
+        return null;
+    }
+
+    $path = trim(str_replace('\\', '/', $path));
+    if ($path === '') {
+        return null;
+    }
+
+    if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://') || str_starts_with($path, '//')) {
+        return $path;
+    }
+
+    $path = ltrim($path, '/');
+    if (str_starts_with($path, $uploadsBasePath)) {
+        return $path;
+    }
+
+    return $uploadsBasePath . $path;
+};
+
 $title = 'Dubai Off-Plan Properties for Sale | High ROI Deals';
 
 $meta_tags = '
@@ -244,14 +267,15 @@ include 'includes/navbar.php';
             <?php if ($offplanProperties): ?>
                 <?php foreach ($offplanProperties as $property): ?>
                     <?php
-                        $heroBanner = trim((string)($property['hero_banner'] ?? ''));
+                        $heroBanner = $normalizeImagePath($property['hero_banner'] ?? null) ?? '';
                         $galleryImages = [];
                         if (!empty($property['gallery_images'])) {
                             $decodedGallery = json_decode((string)$property['gallery_images'], true);
                             if (is_array($decodedGallery)) {
                                 foreach ($decodedGallery as $imagePath) {
-                                    if (is_string($imagePath) && $imagePath !== '') {
-                                        $galleryImages[] = $imagePath;
+                                    $normalized = $normalizeImagePath(is_string($imagePath) ? $imagePath : null);
+                                    if ($normalized !== null) {
+                                        $galleryImages[] = $normalized;
                                     }
                                 }
                             }
