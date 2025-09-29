@@ -40,6 +40,7 @@ function render_sidebar(string $active): void
     'mortgage-leads' => ['href' => 'mortgage_leads.php', 'icon' => 'bi-cash-coin', 'label' => 'Mortgage Leads'],
     'popup-form' => ['href' => 'popup_form_submissions.php', 'icon' => 'bi-database', 'label' => 'Popup Submissions'],
     'add-property' => ['href' => 'add_property.php', 'icon' => 'bi-buildings', 'label' => 'Add Property'],
+    'all-properties' => ['href' => 'all_properties.php', 'icon' => 'bi-list-ul', 'label' => 'All Properties'],
     'add-blogs' => ['href' => 'add_blogs.php', 'icon' => 'bi-journal-plus', 'label' => 'Add Blogs'],
     // 'add-job-vacancy' => ['href' => 'add_job_vacancy.php', 'icon' => 'bi-briefcase', 'label' => 'Add Job Vacancy'],
     'all-blogs' => ['href' => 'all_blogs.php', 'icon' => 'bi-journal-text', 'label' => 'All Blogs'],
