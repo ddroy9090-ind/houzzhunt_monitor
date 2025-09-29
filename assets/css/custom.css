@@ -1264,8 +1264,8 @@ body.no-scroll {
 /* Popup Image Side */
 .popup-image {
     width: 50%;
-    background: url('../images/homepage/modal-popup.webp') no-repeat center center;
-    background-size: cover;
+    background: url('../images/homepage/modal-popup.webp') no-repeat center center !important;
+    background-size: cover !important;
 }
 
 .popup-image1 {
