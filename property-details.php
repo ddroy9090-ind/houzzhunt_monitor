@@ -254,7 +254,14 @@ $paymentSchedule = array_filter([
     ['title' => 'On Handover', 'percentage' => $property['handover_percentage'] ?? null, 'amount' => $property['handover_amount'] ?? null],
 ], static fn($item) => (isset($item['percentage']) && trim((string)$item['percentage']) !== '') || (isset($item['amount']) && trim((string)$item['amount']) !== ''));
 
-$titleText = trim((string)($property['property_title'] ?? 'Property Details'));
+$propertyTitle = trim((string)($property['property_title'] ?? ''));
+$titleText = $propertyTitle !== '' ? $propertyTitle : 'Property Details';
+$metaTitle = trim((string)($property['meta_title'] ?? ''));
+if ($metaTitle === '') {
+    $metaTitle = $titleText;
+}
+$metaKeywords = trim((string)($property['meta_keywords'] ?? ''));
+$metaDescription = trim((string)($property['meta_description'] ?? ''));
 
 $developerStats = array_values(array_filter([
     ['label' => 'Established', 'value' => $property['developer_established'] ?? null],
@@ -270,7 +277,13 @@ $developerStats = array_values(array_filter([
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="assets/images/logo/favicon.svg" type="image/x-icon">
-    <title><?= htmlspecialchars($titleText, ENT_QUOTES, 'UTF-8') ?></title>
+    <title><?= htmlspecialchars($metaTitle, ENT_QUOTES, 'UTF-8') ?></title>
+    <?php if ($metaDescription !== ''): ?>
+        <meta name="description" content="<?= htmlspecialchars($metaDescription, ENT_QUOTES, 'UTF-8') ?>">
+    <?php endif; ?>
+    <?php if ($metaKeywords !== ''): ?>
+        <meta name="keywords" content="<?= htmlspecialchars($metaKeywords, ENT_QUOTES, 'UTF-8') ?>">
+    <?php endif; ?>
     <link rel="stylesheet" href="assets/vendors/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/country-select-js@2.0.1/build/css/countrySelect.min.css">
