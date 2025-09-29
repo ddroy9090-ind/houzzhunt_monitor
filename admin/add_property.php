@@ -28,6 +28,9 @@ $formData = [
   'property_type'                  => '',
   'project_name'                   => '',
   'property_title'                 => '',
+  'meta_title'                     => '',
+  'meta_keywords'                  => '',
+  'meta_description'               => '',
   'property_location'              => '',
   'starting_price'                 => '',
   'bedroom'                        => '',
@@ -109,6 +112,9 @@ function add_property_ensure_table(PDO $pdo): void
       property_type VARCHAR(100) DEFAULT NULL,
       project_name VARCHAR(255) DEFAULT NULL,
       property_title VARCHAR(255) DEFAULT NULL,
+      meta_title VARCHAR(255) DEFAULT NULL,
+      meta_keywords TEXT NULL,
+      meta_description TEXT NULL,
       property_location VARCHAR(255) DEFAULT NULL,
       starting_price VARCHAR(255) DEFAULT NULL,
       bedroom VARCHAR(255) DEFAULT NULL,
@@ -164,6 +170,36 @@ function add_property_ensure_table(PDO $pdo): void
     }
   } catch (Throwable $e) {
     error_log('Failed to ensure project_name column: ' . $e->getMessage());
+  }
+
+  try {
+    $columnCheck = $pdo->query("SHOW COLUMNS FROM properties_list LIKE 'meta_title'");
+
+    if ($columnCheck instanceof PDOStatement && $columnCheck->rowCount() === 0) {
+      $pdo->exec("ALTER TABLE properties_list ADD meta_title VARCHAR(255) NULL AFTER property_title");
+    }
+  } catch (Throwable $e) {
+    error_log('Failed to ensure meta_title column: ' . $e->getMessage());
+  }
+
+  try {
+    $columnCheck = $pdo->query("SHOW COLUMNS FROM properties_list LIKE 'meta_keywords'");
+
+    if ($columnCheck instanceof PDOStatement && $columnCheck->rowCount() === 0) {
+      $pdo->exec("ALTER TABLE properties_list ADD meta_keywords TEXT NULL AFTER meta_title");
+    }
+  } catch (Throwable $e) {
+    error_log('Failed to ensure meta_keywords column: ' . $e->getMessage());
+  }
+
+  try {
+    $columnCheck = $pdo->query("SHOW COLUMNS FROM properties_list LIKE 'meta_description'");
+
+    if ($columnCheck instanceof PDOStatement && $columnCheck->rowCount() === 0) {
+      $pdo->exec("ALTER TABLE properties_list ADD meta_description TEXT NULL AFTER meta_keywords");
+    }
+  } catch (Throwable $e) {
+    error_log('Failed to ensure meta_description column: ' . $e->getMessage());
   }
 
   try {
@@ -470,6 +506,9 @@ try {
           property_type,
           project_name,
           property_title,
+          meta_title,
+          meta_keywords,
+          meta_description,
           property_location,
           starting_price,
           bedroom,
@@ -513,6 +552,9 @@ try {
           :property_type,
           :project_name,
           :property_title,
+          :meta_title,
+          :meta_keywords,
+          :meta_description,
           :property_location,
           :starting_price,
           :bedroom,
@@ -559,6 +601,9 @@ try {
         ':property_type'                 => $formData['property_type'],
         ':project_name'                  => $formData['project_name'],
         ':property_title'                => $formData['property_title'],
+        ':meta_title'                    => $formData['meta_title'],
+        ':meta_keywords'                 => $formData['meta_keywords'],
+        ':meta_description'              => $formData['meta_description'],
         ':property_location'             => $formData['property_location'],
         ':starting_price'                => $formData['starting_price'],
         ':bedroom'                       => $formData['bedroom'],
@@ -744,13 +789,55 @@ render_sidebar('add-property');
                 </div>
               </div>
             </div>
-          </div>
-        </section>
       </div>
+    </section>
+  </div>
 
-      <div class="col-12">
-        <section class="form-section">
-          <div class="section-header">
+  <div class="col-12">
+    <section class="form-section">
+      <div class="section-header">
+        <h4 class="section-title">
+          <img src="assets/icons/globe.png" alt="SEO settings icon" class="section-title-icon">
+          <span>SEO Meta Information</span>
+        </h4>
+        <p class="section-subtitle">Provide meta tags to optimise the property details page for search engines.</p>
+      </div>
+      <div class="row g-4">
+        <div class="col-12">
+          <label for="meta_title" class="form-label">Meta Title</label>
+          <input
+            type="text"
+            class="form-control"
+            id="meta_title"
+            name="meta_title"
+            placeholder="Enter SEO-friendly page title"
+            value="<?= htmlspecialchars($formData['meta_title'], ENT_QUOTES, 'UTF-8') ?>">
+        </div>
+        <div class="col-12">
+          <label for="meta_keywords" class="form-label">Meta Keywords</label>
+          <textarea
+            class="form-control"
+            id="meta_keywords"
+            name="meta_keywords"
+            rows="2"
+            placeholder="e.g., Dubai property, luxury apartments, off-plan projects"><?= htmlspecialchars($formData['meta_keywords'], ENT_QUOTES, 'UTF-8') ?></textarea>
+        </div>
+        <div class="col-12">
+          <label for="meta_description" class="form-label">Meta Description</label>
+          <textarea
+            class="form-control"
+            id="meta_description"
+            name="meta_description"
+            rows="3"
+            placeholder="Summarise the property in 150-160 characters"><?= htmlspecialchars($formData['meta_description'], ENT_QUOTES, 'UTF-8') ?></textarea>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="col-12">
+    <section class="form-section">
+      <div class="section-header">
             <h4 class="section-title">
               <img src="assets/images/icon-project-details.svg" alt="Project details icon" class="section-title-icon">
               <span>Project Details</span>
