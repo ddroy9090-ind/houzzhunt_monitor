@@ -354,11 +354,7 @@ $developerStats = array_values(array_filter([
                     <!-- Bottom CTA buttons -->
                     <div class="hh-property-hero-ctas">
                         <button type="button" class="cta-solid" onclick="openPopup()">Enquire Now</button>
-                        <?php if ($brochure !== ''): ?>
-                            <button type="button" class="cta-outline" onclick="window.open('<?= htmlspecialchars($brochure, ENT_QUOTES, 'UTF-8') ?>','_blank')">Download Brochure</button>
-                        <?php else: ?>
-                            <button type="button" class="cta-outline" onclick="Brochurepopup()">Download Brochure</button>
-                        <?php endif; ?>
+                        <button type="button" class="cta-outline" onclick="Brochurepopup()">Download Brochure</button>
                     </div>
 
                 </div>
@@ -488,17 +484,10 @@ $developerStats = array_values(array_filter([
                                 <img src="assets/icons/video-call.png" alt="" width="20">
                                 3D Virtual Tour
                             </button>
-                            <?php if ($brochure !== ''): ?>
-                                <button type="button" onclick="window.open('<?= htmlspecialchars($brochure, ENT_QUOTES, 'UTF-8') ?>','_blank')">
-                                    <img src="assets/icons/brochure-download.png" alt="" width="20">
-                                    Download Brochure
-                                </button>
-                            <?php else: ?>
-                                <button type="button" onclick="Brochurepopup()">
-                                    <img src="assets/icons/brochure-download.png" alt="" width="20">
-                                    Download Brochure
-                                </button>
-                            <?php endif; ?>
+                            <button type="button" onclick="Brochurepopup()">
+                                <img src="assets/icons/brochure-download.png" alt="" width="20">
+                                Download Brochure
+                            </button>
                             <button type="button" onclick="openPopup()">
                                 <img src="assets/icons/floorplan.png" alt="" width="20">
                                 View Floor Plans
@@ -1354,6 +1343,7 @@ $developerStats = array_values(array_filter([
                 <form method="POST" class="appointment-form" action="download-brochure">
                     <input type="hidden" name="property_id" value="<?= (int)$propertyId ?>">
                     <input type="hidden" name="property_title" value="<?= htmlspecialchars($titleText, ENT_QUOTES, 'UTF-8') ?>">
+                    <input type="hidden" name="brochure_url" value="<?= htmlspecialchars($brochure, ENT_QUOTES, 'UTF-8') ?>">
                     <div class="form-group">
                         <label for="brochure_name">Full Name</label>
                         <input type="text" name="brochure_name" id="brochure_name" class="form-control" required>
