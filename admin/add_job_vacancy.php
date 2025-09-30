@@ -325,7 +325,7 @@ render_sidebar('add-job-vacancy');
       </div>
       <div class="col-12">
         <label for="job_description" class="form-label">Job Description</label>
-        <textarea class="form-control" id="job_description" name="job_description" rows="10" required><?= htmlspecialchars($jobDescription, ENT_QUOTES, 'UTF-8') ?></textarea>
+        <textarea class="form-control" id="job_description" name="job_description" rows="10" required><?= admin_editor_content($jobDescription) ?></textarea>
         <div class="form-text">Use the rich text editor to format the job description.</div>
       </div>
       <div class="col-12">

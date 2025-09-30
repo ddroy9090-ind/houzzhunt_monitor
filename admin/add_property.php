@@ -1214,7 +1214,7 @@ render_sidebar('add-property');
             </div>
             <div class="col-12">
               <label for="about_project" class="form-label">About Project (Overview In Rich Text Editor)</label>
-              <textarea class="form-control" id="about_project" name="about_project" rows="6" placeholder="Enter an engaging project overview..."><?= htmlspecialchars($formData['about_project'], ENT_QUOTES, 'UTF-8') ?></textarea>
+              <textarea class="form-control" id="about_project" name="about_project" rows="6" placeholder="Enter an engaging project overview..."><?= admin_editor_content($formData['about_project']) ?></textarea>
             </div>
           </div>
         </section>

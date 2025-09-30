@@ -358,7 +358,7 @@ render_sidebar('market-reports');
             id="short_description"
             name="short_description"
             rows="4"
-            required><?= htmlspecialchars($shortDescription, ENT_QUOTES, 'UTF-8') ?></textarea>
+            required><?= admin_editor_content($shortDescription) ?></textarea>
           <div class="form-text">Provide a concise overview of the report to help users understand its focus.</div>
         </div>
 
@@ -369,7 +369,7 @@ render_sidebar('market-reports');
             id="long_description"
             name="long_description"
             rows="6"
-            required><?= htmlspecialchars($longDescription, ENT_QUOTES, 'UTF-8') ?></textarea>
+            required><?= admin_editor_content($longDescription) ?></textarea>
           <div class="form-text">Provide detailed insights, methodology, and supporting data for the report.</div>
         </div>
 
@@ -415,7 +415,7 @@ render_sidebar('market-reports');
             id="mockup_description"
             name="mockup_description"
             rows="4"
-            required><?= htmlspecialchars($mockupDescription, ENT_QUOTES, 'UTF-8') ?></textarea>
+            required><?= admin_editor_content($mockupDescription) ?></textarea>
         </div>
 
         <div class="col-md-6">
