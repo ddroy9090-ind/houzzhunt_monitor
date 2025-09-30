@@ -4,6 +4,32 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/config.php';
 
 $propertyId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$propertySlugParam = isset($_GET['project']) ? (string)$_GET['project'] : '';
+if ($propertySlugParam === '' && isset($_GET['slug'])) {
+    $propertySlugParam = (string)$_GET['slug'];
+}
+$propertySlugParam = trim($propertySlugParam);
+$normalizedSlugParam = $propertySlugParam !== '' ? hh_slugify($propertySlugParam) : '';
+
+try {
+    $pdo = hh_db();
+} catch (Throwable $e) {
+    $pdo = null;
+}
+
+if ($propertyId <= 0 && $pdo instanceof PDO && $normalizedSlugParam !== '') {
+    try {
+        $slugLookupStmt = $pdo->query('SELECT id, project_name, property_name, property_title, title FROM properties_list');
+        while ($row = $slugLookupStmt->fetch()) {
+            if (hh_property_slug_from_data($row) === $normalizedSlugParam) {
+                $propertyId = (int)$row['id'];
+                break;
+            }
+        }
+    } catch (Throwable $e) {
+        $propertyId = 0;
+    }
+}
 
 if ($propertyId <= 0) {
     http_response_code(404);
@@ -11,19 +37,30 @@ if ($propertyId <= 0) {
     exit;
 }
 
-try {
-    $pdo = hh_db();
-    $stmt = $pdo->prepare('SELECT * FROM properties_list WHERE id = :id LIMIT 1');
-    $stmt->execute([':id' => $propertyId]);
-    $property = $stmt->fetch();
-} catch (Throwable $e) {
-    $property = false;
+$property = false;
+if ($pdo instanceof PDO) {
+    try {
+        $stmt = $pdo->prepare('SELECT * FROM properties_list WHERE id = :id LIMIT 1');
+        $stmt->execute([':id' => $propertyId]);
+        $property = $stmt->fetch();
+    } catch (Throwable $e) {
+        $property = false;
+    }
 }
 
 if (!$property) {
     http_response_code(404);
     echo 'Property not found.';
     exit;
+}
+
+$canonicalSlug = hh_property_slug_from_data($property);
+if ($canonicalSlug !== '' && $normalizedSlugParam !== $canonicalSlug) {
+    $redirectUrl = 'property-details.php?project=' . rawurlencode($canonicalSlug);
+    if (!headers_sent()) {
+        header('Location: ' . $redirectUrl, true, 301);
+        exit;
+    }
 }
 
 $decodeList = static function (?string $json): array {
