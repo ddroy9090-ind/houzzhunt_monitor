@@ -13,11 +13,19 @@ if ($propertyId <= 0) {
 
 try {
     $pdo = hh_db();
-    $stmt = $pdo->prepare('SELECT * FROM properties_list WHERE id = :id LIMIT 1');
-    $stmt->execute([':id' => $propertyId]);
-    $property = $stmt->fetch();
 } catch (Throwable $e) {
-    $property = false;
+    $pdo = null;
+}
+
+$property = false;
+if ($pdo instanceof PDO) {
+    try {
+        $stmt = $pdo->prepare('SELECT * FROM properties_list WHERE id = :id LIMIT 1');
+        $stmt->execute([':id' => $propertyId]);
+        $property = $stmt->fetch();
+    } catch (Throwable $e) {
+        $property = false;
+    }
 }
 
 if (!$property) {
@@ -107,6 +115,10 @@ $normalizeImagePath = static function (?string $path) use ($uploadsBasePath, $le
     }
 
     $path = ltrim($path, '/');
+
+    if ($path !== '' && is_file(__DIR__ . '/' . $path)) {
+        return $path;
+    }
 
     if (str_starts_with($path, $uploadsBasePath)) {
         return $path;
