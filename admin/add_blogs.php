@@ -482,7 +482,7 @@ render_sidebar('add-blogs');
       </div>
       <div class="col-12">
         <label for="content" class="form-label">Text Editor for Blog Details Page</label>
-        <textarea class="form-control" id="content" name="content" rows="10" required><?= htmlspecialchars($content, ENT_QUOTES, 'UTF-8') ?></textarea>
+        <textarea class="form-control" id="content" name="content" rows="10" required><?= admin_editor_content($content) ?></textarea>
         <div class="form-text">Use the editor to format headings, links, images, and more.</div>
       </div>
       <div class="col-12">

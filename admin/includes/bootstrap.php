@@ -153,3 +153,23 @@ function respond_json(array $payload, int $status = 200): void
   echo json_encode($payload, JSON_UNESCAPED_UNICODE);
   exit;
 }
+
+/**
+ * Prepare previously saved rich text editor content for use inside a textarea.
+ *
+ * CKEditor expects real HTML markup when initialising from a textarea. Earlier we
+ * escaped the content with htmlspecialchars(), which converted the markup into
+ * plain text (e.g. "<p>"). By returning the raw HTML we allow the editor to
+ * restore the formatted content while still protecting the surrounding
+ * <textarea> element from being prematurely closed.
+ */
+function admin_editor_content(string $value): string
+{
+  if ($value === '') {
+    return '';
+  }
+
+  // Prevent any embedded closing textarea tag from breaking the markup while
+  // keeping the rest of the HTML intact for the editor to render.
+  return str_ireplace('</textarea', '&lt;/textarea', $value);
+}
