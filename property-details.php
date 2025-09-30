@@ -11,13 +11,27 @@ if ($propertySlugParam === '' && isset($_GET['slug'])) {
 $propertySlugParam = trim($propertySlugParam);
 $normalizedSlugParam = $propertySlugParam !== '' ? hh_slugify($propertySlugParam) : '';
 
+$fallbackProperty = null;
+if ($normalizedSlugParam !== '') {
+    $fallbackFile = __DIR__ . '/includes/property_fallbacks.php';
+    if (is_file($fallbackFile)) {
+        $fallbackData = require $fallbackFile;
+        if (is_array($fallbackData) && isset($fallbackData[$normalizedSlugParam]) && is_array($fallbackData[$normalizedSlugParam])) {
+            $fallbackProperty = $fallbackData[$normalizedSlugParam];
+            if (isset($fallbackProperty['id']) && is_numeric($fallbackProperty['id'])) {
+                $propertyId = (int)$fallbackProperty['id'];
+            }
+        }
+    }
+}
+
 try {
     $pdo = hh_db();
 } catch (Throwable $e) {
     $pdo = null;
 }
 
-if ($propertyId <= 0 && $pdo instanceof PDO && $normalizedSlugParam !== '') {
+if ($propertyId <= 0 && $fallbackProperty === null && $pdo instanceof PDO && $normalizedSlugParam !== '') {
     try {
         $slugLookupStmt = $pdo->query('SELECT id, project_name, property_name, property_title, title FROM properties_list');
         while ($row = $slugLookupStmt->fetch()) {
@@ -31,14 +45,14 @@ if ($propertyId <= 0 && $pdo instanceof PDO && $normalizedSlugParam !== '') {
     }
 }
 
-if ($propertyId <= 0) {
+if ($propertyId <= 0 && $fallbackProperty === null) {
     http_response_code(404);
     echo 'Property not found.';
     exit;
 }
 
-$property = false;
-if ($pdo instanceof PDO) {
+$property = $fallbackProperty ?? false;
+if ($property === false && $pdo instanceof PDO) {
     try {
         $stmt = $pdo->prepare('SELECT * FROM properties_list WHERE id = :id LIMIT 1');
         $stmt->execute([':id' => $propertyId]);
@@ -144,6 +158,10 @@ $normalizeImagePath = static function (?string $path) use ($uploadsBasePath, $le
     }
 
     $path = ltrim($path, '/');
+
+    if ($path !== '' && is_file(__DIR__ . '/' . $path)) {
+        return $path;
+    }
 
     if (str_starts_with($path, $uploadsBasePath)) {
         return $path;
