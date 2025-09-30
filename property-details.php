@@ -4,25 +4,11 @@ declare(strict_types=1);
 require_once __DIR__ . '/includes/config.php';
 
 $propertyId = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-$propertySlugParam = isset($_GET['project']) ? (string)$_GET['project'] : '';
-if ($propertySlugParam === '' && isset($_GET['slug'])) {
-    $propertySlugParam = (string)$_GET['slug'];
-}
-$propertySlugParam = trim($propertySlugParam);
-$normalizedSlugParam = $propertySlugParam !== '' ? hh_slugify($propertySlugParam) : '';
 
-$fallbackProperty = null;
-if ($normalizedSlugParam !== '') {
-    $fallbackFile = __DIR__ . '/includes/property_fallbacks.php';
-    if (is_file($fallbackFile)) {
-        $fallbackData = require $fallbackFile;
-        if (is_array($fallbackData) && isset($fallbackData[$normalizedSlugParam]) && is_array($fallbackData[$normalizedSlugParam])) {
-            $fallbackProperty = $fallbackData[$normalizedSlugParam];
-            if (isset($fallbackProperty['id']) && is_numeric($fallbackProperty['id'])) {
-                $propertyId = (int)$fallbackProperty['id'];
-            }
-        }
-    }
+if ($propertyId <= 0) {
+    http_response_code(404);
+    echo 'Property not found.';
+    exit;
 }
 
 try {
@@ -31,28 +17,8 @@ try {
     $pdo = null;
 }
 
-if ($propertyId <= 0 && $fallbackProperty === null && $pdo instanceof PDO && $normalizedSlugParam !== '') {
-    try {
-        $slugLookupStmt = $pdo->query('SELECT id, project_name, property_name, property_title, title FROM properties_list');
-        while ($row = $slugLookupStmt->fetch()) {
-            if (hh_property_slug_from_data($row) === $normalizedSlugParam) {
-                $propertyId = (int)$row['id'];
-                break;
-            }
-        }
-    } catch (Throwable $e) {
-        $propertyId = 0;
-    }
-}
-
-if ($propertyId <= 0 && $fallbackProperty === null) {
-    http_response_code(404);
-    echo 'Property not found.';
-    exit;
-}
-
-$property = $fallbackProperty ?? false;
-if ($property === false && $pdo instanceof PDO) {
+$property = false;
+if ($pdo instanceof PDO) {
     try {
         $stmt = $pdo->prepare('SELECT * FROM properties_list WHERE id = :id LIMIT 1');
         $stmt->execute([':id' => $propertyId]);
@@ -66,15 +32,6 @@ if (!$property) {
     http_response_code(404);
     echo 'Property not found.';
     exit;
-}
-
-$canonicalSlug = hh_property_slug_from_data($property);
-if ($canonicalSlug !== '' && $normalizedSlugParam !== $canonicalSlug) {
-    $redirectUrl = 'property-details.php?project=' . rawurlencode($canonicalSlug);
-    if (!headers_sent()) {
-        header('Location: ' . $redirectUrl, true, 301);
-        exit;
-    }
 }
 
 $decodeList = static function (?string $json): array {
