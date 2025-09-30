@@ -25,7 +25,7 @@ if ($secureConn) {
   header('Strict-Transport-Security: max-age=31536000; includeSubDomains; preload');
 }
 header(
-  "Content-Security-Policy: default-src 'self' cdn.jsdelivr.net cdn.plot.ly; img-src 'self' data:; style-src 'self' 'unsafe-inline' cdn.jsdelivr.net; script-src 'self' 'unsafe-inline' cdn.jsdelivr.net cdn.plot.ly; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'"
+  "Content-Security-Policy: default-src 'self' cdn.jsdelivr.net cdn.plot.ly cdn.ckeditor.com; img-src 'self' data:; style-src 'self' 'unsafe-inline' cdn.jsdelivr.net cdn.ckeditor.com; script-src 'self' 'unsafe-inline' cdn.jsdelivr.net cdn.plot.ly cdn.ckeditor.com; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'"
 );
 
 const ADMIN_USER = 'admin';

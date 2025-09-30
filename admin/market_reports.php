@@ -448,7 +448,7 @@ render_sidebar('market-reports');
       </form>
     </div>
   </div>
-  <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/super-build/ckeditor.js"></script>
+  <script src="https://cdn.ckeditor.com/ckeditor5/41.3.1/super-build/ckeditor.js"></script>
   <script>
     (() => {
       const form = document.getElementById('market-report-form');
@@ -509,7 +509,20 @@ render_sidebar('market-reports');
         fontBackgroundColor: {
           columns: 5,
           documentColors: 10
-        }
+        },
+        removePlugins: [
+          'CKBox',
+          'CKFinder',
+          'EasyImage',
+          'RealTimeCollaborativeComments',
+          'RealTimeCollaborativeTrackChanges',
+          'RealTimeCollaborativeRevisionHistory',
+          'PresenceList',
+          'Comments',
+          'TrackChanges',
+          'TrackChangesData',
+          'MathType'
+        ]
       };
 
       document.querySelectorAll('.alert[data-auto-dismiss]').forEach((alertEl) => {

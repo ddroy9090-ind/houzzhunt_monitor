@@ -340,7 +340,7 @@ render_sidebar('add-job-vacancy');
 echo '</div>';
 echo '</div>';
 ?>
-<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/super-build/ckeditor.js"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/41.3.1/super-build/ckeditor.js"></script>
 <script>
   (function() {
     const form = document.getElementById('add-job-vacancy-form');
@@ -403,7 +403,20 @@ echo '</div>';
       fontBackgroundColor: {
         columns: 5,
         documentColors: 10
-      }
+      },
+      removePlugins: [
+        'CKBox',
+        'CKFinder',
+        'EasyImage',
+        'RealTimeCollaborativeComments',
+        'RealTimeCollaborativeTrackChanges',
+        'RealTimeCollaborativeRevisionHistory',
+        'PresenceList',
+        'Comments',
+        'TrackChanges',
+        'TrackChangesData',
+        'MathType'
+      ]
     };
 
     if (successAlert) {
