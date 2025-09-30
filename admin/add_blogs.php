@@ -500,7 +500,7 @@ render_sidebar('add-blogs');
 echo '</div>';
 echo '</div>';
 ?>
-<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/super-build/ckeditor.js"></script>
+<script src="https://cdn.ckeditor.com/ckeditor5/41.3.1/super-build/ckeditor.js"></script>
 <script>
   (function() {
     const textarea = document.querySelector('#content');
@@ -561,7 +561,20 @@ echo '</div>';
       fontBackgroundColor: {
         columns: 5,
         documentColors: 10
-      }
+      },
+      removePlugins: [
+        'CKBox',
+        'CKFinder',
+        'EasyImage',
+        'RealTimeCollaborativeComments',
+        'RealTimeCollaborativeTrackChanges',
+        'RealTimeCollaborativeRevisionHistory',
+        'PresenceList',
+        'Comments',
+        'TrackChanges',
+        'TrackChangesData',
+        'MathType'
+      ]
     };
     if (!textarea) {
       return;
