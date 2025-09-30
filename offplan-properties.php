@@ -330,7 +330,10 @@ include 'includes/navbar.php';
 
                         $primaryImage = $heroBanner !== '' ? $heroBanner : ($galleryImages[0] ?? 'assets/images/offplan/breez-by-danube.webp');
                         $projectName = trim((string)($property['project_name'] ?? ''));
-                        $propertySlug = hh_property_slug_from_data($property);
+                        $propertyId = isset($property['id']) ? (int)$property['id'] : 0;
+                        if ($propertyId <= 0) {
+                            continue;
+                        }
 
                         $specs = [];
                         if (!empty($property['bedroom'])) {
@@ -357,7 +360,7 @@ include 'includes/navbar.php';
                         }
                     ?>
                     <div class="col-12 col-md-6 col-lg-4">
-                        <a href="property-details.php?project=<?= rawurlencode($propertySlug) ?>" class="property-link">
+                        <a href="property-details.php?id=<?= $propertyId ?>" class="property-link">
                             <article>
                                 <div class="hh-properties-01-img">
                                     <img src="<?= htmlspecialchars($primaryImage, ENT_QUOTES, 'UTF-8') ?>" alt="<?= htmlspecialchars($projectName !== '' ? $projectName : 'Project', ENT_QUOTES, 'UTF-8') ?>">
