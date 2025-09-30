@@ -65,3 +65,57 @@ if (!function_exists('hh_session_start')) {
         }
     }
 }
+
+if (!function_exists('hh_slugify')) {
+    function hh_slugify(?string $value): string
+    {
+        if (!is_string($value)) {
+            return '';
+        }
+
+        $value = trim(html_entity_decode($value, ENT_QUOTES | ENT_HTML5, 'UTF-8'));
+
+        if ($value === '') {
+            return '';
+        }
+
+        $value = preg_replace('/[^\p{L}\p{N}]+/u', '-', $value);
+        if ($value === null) {
+            $value = '';
+        }
+
+        $value = preg_replace('/-+/u', '-', $value);
+        if ($value === null) {
+            $value = '';
+        }
+
+        $value = trim($value, '-');
+
+        return strtolower($value);
+    }
+}
+
+if (!function_exists('hh_property_slug_from_data')) {
+    function hh_property_slug_from_data(array $property): string
+    {
+        $candidates = [
+            $property['project_name'] ?? null,
+            $property['property_name'] ?? null,
+            $property['property_title'] ?? null,
+            $property['title'] ?? null,
+        ];
+
+        foreach ($candidates as $candidate) {
+            $slug = hh_slugify(is_string($candidate) ? $candidate : null);
+            if ($slug !== '') {
+                return $slug;
+            }
+        }
+
+        if (isset($property['id']) && is_numeric($property['id'])) {
+            return 'property-' . (int)$property['id'];
+        }
+
+        return 'property';
+    }
+}
